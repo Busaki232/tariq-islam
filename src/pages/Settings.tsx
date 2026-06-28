@@ -337,6 +337,53 @@ const doSignOut = async () => {
   useEffect(() => setBool("settings_msg_notifs", messageNotifs), [messageNotifs]);
   useEffect(() => setBool("settings_call_notifs", callNotifs), [callNotifs]);
   useEffect(() => setBool(ADHAN_ENABLED_KEY, adhanEnabled), [adhanEnabled]);
+
+  const saveNotificationPrefs = async (next?: {
+    messages?: boolean;
+    calls?: boolean;
+    adhan?: boolean;
+    adhan_location?: any;
+  }) => {
+    if (!user?.id) return;
+
+    await supabase.from("notification_preferences").upsert({
+      user_id: user.id,
+      messages: next?.messages ?? messageNotifs,
+      calls: next?.calls ?? callNotifs,
+      adhan: next?.adhan ?? adhanEnabled,
+      adhan_location: next?.adhan_location ?? null,
+      updated_at: new Date().toISOString(),
+    });
+  };
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const loadNotificationPrefs = async () => {
+      const { data, error } = await supabase
+        .from("notification_preferences")
+        .select("messages, calls, adhan, adhan_location")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.log("[Settings] notification prefs load failed:", error);
+        return;
+      }
+
+      if (!data) {
+        await saveNotificationPrefs();
+        return;
+      }
+
+      setMessageNotifs(data.messages ?? true);
+      setCallNotifs(data.calls ?? true);
+      setAdhanEnabled(data.adhan ?? false);
+    };
+
+    void loadNotificationPrefs();
+  }, [user?.id]);
+
   useEffect(() => setBool(ONLINE_HIDE_KEY, hideOnline), [hideOnline]);
 
   useEffect(() => {
@@ -981,6 +1028,12 @@ const doSignOut = async () => {
           </div>
         </div>
 
+        </div>
+
+        <p className="mt-3 text-xs text-muted-foreground">
+          Notification preferences are saved to your account.
+        </p>
+
         {/* Appearance */}
         <div className="rounded-xl border p-4">
           <div className="font-medium mb-3">{t("settings.appearance")}</div>
@@ -1008,7 +1061,9 @@ const doSignOut = async () => {
             </button>
           </div>
 
-          <p className="mt-2 text-xs text-muted-foreground">{t("settings.stored_on_device")}</p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            {t("settings.stored_on_device")}
+          </p>
         </div>
 
         {/* Notifications */}
@@ -1020,7 +1075,11 @@ const doSignOut = async () => {
             <input
               type="checkbox"
               checked={messageNotifs}
-              onChange={(e) => setMessageNotifs(e.target.checked)}
+            onChange={(e) => {
+              const next = e.target.checked;
+              setMessageNotifs(next);
+              void saveNotificationPrefs({ messages: next });
+            }}
               className="h-5 w-5"
             />
           </label>
@@ -1030,7 +1089,11 @@ const doSignOut = async () => {
             <input
               type="checkbox"
               checked={callNotifs}
-              onChange={(e) => setCallNotifs(e.target.checked)}
+              onChange={(e) => {
+                const next = e.target.checked;
+                setCallNotifs(next);
+                void saveNotificationPrefs({ calls: next });
+              }}
               className="h-5 w-5"
             />
           </label>
@@ -1118,8 +1181,9 @@ const doSignOut = async () => {
             ) : null}
           </div>
 
-          <div className="mt-2 text-xs text-muted-foreground">{t("settings.local_toggles_note")}</div>
-        </div>
+      <p className="mt-3 text-xs text-muted-foreground">
+        Notification preferences are saved to your account.
+      </p>
 
         {/* Account deletion */}
         <div className="rounded-xl border p-4">

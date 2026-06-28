@@ -1,0 +1,144 @@
+{
+  "title": "الرسائل",
+  "labels": {
+    "unknownUser": "مستخدم غير معروف"
+  },
+  "actions": {
+    "newChat": "محادثة جديدة",
+    "newGroup": "مجموعة جديدة",
+    "refresh": "تحديث",
+    "retry": "إعادة المحاولة",
+    "findUsers": "البحث عن مستخدمين",
+    "close": "إغلاق",
+    "save": "حفظ",
+    "saving": "جارٍ الحفظ..."
+  },
+  "tabs": {
+    "direct": "مباشر ({{count}})",
+    "groups": "المجموعات",
+    "requests": "الطلبات"
+  },
+  "states": {
+    "loading": "جارٍ التحميل..."
+  },
+  "pending": {
+    "text": "لديك {{count}} طلب{{plural}} معلّق. افتح شاشة محادثة جديدة للقبول أو الرفض."
+  },
+  "empty": {
+    "title": "لا توجد اتصالات بعد",
+    "desc": "اضغط على محادثة جديدة لإرسال طلب. يجب أن يقبل الطرف الآخر قبل أن تتمكن من المراسلة."
+  },
+  "groups": {
+    "placeholder": "ستظهر قائمة المجموعات هنا."
+  },
+  "modal": {
+    "title": "بدء محادثة جديدة"
+  },
+  "directory": {
+    "inviteTitle": "دعوة باسم المستخدم",
+    "inviteDesc": "لا يمكن للناس الاتصال إلا إذا أرسل أحدهم دعوة.",
+    "invitePlaceholder": "اسم المستخدم (مثال: @ali)",
+    "inviteBtn": "دعوة",
+    "inviteBtnLoading": "جارٍ الإرسال...",
+    "searchPlaceholder": "ابحث في الاتصالات والطلبات...",
+    "onlineTitle": "إظهار الحالة",
+    "onlineHidden": "مخفي (تظهر غير متصل)",
+    "onlineVisible": "ظاهر (تظهر متصل)",
+    "showOnline": "إظهار متصل",
+    "hideOnline": "إخفاء الحالة",
+    "tabs": {
+      "connected": "متصلون ({{count}})",
+      "requests": "الطلبات",
+      "directory": "الدليل"
+    },
+    "message": "رسالة",
+    "add": "إضافة",
+    "adding": "جارٍ الإضافة...",
+    "noPending": "لا توجد طلبات معلّقة",
+    "noRequestsMatch": "لا توجد طلبات مطابقة لبحثك",
+    "accept": "قبول",
+    "reject": "رفض",
+    "signInToSearch": "سجّل الدخول للبحث عن المستخدمين.",
+    "typeTwoChars": "اكتب حرفين على الأقل للبحث.",
+    "searching": "جارٍ البحث...",
+    "noUsersFound": "لم يتم العثور على مستخدمين",
+    "noneConnected": "لا توجد اتصالات",
+    "noneConnectedMatch": "لم يتم العثور على اتصالات مطابقة",
+    "searchFailed": "فشل البحث في الدليل. قد تمنع سياسة SELECT في profiles القراءة.",
+    "requestedOn": "تم الطلب في {{date}}"
+  },
+  "toast": {
+    "signInRequired": "تسجيل الدخول مطلوب",
+    "enterUsernameTitle": "أدخل اسم المستخدم",
+    "enterUsernameDesc": "مثال: @muhammad (بدون مسافات)",
+    "userNotFoundTitle": "المستخدم غير موجود",
+    "userNotFoundDesc": "لا يوجد مستخدم باسم @{{uname}}",
+    "thatsYouTitle": "هذا أنت",
+    "cantInviteSelf": "لا يمكنك دعوة نفسك.",
+    "alreadyConnectedTitle": "متصل بالفعل",
+    "alreadyConnectedDesc": "يمكنك مراسلته من تبويب المتصلين.",
+    "requestAlreadySentTitle": "تم إرسال الطلب مسبقًا",
+    "requestAlreadySentDesc": "بانتظار القبول.",
+    "theyRequestedYouTitle": "لقد أرسل لك طلبًا بالفعل",
+    "checkRequestsTab": "تحقق من تبويب الطلبات للقبول.",
+    "inviteSentTitle": "تم إرسال الدعوة",
+    "inviteSentDesc": "تم إرسال طلب اتصال إلى @{{uname}}",
+    "couldNotSendInviteTitle": "تعذر إرسال الدعوة",
+    "couldNotSendInviteDesc": "فشل إرسال الدعوة",
+    "requestSentTitle": "تم إرسال الطلب",
+    "requestSentDesc": "تم إرسال طلب إلى {{otherUserName}}. يجب أن يقبل قبل أن تتمكن من الدردشة.",
+    "requestSentToName": "تم إرسال طلب اتصال إلى {{name}}",
+    "couldNotSendRequestTitle": "تعذر إرسال الطلب",
+    "couldNotSendRequestDesc": "فشل إرسال الطلب",
+    "connectedTitle": "تم الاتصال",
+    "requestAccepted": "تم قبول الطلب.",
+    "couldNotAcceptTitle": "تعذر القبول",
+    "couldNotAcceptDesc": "فشل قبول الطلب",
+    "rejectedTitle": "تم الرفض",
+    "requestRejected": "تم رفض الطلب.",
+    "couldNotRejectTitle": "تعذر الرفض",
+    "couldNotRejectDesc": "فشل رفض الطلب",
+    "newGroupTitle": "مجموعة جديدة",
+    "newGroupDesc": "أنشئ مجموعة وأضف أعضاء."
+  },
+  "onboarding": {
+    "chat": {
+      "title": "الدردشة الخاصة",
+      "desc": "اذهب إلى الرسائل، واضغط على إضافة إلى الدليل للبحث باسم المستخدم، ثم تحقق من الطلبات لقبول الاتصالات الجديدة."
+    }
+  },
+  "createGroup": {
+    "title": "إنشاء مجموعة جديدة",
+    "groupNameLabel": "اسم المجموعة",
+    "groupNamePlaceholder": "مثال: Lagos Brothers",
+    "addMembersOptional": "إضافة أعضاء الآن (اختياري)",
+    "selectedCount": "المحدد: {{count}}",
+    "searchConnections": "ابحث في اتصالاتك...",
+    "noMatches": "لا توجد نتائج",
+    "noConnections": "لا توجد اتصالات بعد",
+    "createBtn": "إنشاء مجموعة",
+    "creating": "جارٍ الإنشاء..."
+  },
+  "groupSettings": {
+    "title": "إعدادات المجموعة",
+    "roleLabel": "دورك",
+    "roleUnknown": "غير معروف",
+    "groupName": "اسم المجموعة",
+    "adminOnly": "فقط المشرفون يمكنهم إعادة تسمية المجموعة.",
+    "members": "الأعضاء",
+    "noMembers": "لم يتم العثور على أعضاء.",
+    "you": "أنت",
+    "leave": "مغادرة المجموعة",
+    "leaving": "جارٍ المغادرة..."
+  },
+  "presence": {
+    "online": "متصل",
+    "offline": "غير متصل",
+    "seenMinutes": "آخر ظهور منذ {{count}} دقيقة",
+    "seenHours": "آخر ظهور منذ {{count}} ساعة",
+    "seenDate": "آخر ظهور {{date}}"
+  },
+  "errors": {
+    "timeout": "انتهت مهلة الطلب"
+  }
+}

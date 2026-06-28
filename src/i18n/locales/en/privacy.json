@@ -1,0 +1,99 @@
+{
+  "title": "Privacy Policy",
+  "lastUpdatedLabel": "Last updated:",
+  "intro": "We respect your privacy and are committed to protecting your personal information when you use the Tariq Islam app and website.",
+  "sections": {
+    "collect": {
+      "title": "Information We Collect",
+      "personal": {
+        "title": "Personal Information",
+        "body": "We may collect your name, email address, and profile information when you create an account."
+      },
+      "usage": {
+        "title": "Usage Information",
+        "body": "We collect information about how you use the app, including features accessed and time spent."
+      },
+      "device": {
+        "title": "Device Information",
+        "body": "We may collect device type, operating system, and basic technical information."
+      }
+    },
+    "use": {
+      "title": "How We Use Your Information",
+      "bullets": [
+        "To provide and maintain the app",
+        "To improve user experience",
+        "To personalize content",
+        "To send important updates",
+        "To ensure security",
+        "To comply with legal obligations"
+      ]
+    },
+    "sharing": {
+      "title": "How We Share Information",
+      "lead": "We do not sell your personal information. We may share information in the following situations:",
+      "items": {
+        "withUsers": {
+          "label": "With other users:",
+          "body": "Your profile information may be visible to other users."
+        },
+        "providers": {
+          "label": "Service providers:",
+          "body": "We may share data with trusted service providers who help operate the app."
+        },
+        "legal": {
+          "label": "Legal requirements:",
+          "body": "We may disclose information if required by law."
+        },
+        "transfers": {
+          "label": "Business transfers:",
+          "body": "Information may be transferred if we undergo a merger or acquisition."
+        }
+      }
+    },
+    "security": {
+      "title": "Security",
+      "body": "We implement reasonable security measures to protect your information."
+    },
+    "rights": {
+      "title": "Your Rights",
+      "items": {
+        "access": {
+          "label": "Access:",
+          "body": "You may request access to your data."
+        },
+        "deletion": {
+          "label": "Deletion:",
+          "body": "You may request deletion of your account."
+        },
+        "optOut": {
+          "label": "Opt-out:",
+          "body": "You may opt out of certain communications."
+        },
+        "portability": {
+          "label": "Portability:",
+          "body": "You may request a copy of your data."
+        }
+      }
+    },
+    "cookies": {
+      "title": "Cookies",
+      "body": "We may use cookies and similar technologies to enhance your experience."
+    },
+    "children": {
+      "title": "Children",
+      "body": "The app is not intended for children under 13 without parental supervision."
+    },
+    "changes": {
+      "title": "Changes to This Policy",
+      "body": "We may update this policy from time to time."
+    },
+    "contact": {
+      "title": "Contact Us",
+      "lead": "If you have questions about this Privacy Policy, contact us:",
+      "emailLabel": "Email:",
+      "emailValue": "support@global-muslims-connect.com",
+      "formLine": "You may also contact us through the app."
+    }
+  }
+}

@@ -1,0 +1,229 @@
+{
+  "loading": "Loading...",
+  "errors": {
+    "timeout": "Request timeout"
+  },
+  "presence": {
+    "online": "Online",
+    "offline": "Offline",
+    "seenMinutes": "Seen {{count}}m ago",
+    "seenHours": "Seen {{count}}h ago",
+    "seenDate": "Seen {{date}}"
+  },
+  "privateChat": {
+    "directory": {
+      "requestedOn": "Requested on {{date}}"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": "Profile",
+    "profile_title": "Your profile",
+    "profile_alt": "Profile",
+    "no_photo": "No photo",
+    "uploading": "Uploading...",
+    "change_photo": "Change photo",
+
+    "username_label": "Username",
+    "username_help": "Used for Private Chat invites. No spaces. Allowed: letters, numbers, dot, underscore.",
+    "username_placeholder": "Example: @taofikbusari",
+    "saving": "Saving...",
+    "save": "Save",
+    "saved": "Saved",
+    "username_saved_hint": "Saved",
+    "username_saved_title": "Username saved",
+    "username_invalid_short": "Invalid",
+    "username_invalid_title": "Invalid username",
+    "username_invalid_desc": "Use 3 to 20 characters. Only letters, numbers, dot, underscore. No spaces.",
+    "username_save_failed_title": "Could not save username",
+    "username_taken": "That username is already taken. Try a different one.",
+    "username_preview": "Preview",
+    "none": "None",
+
+    "appearance": "Appearance",
+    "theme": "Theme",
+    "online_visibility": "Online visibility",
+    "online_hidden": "Hidden (you appear offline)",
+    "online_visible": "Visible (you appear online)",
+    "show_online": "Show Online",
+    "hide_online": "Hide Online",
+    "stored_on_device": "Stored on this device. (You can later persist to the database when ready.)",
+
+    "notifications": "Notifications",
+    "messages": "Messages",
+    "calls": "Calls",
+    "local_toggles_note": "These toggles are local for now.",
+
+    "adhan": "Adhan",
+    "adhan_enabled": "Adhan enabled",
+    "adhan_disabled": "Adhan disabled",
+    "adhan_note": "You can turn this on or off anytime.",
+
+    "adhan_location_title": "Adhan location",
+    "adhan_location_subtitle": "Use device location or enter coordinates manually.",
+    "adhan_location_device": "Use device",
+    "adhan_location_manual": "Manual",
+
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "latitude_placeholder": "41.8781",
+    "longitude_placeholder": "-87.6298",
+    "save_location": "Save location",
+
+    "invalid_location": "Invalid location",
+    "invalid_location_desc": "Please enter a valid latitude and longitude.",
+    "location_saved": "Location saved",
+    "location_up_to_date": "Location is up to date",
+
+    "device_location_captured": "Device location saved",
+    "device_location_saved": "Device location saved",
+    "device_location_not_saved": "Device location is not saved yet",
+    "could_not_get_location": "Could not get location",
+    "location_unavailable": "Location not available",
+    "location_unavailable_desc": "Geolocation is not supported on this device/browser.",
+    "permission_needed": "Permission needed",
+    "permission_needed_desc": "Please allow location access to use device location.",
+
+    "account_deletion": "Account deletion",
+    "deletion_intro": "You can request deletion of your account and associated data.",
+    "deletion_note": "We process deletion requests within 30 days. If you cannot access the app, you can request deletion using the link below.",
+    "request_deletion": "Request account deletion",
+    "email_support_instead": "Email support instead",
+    "deletion_email_subject": "Account deletion request",
+    "deletion_email_hello": "Hello Support,",
+    "deletion_email_line1": "I would like to delete my account and associated data.",
+    "deletion_email_account": "Account email",
+    "deletion_email_user_id": "User ID",
+    "deletion_email_thanks": "Thank you.",
+
+    "blocked_users": "Blocked users",
+    "no_blocked_users": "You have not blocked anyone yet.",
+    "blocked_fallback_name": "Blocked user",
+    "unblock": "Unblock",
+
+    "signout": "Sign out",
+    "not_signed_in": "Not signed in.",
+
+    "language": {
+      "title": "Language",
+      "subtitle": "App language",
+      "placeholder": "Select language",
+      "current": "Current",
+      "english": "English",
+      "french": "Français",
+      "hausa": "Hausa",
+      "arabic": "العربية"
+    }
+  },
+  "test_language": "Language test",
+  "home": {
+    "hero": {
+      "bgAlt": "Islamic geometric pattern background for global Muslim community",
+      "greetingTranslation": "May the peace, mercy, and blessings of Allah be upon you",
+      "title": "Stay connected to your faith and community worldwide",
+      "subtitle": "Find prayer times, locate mosques, and connect with Muslims around the globe."
+    },
+    "cta": {
+      "joinChat": "Join Chat Room",
+      "joinChatAria": "Join the community chat",
+      "findMosques": "Find Mosques Nearby",
+      "findMosquesAria": "Find nearby mosques",
+      "gettingLocation": "Getting Location...",
+      "qibla": "Find Qibla",
+      "qiblaAria": "Open Qibla",
+      "qiblaDirectionAria": "Find Qibla direction",
+      "joinNow": "Join Now - It's Free",
+      "joinNowAria": "Sign up to join the community",
+      "islamicCalendar": "Islamic Calendar",
+      "islamicCalendarAria": "Open Islamic Calendar"
+    },
+    "location": {
+      "obtained": {
+        "title": "Location obtained",
+        "desc": "Showing mosques near your location"
+      },
+      "unavailable": {
+        "title": "Location unavailable",
+        "desc": "Showing all mosques in your area"
+      }
+    },
+    "why": {
+      "title": "Why Join Tariq Islam?",
+      "bullet1": "Meet Muslims worldwide in real time",
+      "bullet2": "Find nearby mosques and events",
+      "bullet3": "Access Quran, prayer times, and more"
+    },
+    "privacy": "Your privacy and data are protected. We never share your information."
+  },
+  "quran": {
+    "playerTitle": "Quran Audio Player",
+    "getStartedTitle": "Get started",
+    "getStartedSubtitle": "Select a reciter and a surah below to begin listening to the Noble Quran.",
+    "howToListenTitle": "🎧 How to listen",
+    "howToListenSteps": {
+      "1": "Select your preferred reciter below",
+      "2": "Choose a surah from the list or tap a popular surah card",
+      "3": "Wait for the audio to load, then press Play"
+    },
+    "recitedBy": "Recited by",
+    "versesCount": "{{count}} verses",
+    "revelation": {
+      "meccan": "Meccan",
+      "medinan": "Medinan"
+    }
+  },
+  "islamicCalendar": {
+    "months": {
+      "muharram": "Muharram",
+      "safar": "Safar",
+      "rabiAlAwwal": "Rabi' al-Awwal",
+      "rabiAlThani": "Rabi' al-Thani",
+      "jumadaAlUla": "Jumada al-Ula",
+      "jumadaAlAkhirah": "Jumada al-Akhirah",
+      "rajab": "Rajab",
+      "shaban": "Sha'ban",
+      "ramadan": "Ramadan",
+      "shawwal": "Shawwal",
+      "dhuAlQidah": "Dhu al-Qi'dah",
+      "dhuAlHijjah": "Dhu al-Hijjah"
+    }
+  },
+
+  "footer": {
+    "cta": {
+      "title": "Ready to Join Our Community?",
+      "subtitle": "Start your journey with thousands of Muslims worldwide who have found their spiritual home through our platform.",
+      "join": "Join Community Now",
+      "explore": "Explore Features",
+      "guidelines": "Community Guidelines"
+    },
+    "brand": {
+      "name": "Tariq Islam",
+      "alt": "Tariq Islam logo",
+      "note": "Please respect our community"
+    },
+    "columns": {
+      "community": "Community",
+      "business": "For Businesses",
+      "support": "Support"
+    },
+    "links": {
+      "mosques": "Mosques",
+      "events": "Events",
+      "chatRoom": "Chat Room",
+      "communityGuidelines": "Community Guidelines",
+      "privacyPolicy": "Privacy Policy",
+      "childSafetyPolicy": "Child Safety Policy",
+      "advertise": "Advertise With Us",
+      "businessListings": "Business Listings",
+      "supportPlatform": "Support the Platform",
+      "contactUs": "Contact Us"
+    },
+    "copyright": "All rights reserved."
+  },
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "Share your feedback, report a bug, or request a feature. We value your input and will respond as soon as possible.",
+    "close": "Close"
+  }
+}

@@ -1,0 +1,139 @@
+{
+  "cta": {
+    "titleAuthed": "Explore Your Community",
+    "titleGuest": "Explore Your Community",
+    "subtitle": "Dive into the full Tariq Islam experience. Connect with your brothers and sisters, track your prayers, and strengthen your faith journey.",
+    "bullets": {
+      "worldwide": "Connect with Muslims worldwide",
+      "events": "Join local and global community events",
+      "inspire": "Share your faith journey and inspire others",
+      "tools": "Access exclusive Islamic resources and tools"
+    },
+    "card": {
+      "titleAuthed": "Continue Your Journey",
+      "titleGuest": "Create Your Free Account",
+      "bodyAuthed": "Access your dashboard and community features",
+      "bodyGuest": "Join Tariq Islam and start connecting with Muslims worldwide.",
+      "buttonAuthed": "Go to Dashboard",
+      "buttonGuest": "Join Now - It's Free"
+    }
+  },
+
+  "explore": {
+    "title": "Explore Your Community",
+    "subtitle": "Dive into the full Tariq Islam experience. Connect with your brothers and sisters, track your prayers, and strengthen your faith journey.",
+    "bullets": {
+      "worldwide": "Connect with Muslims worldwide",
+      "events": "Join local and global community events",
+      "inspire": "Share your faith journey and inspire others",
+      "tools": "Access exclusive Islamic resources and tools"
+    }
+  },
+
+  "continue": {
+    "title": "Continue Your Journey",
+    "subtitle": "Access your dashboard and community features",
+    "goToDashboard": "Go to Dashboard →"
+  },
+
+  "mosques": {
+    "title": "Mosques Worldwide",
+    "subtitle": "Connecting Muslims worldwide",
+    "searchPlaceholder": "Search mosques, communities, or cities...",
+    "filterButton": "Filter Results",
+    "majorCitiesTitle": "Major Global Cities",
+    "featured": "Featured",
+    "muslimsLabel": "{{count}} Muslims",
+    "mosquesLabel": "Mosques"
+  },
+
+  "supportMission": {
+    "title": "Support the Mission",
+    "subtitle": "Help keep Global Muslims Connect free for Muslims worldwide.",
+    "learnMore": "Learn More →"
+  },
+
+  "islamicCalendar": {
+    "title": "Islamic Calendar",
+    "ah": "AH",
+    "today": "Today",
+    "major": "Major",
+    "upcomingEvents": "Upcoming Events",
+    "noUpcoming": "No upcoming holidays in the next 60 days",
+    "allHolidays": "All Islamic Holidays",
+    "dayHeaders": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    "months": {
+      "muharram": "Muharram",
+      "safar": "Safar",
+      "rabiAlAwwal": "Rabi' al-Awwal",
+      "rabiAlThani": "Rabi' al-Thani",
+      "jumadaAlUla": "Jumada al-Ula",
+      "jumadaAlAkhirah": "Jumada al-Akhirah",
+      "rajab": "Rajab",
+      "shaban": "Sha'ban",
+      "ramadan": "Ramadan",
+      "shawwal": "Shawwal",
+      "dhuAlQidah": "Dhu al-Qi'dah",
+      "dhuAlHijjah": "Dhu al-Hijjah"
+    },
+    "holidays": {
+      "islamic_new_year": { "name": "Islamic New Year" },
+      "day_of_ashura": { "name": "Day of Ashura" },
+      "mawlid_al_nabi": { "name": "Mawlid al-Nabi" },
+      "laylat_al_miraj": { "name": "Laylat al-Miraj" },
+      "laylat_al_baraah": { "name": "Laylat al-Bara'ah" },
+      "first_day_of_ramadan": { "name": "First Day of Ramadan" },
+      "laylat_al_qadr": { "name": "Laylat al-Qadr" },
+      "eid_al_fitr": { "name": "Eid al-Fitr" },
+      "day_of_arafah": { "name": "Day of Arafah" },
+      "eid_al_adha": { "name": "Eid al-Adha" }
+    }
+  },
+
+  "journey": {
+    "title": "Everything You Need for Your Islamic Journey",
+    "subtitle": "Comprehensive tools and community features designed for Muslims all over the world",
+    "items": {
+      "qibla": {
+        "title": "Qibla Finder",
+        "desc": "Accurate Qibla direction wherever you are in the world using GPS technology"
+      },
+      "mosques": {
+        "title": "Mosque Locator",
+        "desc": "Find nearby mosques, Islamic centers, and halal restaurants in your area"
+      },
+      "calendar": {
+        "title": "Islamic Calendar",
+        "desc": "Never miss important Islamic dates, holidays, and community events"
+      },
+      "network": {
+        "title": "Community Network",
+        "desc": "Connect with Muslims in your city and around the world"
+      },
+      "learning": {
+        "title": "Islamic Learning",
+        "desc": "Access Quran, Hadith, and Islamic educational resources in multiple languages"
+      },
+      "heritage": {
+        "title": "Cultural Heritage",
+        "desc": "Celebrate Islamic traditions and share cultural experiences from around the world"
+      }
+    },
+    "cta": {
+      "title": "Ready to Join Our Community?",
+      "subtitle": "Start your journey with thousands of Muslims worldwide who have found their spiritual home through our platform.",
+      "joinButton": "Join Community Now",
+      "exploreButton": "Explore Features",
+      "guidelinesButton": "Community Guidelines"
+    },
+    "toasts": {
+      "signInRequiredTitle": "Sign in Required",
+      "signInRequiredDescNetwork": "Please sign in to join our community network.",
+      "signInRequiredDescChat": "Please sign in to join our community chat.",
+      "islamicLearningTitle": "Islamic Learning",
+      "islamicLearningDesc": "Explore the Quran section and listen to recitations",
+      "culturalHeritageTitle": "Cultural Heritage",
+      "culturalHeritageDesc": "Discover our community and cultural events"
+    }
+  }
+}

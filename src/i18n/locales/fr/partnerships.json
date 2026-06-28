@@ -1,0 +1,135 @@
+{
+  "meta": {
+    "title": "Partenariats & Publicité | Tariq Islam - Atteignez une communauté musulmane mondiale",
+    "description": "Devenez partenaire de Tariq Islam pour toucher des musulmans engagés dans le monde entier. Solutions publicitaires dès 99 $/mois. Plateforme communautaire de confiance.",
+    "keywords": "publicité musulmane, marketing islamique, partenariats business musulmans, communauté musulmane mondiale, marketing éthique, publicité halal",
+    "ogTitle": "Partenariats & Publicité | Tariq Islam",
+    "ogDescription": "Touchez des musulmans du monde entier grâce à des partenariats et des solutions publicitaires ciblées sur une plateforme de confiance."
+  },
+  "hero": {
+    "title": "Devenez partenaire de Tariq Islam",
+    "subtitle": "Touchez des musulmans du monde entier via une plateforme communautaire de confiance",
+    "cta": {
+      "start": "Démarrer un partenariat",
+      "viewPricing": "Voir les tarifs"
+    }
+  },
+  "stats": {
+    "activeUsers": { "label": "Utilisateurs actifs", "value": "50 000+" },
+    "monthlyEngagement": { "label": "Engagement mensuel", "value": "200 000+" },
+    "communityEvents": { "label": "Événements communautaires", "value": "500+" },
+    "partnerBusinesses": { "label": "Entreprises partenaires", "value": "1 000+" }
+  },
+  "why": {
+    "title": "Pourquoi devenir partenaire ?",
+    "cards": {
+      "market": {
+        "title": "Accès à une niche",
+        "body": "Accédez directement à des consommateurs musulmans dans le monde entier, une audience engagée avec une forte confiance communautaire."
+      },
+      "trust": {
+        "title": "Crédibilité",
+        "body": "Une plateforme recommandée par la communauté. Votre marque gagne en confiance grâce à l’alignement avec des valeurs islamiques."
+      },
+      "roi": {
+        "title": "ROI éprouvé",
+        "body": "Moins de concurrence que les plateformes génériques et de meilleurs résultats grâce à un ciblage culturellement pertinent."
+      }
+    }
+  },
+  "pricing": {
+    "title": "Offres de partenariat",
+    "subtitle": "Choisissez l’offre qui correspond à vos objectifs. Toutes incluent l’accès à notre communauté engagée.",
+    "mostPopular": "La plus populaire"
+  },
+  "tiers": {
+    "free": {
+      "name": "Offre gratuite",
+      "price": "0 $",
+      "period": "/mois",
+      "description": "Pour les petites entreprises qui débutent",
+      "features": [
+        "Fiche entreprise de base",
+        "Placement par catégorie",
+        "Intégration du formulaire de contact",
+        "Visibilité communautaire"
+      ],
+      "cta": "Commencer"
+    },
+    "featured": {
+      "name": "Offre mise en avant",
+      "price": "99 $",
+      "period": "/mois",
+      "description": "Démarquez-vous dans les résultats",
+      "features": [
+        "Tous les avantages de l’offre gratuite",
+        "Badge « mise en avant »",
+        "Priorité dans les résultats",
+        "Statistiques avancées",
+        "Support prioritaire"
+      ],
+      "cta": "Nous contacter"
+    },
+    "premium": {
+      "name": "Offre premium",
+      "price": "299 $",
+      "period": "/mois",
+      "description": "Visibilité maximale",
+      "features": [
+        "Tous les avantages de l’offre mise en avant",
+        "Placement prioritaire garanti",
+        "Bannières sur la page d’accueil",
+        "Gestionnaire de compte dédié",
+        "Options d’intégration personnalisées",
+        "Rapports de performance trimestriels"
+      ],
+      "cta": "Nous contacter"
+    },
+    "enterprise": {
+      "name": "Entreprise",
+      "price": "Sur mesure",
+      "period": "",
+      "description": "Pour les grandes marques",
+      "features": [
+        "Tous les avantages de l’offre premium",
+        "Conditions sur mesure",
+        "Sponsoring de catégories",
+        "Sponsoring d’événements",
+        "Accès API pour intégration",
+        "Support dédié",
+        "Options en marque blanche"
+      ],
+      "cta": "Planifier un appel"
+    }
+  },
+  "contact": {
+    "title": "Nous contacter",
+    "subtitle": "Intéressé par un partenariat ? Remplissez le formulaire et nous vous répondrons sous 24 à 48 heures.",
+    "form": {
+      "companyName": "Nom de l’entreprise",
+      "companyPlaceholder": "Amazon, Target, etc.",
+      "contactName": "Nom du contact",
+      "contactPlaceholder": "Jean Dupont",
+      "email": "Adresse e-mail",
+      "emailPlaceholder": "partnerships@company.com",
+      "phone": "Téléphone",
+      "phonePlaceholder": "+1 (555) 000-0000",
+      "message": "Message",
+      "messagePlaceholder": "Décrivez vos objectifs de partenariat...",
+      "characters": "caractères",
+      "submit": "Envoyer la demande",
+      "sending": "Envoi..."
+    },
+    "direct": {
+      "label": "Ou contactez-nous directement :"
+    }
+  },
+  "toast": {
+    "successTitle": "Merci pour votre intérêt !",
+    "successBody": "Nous vous contacterons sous 24 à 48 heures pour discuter des opportunités.",
+    "validationTitle": "Erreur de validation",
+    "validationBody": "Veuillez vérifier le formulaire et réessayer.",
+    "errorTitle": "Erreur",
+    "errorBody": "Impossible d’envoyer la demande. Veuillez essayer par e-mail."
+  }
+}

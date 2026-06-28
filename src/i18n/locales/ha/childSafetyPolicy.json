@@ -1,0 +1,74 @@
+{
+  "title": "Manufofin Kare Yara",
+  "lastUpdatedLabel": "An sabunta:",
+  "lastUpdatedDate": "25 Nuwamba 2025",
+  "intro": "A Global Muslims Connect, muna da niyyar kare duk masu amfani, har da ƙananan yara, tare da tabbatar da muhalli mai tsaro, mutuntawa, kuma amintacce a yanar gizo. Ko da yake dandamalinmu ba a yi shi domin yara ƙasa da shekaru 13 ba, mun san cewa ƙananan yara na iya shiga wasu abubuwan yanar gizo. Wannan manufa tana bayyana matakan tsaro da muke dauka domin kare matasa da kuma kiyaye al’umma mai aminci.",
+  "sections": {
+    "1": {
+      "title": "1. Manhaja ga Manyan Mutane",
+      "bullets": {
+        "1": "An gina Global Muslims Connect domin manya (18+).",
+        "2": "Ba ma nufin yara, kuma ba ma tsara fasali na musamman domin yara."
+      }
+    },
+    "2": {
+      "title": "2. Babu Abubuwan da Aka Nufa da Yara",
+      "bullets": {
+        "1": "Abubuwan da ke cikin manhaja, hanyoyin sadarwa, da ayyuka ba a nufa da yara ba.",
+        "2": "Ba ma nuna hotuna ko zane-zanen motsi ko jigo da aka nufa da yara."
+      }
+    },
+    "3": {
+      "title": "3. Tsaron Abubuwan da Masu Amfani ke Kirkira",
+      "lead": "Domin tabbatar da muhalli mai tsaro:",
+      "bullets": {
+        "1": "Dole ne duk masu amfani su bi Ka’idojin Al’umma.",
+        "2": "An haramta kalaman ƙiyayya, tsangwama, abun batsa, damfara, cin zarafi, ko barazana.",
+        "3": "Keta doka na iya haifar da dakatarwa ko goge asusu har abada."
+      }
+    },
+    "4": {
+      "title": "4. Kayan Rahoto da Kulawa",
+      "lead": "Masu amfani za su iya bada rahoto game da:",
+      "items": {
+        "1": "Sakon cin zarafi",
+        "2": "Hotuna ko bidiyo marasa dacewa",
+        "3": "Asusun da ake zargi",
+        "4": "Keta ladabin Musulunci da dokokin al’umma"
+      },
+      "note": "Tawagar kulawarmu tana duba duk rahotanni da wuri kuma tana daukar mataki idan ya zama dole."
+    },
+    "5": {
+      "title": "5. Takaita Shekaru",
+      "bullets": {
+        "1": "Ba a yarda yara ƙasa da shekaru 13 su kirkiri asusu ba.",
+        "2": "Muna ƙarfafa iyaye su kula da yadda ’ya’yansu ke amfani da na’ura."
+      }
+    },
+    "6": {
+      "title": "6. Kariyar Bayanai",
+      "p1": "Ba mu tara bayanan sirri na yara ƙasa da shekaru 13 da gangan ba.",
+      "p2": "Idan mun gano ƙanana sun kirkiri asusu, muna goge shi nan take."
+    },
+    "7": {
+      "title": "7. Abubuwan da Muke Tsammani daga Masu Amfani",
+      "lead": "Dole ne duk masu amfani su:",
+      "bullets": {
+        "1": "Girmama ƙa’idodin Musulunci",
+        "2": "Rike ladabi a yanar gizo",
+        "3": "Guji raba abubuwa masu cutarwa ko masu sirri",
+        "4": "Bada rahoton halayen da ba su da tsaro nan take"
+      }
+    },
+    "8": {
+      "title": "8. Bayanan Tuntuɓa",
+      "lead": "Don tambayoyi ko damuwa game da tsaro, tuntube mu:",
+      "emailLabel": "Imel:",
+      "emailValue": "support@global-muslims-connect.com",
+      "businessLabel": "Sunan Kasuwanci:",
+      "businessValue": "Busaki Investments LLC",
+      "websiteLabel": "Gidan Yanar Gizo:",
+      "websiteValue": "www.global-muslims-connect.com"
+    }
+  }
+}

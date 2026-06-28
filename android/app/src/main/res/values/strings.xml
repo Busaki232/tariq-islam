@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Tariq Islam</string>
+    <string name="title_activity_main">Tariq Islam</string>
+    <string name="package_name">com.tariqislam.app</string>
+    <string name="custom_url_scheme">com.tariqislam.app</string>
+</resources>

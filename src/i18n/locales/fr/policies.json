@@ -1,0 +1,176 @@
+{
+  "childSafety": {
+    "title": "Politique de sécurité des enfants",
+    "lastUpdatedLabel": "Dernière mise à jour :",
+    "lastUpdatedDate": "25 novembre 2025",
+    "intro": "Chez Global Muslims Connect, nous nous engageons à protéger tous les utilisateurs, y compris les mineurs, et à garantir un environnement en ligne sûr, respectueux et sécurisé. Bien que notre plateforme ne soit pas destinée aux enfants de moins de 13 ans, nous reconnaissons que des mineurs peuvent tout de même accéder à du contenu en ligne. Cette politique explique les mesures de sécurité que nous prenons pour protéger les jeunes utilisateurs et maintenir une communauté sûre.",
+    "sections": {
+      "adultsOnly": {
+        "title": "1. Application destinée aux adultes",
+        "bullets": [
+          "Global Muslims Connect est développé pour les adultes (18+).",
+          "Nous ne ciblons pas les enfants et nous ne concevons pas de fonctionnalités spécifiquement pour eux."
+        ]
+      },
+      "noChildContent": {
+        "title": "2. Aucun contenu destiné aux enfants",
+        "bullets": [
+          "Le contenu de l’application, les fonctions de communication et les services ne sont pas destinés aux enfants.",
+          "Nous n’affichons pas d’images, d’animations ou de thèmes conçus pour les enfants."
+        ]
+      },
+      "ugcSafety": {
+        "title": "3. Sécurité du contenu généré par les utilisateurs (UGC)",
+        "lead": "Pour garantir un environnement sûr :",
+        "bullets": [
+          "Tous les utilisateurs doivent respecter nos Règles de la communauté.",
+          "Les discours haineux, le harcèlement, le contenu explicite, les escroqueries, l’intimidation ou les menaces sont interdits.",
+          "Les violations peuvent entraîner une suspension de compte ou une suppression définitive."
+        ]
+      },
+      "reporting": {
+        "title": "4. Outils de signalement et de modération",
+        "lead": "Les utilisateurs peuvent signaler :",
+        "items": [
+          "Messages abusifs",
+          "Photos ou vidéos inappropriées",
+          "Comptes suspects",
+          "Violations de la conduite islamique et des règles de la communauté"
+        ],
+        "note": "Notre équipe de modération examine rapidement tous les signalements et prend les mesures nécessaires."
+      },
+      "ageRestrictions": {
+        "title": "5. Restrictions d’âge",
+        "bullets": [
+          "Les enfants de moins de 13 ans ne sont pas autorisés à créer un compte.",
+          "Nous encourageons les parents à surveiller l’utilisation des appareils de leurs enfants."
+        ]
+      },
+      "dataProtection": {
+        "title": "6. Protection des données",
+        "p1": "Nous ne collectons pas sciemment d’informations personnelles auprès des enfants de moins de 13 ans.",
+        "p2": "Si nous découvrons qu’un mineur a créé un compte, nous le supprimons immédiatement."
+      },
+      "expectations": {
+        "title": "7. Attentes de sécurité pour les utilisateurs",
+        "lead": "Tous les utilisateurs doivent :",
+        "bullets": [
+          "Respecter les valeurs islamiques",
+          "Adopter une conduite pudique en ligne",
+          "Éviter de partager du contenu sensible ou nuisible",
+          "Signaler immédiatement tout comportement dangereux"
+        ]
+      },
+      "contact": {
+        "title": "8. Informations de contact",
+        "lead": "Pour toute question ou préoccupation liée à la sécurité, contactez-nous :",
+        "emailLabel": "E-mail :",
+        "emailValue": "support@global-muslims-connect.com",
+        "businessLabel": "Nom de l’entreprise :",
+        "businessValue": "Busaki Investments LLC",
+        "websiteLabel": "Site web :",
+        "websiteValue": "www.global-muslims-connect.com"
+      }
+    }
+  },
+
+  "privacy": {
+    "title": "Politique de confidentialité",
+    "lastUpdatedLabel": "Dernière mise à jour :",
+    "intro": "Chez Tariq Islam (\"Global Muslims Connect\"), nous nous engageons à protéger votre vie privée et à assurer la sécurité de vos informations personnelles. Cette politique de confidentialité explique comment nous collectons, utilisons, divulguons et protégeons vos informations lorsque vous utilisez notre plateforme.",
+    "sections": {
+      "collect": {
+        "title": "Informations que nous collectons",
+        "personal": {
+          "title": "Informations personnelles",
+          "body": "Lorsque vous créez un compte, nous collectons des informations telles que votre nom, votre adresse e-mail, votre numéro de téléphone et votre localisation."
+        },
+        "usage": {
+          "title": "Données d’utilisation",
+          "body": "Nous collectons des informations sur la manière dont vous interagissez avec notre plateforme, notamment les fonctionnalités utilisées, le contenu consulté et le temps passé sur nos services."
+        },
+        "device": {
+          "title": "Informations sur l’appareil",
+          "body": "Nous collectons des informations sur l’appareil que vous utilisez pour accéder à notre plateforme, y compris l’adresse IP, le type de navigateur et le système d’exploitation."
+        }
+      },
+      "use": {
+        "title": "Comment nous utilisons vos informations",
+        "bullets": [
+          "Fournir, maintenir et améliorer nos services",
+          "Personnaliser votre expérience et proposer du contenu pertinent",
+          "Vous informer des mises à jour, des fonctionnalités et des événements communautaires",
+          "Faciliter les connexions entre les utilisateurs de la communauté musulmane",
+          "Assurer la sécurité et l’intégrité de notre plateforme",
+          "Respecter les obligations légales et protéger nos droits"
+        ]
+      },
+      "sharing": {
+        "title": "Partage et divulgation des données",
+        "lead": "Nous ne vendons pas vos informations personnelles. Nous pouvons partager vos informations dans les circonstances suivantes :",
+        "items": {
+          "withUsers": {
+            "label": "Avec d’autres utilisateurs :",
+            "body": "Vos informations de profil et votre contenu public sont visibles par les autres utilisateurs de la plateforme."
+          },
+          "providers": {
+            "label": "Prestataires de services :",
+            "body": "Nous pouvons partager des informations avec des prestataires tiers de confiance qui nous aident à exploiter notre plateforme."
+          },
+          "legal": {
+            "label": "Exigences légales :",
+            "body": "Nous pouvons divulguer des informations si la loi l’exige ou pour protéger nos droits et notre sécurité."
+          },
+          "transfers": {
+            "label": "Transferts d’entreprise :",
+            "body": "En cas de fusion ou d’acquisition, vos informations peuvent être transférées à la nouvelle entité."
+          }
+        }
+      },
+      "security": {
+        "title": "Sécurité des données",
+        "body": "Nous mettons en place des mesures techniques et organisationnelles appropriées pour protéger vos informations personnelles contre tout accès, modification, divulgation ou destruction non autorisés. Toutefois, aucune transmission sur Internet n’est totalement sécurisée et nous ne pouvons pas garantir une sécurité absolue."
+      },
+      "rights": {
+        "title": "Vos droits et choix",
+        "items": {
+          "access": {
+            "label": "Accès :",
+            "body": "Vous pouvez accéder à vos informations personnelles et les mettre à jour via les paramètres de votre compte."
+          },
+          "deletion": {
+            "label": "Suppression :",
+            "body": "Vous pouvez demander la suppression de votre compte et de vos données personnelles."
+          },
+          "optOut": {
+            "label": "Désinscription :",
+            "body": "Vous pouvez vous désabonner de certaines communications et notifications."
+          },
+          "portability": {
+            "label": "Portabilité des données :",
+            "body": "Vous pouvez demander une copie de vos données dans un format portable."
+          }
+        }
+      },
+      "cookies": {
+        "title": "Cookies et technologies de suivi",
+        "body": "Nous utilisons des cookies et des technologies similaires pour suivre l’activité sur notre plateforme et conserver certaines informations. Vous pouvez configurer votre navigateur pour refuser les cookies ou être averti lorsqu’un cookie est envoyé. Toutefois, si vous refusez les cookies, certaines parties de la plateforme peuvent ne pas fonctionner correctement."
+      },
+      "children": {
+        "title": "Confidentialité des enfants",
+        "body": "Notre plateforme n’est pas destinée aux enfants de moins de 13 ans. Nous ne collectons pas sciemment d’informations personnelles auprès d’enfants de moins de 13 ans. Si vous êtes parent ou tuteur et pensez que votre enfant nous a fourni des informations personnelles, veuillez nous contacter."
+      },
+      "changes": {
+        "title": "Modifications de cette politique de confidentialité",
+        "body": "Nous pouvons mettre à jour cette politique de confidentialité de temps à autre. Nous vous informerons de toute modification en publiant la nouvelle politique sur cette page et en mettant à jour la date de « Dernière mise à jour ». Nous vous conseillons de consulter régulièrement cette page."
+      },
+      "contact": {
+        "title": "Nous contacter",
+        "lead": "Si vous avez des questions concernant cette politique de confidentialité, veuillez nous contacter :",
+        "emailLabel": "E-mail :",
+        "emailValue": "privacy@global-muslims-connect.com",
+        "formLine": "Via notre formulaire « Nous contacter » sur la plateforme"
+      }
+    }
+  }
+}

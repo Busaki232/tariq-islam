@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tariq Islam - Global Islamic Community Platform</title>
+    <meta
+            name="description"
+            content="Connect with Muslims worldwide. Prayer times, Qibla finder, mosque locator, and vibrant Islamic community platform for global Muslims."
+    />
+    <meta name="author" content="Tariq Islam" />
+    <meta
+            name="keywords"
+            content="Islamic community, Muslims worldwide, prayer times, Qibla, mosque finder, global Muslim community, Islamic calendar"
+    />
+
+    <!-- Prevent flash BEFORE React loads (match your app background, not green) -->
+    <script>
+        (function () {
+          try {
+            var theme = localStorage.getItem("theme");
+            var isDark = theme === "dark";
+            var bg = isDark ? "#0b0f14" : "#ffffff";
+            document.documentElement.style.backgroundColor = bg;
+            document.documentElement.style.colorScheme = isDark ? "dark" : "light";
+            if (document.body) document.body.style.backgroundColor = bg;
+          } catch (e) {}
+        })();
+    </script>
+
+    <style>
+        html,
+        body {
+          margin: 0;
+          padding: 0;
+          height: 100%;
+        }
+        /* Let Tailwind/the app control the real UI background */
+        #root {
+          min-height: 100%;
+        }
+    </style>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" as="image" href="/src/assets/islamic-pattern-bg.jpg" />
+    <link rel="canonical" href="https://global-muslims-connect.com" />
+
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#16a34a" />
+    <meta name="msapplication-TileColor" content="#16a34a" />
+
+    <meta name="geo.region" content="GLOBAL" />
+    <meta name="geo.placename" content="Worldwide" />
+    <meta name="coverage" content="Worldwide" />
+    <meta name="distribution" content="Global" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://global-muslims-connect.com/og-image.jpg" />
+    <meta property="og:url" content="https://global-muslims-connect.com" />
+    <meta property="og:site_name" content="Tariq Islam" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@taraboriq" />
+    <meta name="twitter:image" content="https://global-muslims-connect.com/og-image.jpg" />
+
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            "name": "Tariq Islam",
+            "description": "Global Islamic community platform connecting Muslims worldwide.",
+            "url": "https://global-muslims-connect.com",
+            "applicationCategory": "LifestyleApplication",
+            "operatingSystem": "Web",
+            "areaServed": "Worldwide",
+            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+        }
+    </script>
+
+    <link rel="icon" href="data:," />
+    <meta property="og:title" content="Tariq Islam - Global Islamic Community Platform" />
+    <meta name="twitter:title" content="Tariq Islam - Global Islamic Community Platform" />
+    <meta property="og:description" content="Connect with Muslims worldwide." />
+    <meta name="twitter:description" content="Connect with Muslims worldwide." />
+</head>
+
+<body>
+<div id="root"></div>
+<script type="module" src="/src/main.tsx"></script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+{
+  "submitTitle": "Publier votre entreprise",
+  "submitSubtitle": "Partagez votre entreprise ou service halal avec la communauté",
+  "editTitle": "Modifier votre annonce",
+  "editSubtitle": "Mettez à jour les informations de votre entreprise ci-dessous.",
+
+  "form": {
+    "businessName": "Nom de l’entreprise",
+    "businessNamePlaceholder": "Entrez le nom de votre entreprise",
+    "description": "Description",
+    "descriptionPlaceholder": "Décrivez votre entreprise, vos services ou vos produits...",
+    "category": "Catégorie",
+    "categoryPlaceholder": "Choisir une catégorie",
+    "location": "Lieu",
+    "locationPlaceholder": "Ville, État/Région",
+    "phoneNumber": "Numéro de téléphone",
+    "phoneNumberPlaceholder": "(555) 123-4567",
+    "emailPlaceholder": "entreprise@exemple.com",
+    "websiteOptional": "Site web (optionnel)",
+    "websitePlaceholder": "https://www.votreentreprise.com (ou laissez vide)",
+    "websiteHelp": "Entrez l’URL de votre site web ou laissez vide si vous n’en avez pas encore",
+    "businessImage": "Image de l’entreprise",
+    "currentImageAlt": "Actuelle",
+    "removeImage": "Supprimer l’image",
+    "changeImage": "Changer l’image",
+    "chooseImage": "Choisir une image"
+  },
+
+  "buttons": {
+    "submit": "Envoyer l’annonce",
+    "submitting": "Envoi...",
+    "update": "Mettre à jour l’annonce",
+    "updating": "Mise à jour..."
+  },
+
+  "toast": {
+    "loadCategoriesFail": "Impossible de charger les catégories",
+    "uploadImageFail": "Impossible de téléverser l’image",
+    "mustBeLoggedIn": "Vous devez être connecté pour publier une annonce",
+    "submitted": "Votre annonce a été envoyée pour examen",
+    "updated": "Votre annonce a été mise à jour",
+    "unexpected": "Une erreur inattendue s’est produite",
+    "imageTooLarge": "L’image doit faire moins de 5 Mo"
+  },
+
+  "validation": {
+    "titleMin": "Le titre doit contenir au moins 3 caractères",
+    "titleMax": "Le titre doit contenir moins de 100 caractères",
+    "descriptionMin": "La description doit contenir au moins 10 caractères",
+    "descriptionMax": "La description doit contenir moins de 1000 caractères",
+    "categoryRequired": "Veuillez sélectionner une catégorie",
+    "locationMax": "Le lieu doit contenir moins de 100 caractères",
+    "phoneMax": "Le numéro de téléphone doit contenir moins de 20 caractères",
+    "emailInvalid": "Adresse e-mail invalide",
+    "emailMax": "L’e-mail doit contenir moins de 255 caractères",
+    "websiteMax": "Le site web doit contenir moins de 255 caractères",
+    "websiteInvalid": "Veuillez entrer une URL valide ou un texte descriptif"
+  }
+}

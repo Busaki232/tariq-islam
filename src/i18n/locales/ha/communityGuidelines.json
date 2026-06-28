@@ -1,0 +1,26 @@
+{
+  "title": "Ka’idojin Al’umma",
+  "intro": "Ta amfani da Tariq Islam, ka amince ka bi waɗannan ka’idoji domin al’umma ta kasance lafiya kuma cikin girmamawa.",
+  "sections": {
+    "respect": {
+      "title": "Girmamawa & Tsaro",
+      "items": [
+        "Babu cin zarafi, kalaman ƙiyayya, tsangwama ko barazana.",
+        "Babu abun batsa ko cin zarafi na jima’i.",
+        "Babu damfara, kwaikwayo ko yaudara."
+      ]
+    },
+    "content": {
+      "title": "Ka’idojin Abun Da Ake Wallafawa",
+      "items": [
+        "Kada a wallafa abin da ke ƙarfafa tashin hankali, tsattsauran ra’ayi ko ƙiyayya.",
+        "Kada a raba abun da ya sabawa doka ko koyarwar aikata laifi.",
+        "A mutunta ƙimar Musulunci kuma tattaunawa ta kasance cikin ladabi."
+      ]
+    },
+    "enforcement": {
+      "title": "Matakan Hukunci",
+      "body": "Keta ka’idoji na iya jawo gargadi, cire abun da aka wallafa, dakatarwa, ko haramta asusu gaba ɗaya."
+    }
+  }
+}

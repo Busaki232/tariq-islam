@@ -1,0 +1,46 @@
+{
+  "header": {
+    "title": "Soutenir la mission",
+    "body": {
+      "before": "Tariq Islam restera toujours",
+      "free": "100 % gratuit",
+      "after": "pour l’Ummah. Votre soutien volontaire nous aide à maintenir les serveurs, ajouter de nouvelles fonctionnalités et servir les musulmans du monde entier."
+    },
+    "quote": {
+      "text": "« Celui qui guide vers le bien aura une récompense semblable à celui qui l’accomplit. »",
+      "attribution": "- Prophète ﷺ"
+    }
+  },
+  "tiers": {
+    "supporter": {
+      "name": "Soutien",
+      "price": "$5",
+      "period": "mois",
+      "description": "Aidez-nous à maintenir et développer la plateforme",
+      "benefits": [
+        "Aider à maintenir la plateforme",
+        "Soutenir les coûts des serveurs",
+        "Mention dans la section des soutiens",
+        "Contribuer à un accès gratuit pour tous"
+      ]
+    },
+    "communityFriend": {
+      "name": "Ami de la communauté",
+      "price": "$10",
+      "period": "mois",
+      "description": "Devenez un pilier de la communauté",
+      "benefits": [
+        "Tous les avantages du soutien",
+        "Reconnaissance communautaire",
+        "Priorité aux demandes de fonctionnalités",
+        "Nous aider à nous développer à l’échelle mondiale"
+      ]
+    },
+    "buttonPrefix": "Devenir"
+  },
+  "bottom": {
+    "optionalTitle": "Ce programme est 100 % facultatif",
+    "optionalBody": "L’application restera toujours gratuite pour l’Ummah. Aucune fonctionnalité n’est bloquée par les dons. Votre soutien nous aide simplement à grandir et à servir davantage de musulmans dans le monde.",
+    "footerNote": "Toutes les contributions sont volontaires et servent à maintenir nos serveurs, développer de nouvelles fonctionnalités et étendre notre portée mondiale."
+  }
+}

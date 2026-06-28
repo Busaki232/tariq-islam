@@ -1,0 +1,208 @@
+{
+  "loading": "جارٍ التحميل...",
+  "errors": {
+    "timeout": "انتهت مهلة الانتظار"
+  },
+  "presence": {
+    "online": "متصل",
+    "offline": "غير متصل",
+    "seenMinutes": "شوهد قبل {{count}} دقيقة",
+    "seenHours": "شوهد قبل {{count}} ساعة",
+    "seenDate": "شوهد في {{date}}"
+  },
+  "privateChat": {
+    "directory": {
+      "requestedOn": "تم الطلب بتاريخ {{date}}"
+    }
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "profile": "الملف الشخصي",
+    "profile_title": "ملفك الشخصي",
+    "profile_alt": "الملف الشخصي",
+    "no_photo": "لا توجد صورة",
+    "uploading": "جارٍ الرفع...",
+    "change_photo": "تغيير الصورة",
+    "username_label": "اسم المستخدم",
+    "username_help": "يُستخدم لدعوات الدردشة الخاصة. بدون مسافات. يُسمح بالحروف والأرقام والنقطة والشرطة السفلية فقط.",
+    "username_placeholder": "مثال: @taofikbusari",
+    "saving": "جارٍ الحفظ...",
+    "save": "حفظ",
+    "saved": "تم الحفظ",
+    "username_saved_hint": "تم الحفظ",
+    "username_saved_title": "تم حفظ اسم المستخدم",
+    "username_invalid_short": "غير صالح",
+    "username_invalid_title": "اسم المستخدم غير صالح",
+    "username_invalid_desc": "استخدم من 3 إلى 20 حرفاً. الحروف والأرقام والنقطة والشرطة السفلية فقط.",
+    "username_save_failed_title": "تعذر حفظ اسم المستخدم",
+    "username_taken": "اسم المستخدم هذا مستخدم بالفعل.",
+    "username_preview": "معاينة",
+    "none": "لا شيء",
+    "appearance": "المظهر",
+    "theme": "السمة",
+    "online_visibility": "ظهور الحالة",
+    "online_hidden": "مخفي (غير متصل)",
+    "online_visible": "ظاهر (متصل)",
+    "show_online": "إظهار متصل",
+    "hide_online": "إخفاء الحالة",
+    "stored_on_device": "محفوظ على هذا الجهاز.",
+    "notifications": "الإشعارات",
+    "messages": "الرسائل",
+    "calls": "المكالمات",
+    "local_toggles_note": "هذه الخيارات محلية على الجهاز حالياً.",
+    "adhan": "الأذان",
+    "adhan_enabled": "تم تفعيل الأذان",
+    "adhan_disabled": "تم إيقاف الأذان",
+    "adhan_note": "يمكنك تفعيله أو إيقافه في أي وقت.",
+    "adhan_location_title": "موقع الأذان",
+    "adhan_location_subtitle": "استخدم موقع الجهاز أو أدخل الإحداثيات يدوياً.",
+    "adhan_location_device": "استخدام الجهاز",
+    "adhan_location_manual": "يدوي",
+    "latitude": "خط العرض",
+    "longitude": "خط الطول",
+    "latitude_placeholder": "41.8781",
+    "longitude_placeholder": "-87.6298",
+    "save_location": "حفظ الموقع",
+    "invalid_location": "موقع غير صالح",
+    "invalid_location_desc": "يرجى إدخال خط عرض وخط طول صالحين.",
+    "location_saved": "تم حفظ الموقع",
+    "location_up_to_date": "الموقع مُحدّث",
+    "device_location_captured": "تم التقاط الموقع",
+    "device_location_saved": "تم حفظ موقع الجهاز",
+    "device_location_not_saved": "لم يتم حفظ الموقع",
+    "could_not_get_location": "تعذر الحصول على الموقع",
+    "location_unavailable": "الموقع غير متاح",
+    "location_unavailable_desc": "خدمة تحديد الموقع غير مدعومة.",
+    "permission_needed": "مطلوب إذن",
+    "permission_needed_desc": "يرجى السماح بالوصول إلى الموقع.",
+    "account_deletion": "حذف الحساب",
+    "deletion_intro": "يمكنك طلب حذف حسابك.",
+    "deletion_note": "تتم معالجة الطلبات خلال 30 يوماً.",
+    "request_deletion": "طلب حذف الحساب",
+    "email_support_instead": "إرسال بريد للدعم",
+    "deletion_email_subject": "طلب حذف الحساب",
+    "deletion_email_hello": "مرحباً فريق الدعم،",
+    "deletion_email_line1": "أرغب في حذف حسابي.",
+    "deletion_email_account": "بريد الحساب",
+    "deletion_email_user_id": "معرّف المستخدم",
+    "deletion_email_thanks": "شكراً.",
+    "blocked_users": "المستخدمون المحظورون",
+    "no_blocked_users": "لا يوجد مستخدمون محظورون.",
+    "blocked_fallback_name": "مستخدم محظور",
+    "unblock": "إلغاء الحظر",
+    "signout": "تسجيل الخروج",
+    "not_signed_in": "غير مسجل الدخول.",
+    "language": {
+      "title": "اللغة",
+      "subtitle": "لغة التطبيق",
+      "placeholder": "اختر لغة",
+      "current": "الحالية",
+      "english": "الإنجليزية",
+      "french": "الفرنسية",
+      "hausa": "الهوسا",
+      "arabic": "العربية"
+    }
+  },
+  "test_language": "اختبار اللغة",
+  "home": {
+    "hero": {
+      "bgAlt": "نمط هندسي إسلامي",
+      "greetingTranslation": "السلام عليكم ورحمة الله وبركاته",
+      "title": "ابقَ على تواصل مع دينك ومجتمعك",
+      "subtitle": "اعثر على أوقات الصلاة والمساجد."
+    },
+    "cta": {
+      "joinChat": "انضم إلى الدردشة",
+      "joinChatAria": "انضم إلى دردشة المجتمع",
+      "findMosques": "ابحث عن مساجد",
+      "findMosquesAria": "ابحث عن مساجد قريبة",
+      "gettingLocation": "جارٍ تحديد الموقع...",
+      "qibla": "تحديد القبلة",
+      "qiblaAria": "فتح القبلة",
+      "qiblaDirectionAria": "تحديد الاتجاه",
+      "joinNow": "انضم الآن",
+      "joinNowAria": "إنشاء حساب",
+      "islamicCalendar": "التقويم الإسلامي",
+      "islamicCalendarAria": "فتح التقويم"
+    },
+    "location": {
+      "obtained": {
+        "title": "تم الحصول على الموقع",
+        "desc": "تم عرض المساجد القريبة"
+      },
+      "unavailable": {
+        "title": "الموقع غير متاح",
+        "desc": "تم عرض جميع المساجد"
+      }
+    },
+    "why": {
+      "title": "لماذا تنضم إلى Tariq Islam؟",
+      "bullet1": "تواصل مع المسلمين في الوقت الحقيقي",
+      "bullet2": "اعثر على المساجد والفعاليات",
+      "bullet3": "الوصول إلى القرآن وأوقات الصلاة"
+    },
+    "privacy": "بياناتك محمية."
+  },
+
+  "howToListenTitle": "🎧 كيفية الاستماع إلى القرآن",
+  "getStartedSubtitle": "اختر قارئاً وسورة أدناه لبدء الاستماع إلى القرآن الكريم.",
+  "howToListenSteps": {
+    "1": "اختر القارئ.",
+    "2": "اختر السورة.",
+    "3": "اضغط تشغيل للاستماع."
+  },
+
+  "islamicCalendar": {
+    "months": {
+      "muharram": "محرّم",
+      "safar": "صفر",
+      "rabiAlAwwal": "ربيع الأول",
+      "rabiAlThani": "ربيع الآخر",
+      "jumadaAlUla": "جمادى الأولى",
+      "jumadaAlAkhirah": "جمادى الآخرة",
+      "rajab": "رجب",
+      "shaban": "شعبان",
+      "ramadan": "رمضان",
+      "shawwal": "شوّال",
+      "dhuAlQidah": "ذو القعدة",
+      "dhuAlHijjah": "ذو الحجة"
+    }
+  },
+  "footer": {
+    "cta": {
+      "title": "هل أنت جاهز للانضمام إلى مجتمعنا؟",
+      "subtitle": "انضم إلى آلاف المسلمين حول العالم.",
+      "join": "انضم الآن",
+      "explore": "استكشف",
+      "guidelines": "الإرشادات"
+    },
+    "brand": {
+      "name": "Tariq Islam",
+      "alt": "شعار Tariq Islam",
+      "note": "يرجى احترام مجتمعنا"
+    },
+    "columns": {
+      "community": "المجتمع",
+      "business": "الأعمال",
+      "support": "الدعم"
+    },
+    "links": {
+      "mosques": "المساجد",
+      "events": "الفعاليات",
+      "chatRoom": "الدردشة",
+      "communityGuidelines": "الإرشادات",
+      "privacyPolicy": "الخصوصية",
+      "childSafetyPolicy": "سلامة الأطفال",
+      "advertise": "إعلان",
+      "businessListings": "الأعمال",
+      "supportPlatform": "الدعم",
+      "contactUs": "اتصل بنا"
+    },
+    "copyright": "جميع الحقوق محفوظة."
+  },
+  "contact": {
+    "title": "اتصل بنا",
+    "subtitle": "أرسل ملاحظاتك.",
+    "close": "إغلاق"
+  }
+}

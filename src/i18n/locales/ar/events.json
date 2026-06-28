@@ -1,0 +1,56 @@
+{
+  "header": {
+    "title": "فعاليات المجتمع",
+    "subtitle": "اكتشف وانضم إلى الفعاليات في المجتمع الإسلامي العالمي"
+  },
+  "filters": {
+    "searchPlaceholder": "ابحث عن الفعاليات...",
+    "category": "الفئة",
+    "all": "جميع الفئات",
+    "religious": "ديني",
+    "educational": "تعليمي",
+    "cultural": "ثقافي",
+    "social": "اجتماعي",
+    "general": "عام"
+  },
+  "buttons": {
+    "create": "إنشاء فعالية",
+    "view": "عرض التفاصيل"
+  },
+  "create": "إنشاء فعالية",
+  "creating": "جارٍ إنشاء الفعالية...",
+  "form": {
+    "titlePlaceholder": "أدخل عنوان الفعالية...",
+    "descriptionPlaceholder": "صف فعاليتك...",
+    "locationPlaceholder": "أدخل موقع الفعالية...",
+    "categoryPlaceholder": "اختر الفئة",
+    "capacityPlaceholder": "بدون حد",
+    "imagePlaceholder": "https://example.com/image.jpg"
+  },
+  "jumuahPoll": {
+    "title": "من سيذهب لصلاة الجمعة؟"
+  },
+    "known": {
+      "jumuahTitle": "صلاة الجمعة",
+      "jumuahDesc": "صلاة الجمعة الجماعية الأسبوعية",
+      "mainMasjid": "المسجد الرئيسي"
+  },
+  "states": {
+    "loading": "جارٍ تحميل الفعاليات...",
+    "noResults": "لم يتم العثور على فعاليات",
+    "noUpcoming": "لا توجد فعاليات مجدولة حالياً",
+    "full": "ممتلئ",
+    "almostFull": "على وشك الامتلاء",
+    "untitled": "فعالية بدون عنوان",
+    "locationTBD": "الموقع غير محدد",
+    "attending": "{{count}} سيحضرون",
+    "max": "الحد الأقصى"
+  },
+  "fields": {
+    "title": "فعالية",
+    "at": "في"
+  },
+  "toast": {
+    "errorBody": "فشل في تحميل الفعاليات. يرجى المحاولة مرة أخرى."
+  }
+}

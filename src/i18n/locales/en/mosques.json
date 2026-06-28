@@ -1,0 +1,82 @@
+{
+  "header": {
+    "title": "Find Mosques & Islamic Centers",
+    "subtitle": "Discover welcoming Islamic centers across the Midwest. Find prayer times, diverse Muslim communities, and Islamic education programs near you."
+  },
+  "filters": {
+    "searchPlaceholder": "Search mosques by name, city, or imam...",
+    "filterResults": "Filter Results",
+    "locationsLabel": "Locations:",
+    "servicesLabel": "Services:"
+  },
+  "listings": {
+    "title": "Islamic Centers ({{count}} locations)",
+    "subtitle": "Comprehensive directory of mosques and Islamic centers across the world"
+  },
+  "badges": {
+    "featured": "Featured",
+    "diverseCommunity": "Diverse Community"
+  },
+  "card": {
+    "reviews": "({{count}} reviews)",
+    "imamLabel": "Imam:",
+    "languagesLabel": "Languages:",
+    "moreServices": "+{{count}} more"
+  },
+  "prayerTimes": {
+    "title": "Prayer Times Today",
+    "fajr": "Fajr",
+    "dhuhr": "Dhuhr",
+    "asr": "Asr",
+    "maghrib": "Maghrib",
+    "isha": "Isha",
+    "jummah": "Jummah"
+  },
+  "buttons": {
+    "directions": "Get Directions",
+    "moreDetails": "More Details"
+  },
+  "cta": {
+    "title": "Missing Your Mosque?",
+    "subtitle": "Help us build the most comprehensive directory of Islamic centers around the world. Your submission will be reviewed and added to our global community directory.",
+    "submitMosque": "Submit Mosque",
+    "submitting": "Submitting...",
+    "prayerTimeUpdates": "Prayer Time Updates"
+  },
+  "auth": {
+    "signInRequiredTitle": "Sign in Required",
+    "submitMosqueBody": "Please sign in to submit a mosque.",
+    "prayerUpdatesBody": "Please sign in to submit prayer time updates."
+  },
+
+  "submitPage": {
+    "backToMosques": "Back to Mosques",
+    "guidelinesTitle": "Submission Guidelines",
+    "guidelines": {
+      "requiredInfoTitle": "Required Information",
+      "requiredInfoItems": [
+        "Mosque or Islamic center name",
+        "Complete street address",
+        "City and state"
+      ],
+      "reviewProcessTitle": "Review Process",
+      "reviewProcessItems": [
+        "Submissions are reviewed within 3-5 business days",
+        "We may contact you for additional information",
+        "Approved listings appear in our directory"
+      ],
+      "helpfulTipsTitle": "Helpful Tips",
+      "helpfulTipsItems": [
+        "Provide accurate prayer times",
+        "Include special programs and services",
+        "Add contact information when possible"
+      ],
+      "updatesTitle": "Updates",
+      "updatesItems": [
+        "Contact us to update existing listings",
+        "Prayer times are updated seasonally",
+        "Community input helps keep info current"
+      ]
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "title": "Community Marketplace",
+  "subtitle": "Discover halal businesses, Islamic services, and community resources trusted by Muslims worldwide",
+
+  "actions": {
+    "myAds": "My Ads",
+    "postBusiness": "Post Your Business",
+    "browseCategories": "Browse Categories"
+  },
+
+  "categories": {
+    "all": "All"
+  },
+
+  "featured": {
+    "title": "Featured Listings",
+    "subtitle": "Premium businesses and services recommended by our community"
+  },
+
+  "states": {
+    "loading": "Loading advertisements...",
+    "noAds": "No advertisements available yet. Be the first to showcase your business to the community!",
+    "noResults": "No advertisements found.",
+    "noCategoryResults": "No advertisements found in the {{category}} category. Try browsing all categories or post your business here."
+  },
+
+  "card": {
+    "featured": "Featured",
+    "views": "{{count}} views",
+    "noImage": "No image"
+  },
+
+  "buttons": {
+    "requestContact": "Request Contact",
+    "signInToContact": "Sign in to Contact",
+    "website": "Website",
+    "postFirst": "Post the First Business",
+    "postBusiness": "Post Your Business"
+  },
+
+  "cta": {
+    "title": "Grow Your Business with Our Community",
+    "subtitle": "Reach thousands of Muslims worldwide. List your halal business, service, or organization today.",
+    "listBusiness": "List Your Business",
+    "browseMarketplace": "Browse Marketplace"
+  }
+}

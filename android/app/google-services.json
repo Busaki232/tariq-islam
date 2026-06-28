@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "56987687944",
+    "project_id": "tariq-islam",
+    "storage_bucket": "tariq-islam.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:56987687944:android:2c6e908beb4dcc2f0885bd",
+        "android_client_info": {
+          "package_name": "com.tariqislam.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlG8UrHb2v7pjVvF3NhpqXoQRgn0w1Zv8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

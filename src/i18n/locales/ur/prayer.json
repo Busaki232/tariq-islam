@@ -1,0 +1,22 @@
+{
+  "prayerTimes": "نماز کے اوقات",
+  "nextPrayer": "اگلی نماز",
+  "fajr": "فجر",
+  "sunrise": "طلوع آفتاب",
+  "dhuhr": "ظہر",
+  "asr": "عصر",
+  "maghrib": "مغرب",
+  "isha": "عشاء",
+  "jummah": "جمعہ",
+  "timeRemaining": "باقی وقت",
+  "location": "مقام",
+  "detectLocation": "میرا مقام تلاش کریں",
+  "enterLocation": "مقام درج کریں",
+  "updateLocation": "مقام اپ ڈیٹ کریں",
+  "prayerNotifications": "نماز کی اطلاعات",
+  "enableNotifications": "اطلاعات فعال کریں",
+  "notification": {
+    "title": "{{prayer}} کا وقت ہو گیا ہے",
+    "body": "اپنی نماز نہ چھوڑیں"
+  }
+}

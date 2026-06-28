@@ -1,0 +1,48 @@
+{
+  "prayerTimes": {
+    "title": "Heures de prière",
+    "loading": "Chargement des heures de prière...",
+    "enableLocationTitle": "Activer l’accès à la localisation",
+    "enableLocationBody": "Autorisez l’accès à la localisation pour obtenir des horaires de prière précis pour votre zone",
+    "getPrayerTimes": "Obtenir les heures de prière"
+  },
+  "status": {
+    "currentPrayer": "Prière en cours",
+    "nextPrayer": "Prochaine prière"
+  },
+  "location": {
+    "unknown": "Localisation inconnue",
+    "update": "Mettre à jour la localisation",
+    "obtained": {
+      "title": "Localisation obtenue",
+      "desc": "Affichage des mosquées près de votre position"
+    },
+    "unavailable": {
+      "title": "Localisation indisponible",
+      "desc": "Affichage de toutes les mosquées de votre zone"
+    },
+    "requestingTitle": "Demande de localisation",
+    "requestingBody": "Veuillez autoriser l’accès à la localisation pour des horaires de prière précis.",
+    "failedTitle": "Échec de la demande de localisation",
+    "failedBody": "Impossible d’obtenir votre position. Veuillez vérifier les paramètres de votre navigateur."
+  },
+  "actions": {
+    "refreshTimes": "Actualiser les horaires"
+  },
+  "errors": {
+    "tryAgain": "Réessayer",
+    "retry": "Réessayer"
+  },
+  "date": {
+    "today": "Aujourd’hui"
+  },
+  "qibla": {
+    "ariaLabel": "Trouver la direction de la Qibla",
+    "show": "Afficher la boussole de la Qibla",
+    "hide": "Masquer la boussole",
+    "locationRequiredTitle": "Localisation requise",
+    "locationRequiredBody": "Veuillez autoriser l’accès à la localisation pour trouver la direction de la Qibla.",
+    "toastTitle": "🧭 Boussole de la Qibla",
+    "toastBody": "Boussole interactive affichée ci-dessous"
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "loading": "Loading dashboard...",
+  "welcome": "Welcome!",
+  "editProfile": "Edit Profile",
+
+  "title": "My Dashboard",
+  "subtitle": "Track your contributions and activity in the community",
+
+  "stats": {
+    "myAds": "My Ads",
+    "myEvents": "My Events",
+    "mosques": "Mosques",
+    "applications": "Applications",
+    "messages": "Messages"
+  },
+
+  "quickActions": {
+    "title": "Quick Actions",
+    "subtitle": "Create new content or manage existing submissions"
+  },
+
+  "actions": {
+    "listBusiness": "List Business",
+    "createEvent": "Create Event",
+    "submitMosque": "Submit Mosque",
+    "applyLeadership": "Apply Leadership"
+  },
+
+  "tabs": {
+    "myAds": "My Ads",
+    "myEvents": "My Events",
+    "mosques": "Mosques",
+    "applications": "Applications"
+  },
+
+  "empty": {
+    "adsTitle": "No advertisements yet",
+    "adsSubtitle": "Start by listing your first business or service",
+    "adsCta": "Create First Ad",
+
+    "eventsTitle": "No events yet",
+    "eventsSubtitle": "Create your first community event",
+    "eventsCta": "Create Event",
+
+    "mosquesTitle": "No mosque submissions yet",
+    "mosquesSubtitle": "Help expand our mosque directory",
+    "mosquesCta": "Submit Mosque",
+
+    "leadershipTitle": "No leadership applications yet",
+    "leadershipSubtitle": "Apply to become a community leader",
+    "leadershipCta": "Apply Now"
+  },
+  "leadershipForm": {
+    "title": "Leadership Application",
+    "pageTitle": "Become a Community Leader",
+    "pageSubtitle": "Help expand the Tariq Islam global community network in your area",
+
+    "successDesc": "Thank you for your interest in becoming a community leader. We'll review your application and get back to you soon.",
+
+    "placeholders": {
+      "experience": "Describe your experience in community leadership, Islamic organizations, or volunteer work...",
+      "motivation": "Why do you want to become a community leader? What drives your passion for building the global Muslim community?",
+      "availability": "Describe your availability and how much time you can dedicate to community leadership activities..."
+    }
+  },
+  "status": {
+    "approved": "approved",
+    "pending": "pending",
+    "rejected": "rejected",
+    "upcoming": "upcoming"
+  },
+
+  "labels": {
+    "views": "{{count}} views",
+    "attending": "{{count}} attending",
+    "created": "Created: {{date}}",
+    "eventDate": "Event Date: {{date}}",
+    "submitted": "Submitted: {{date}}",
+    "applied": "Applied: {{date}}",
+    "leadershipApplication": "Leadership Application"
+  },
+
+  "errors": {
+    "takingTooLong": "Dashboard is taking too long to load.",
+    "timedOut": "Dashboard timed out",
+    "failedToLoad": "Failed to load dashboard data"
+  }
+}

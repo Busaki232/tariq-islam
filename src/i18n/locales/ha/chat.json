@@ -1,0 +1,73 @@
+{
+  "title": "Dakin Tattaunawar Al’umma",
+  "subtitle": "Tattaunawar al’ummar Musulmi ta duniya • Ku kasance masu mutunci da kirki",
+  "online": "A kan layi",
+  "onlineCount": "{{count}} a kan layi",
+
+  "authRequiredTitle": "Ana bukatar shiga",
+  "authRequiredBody": "Da fatan a shiga domin samun damar dakin tattaunawar al’umma.",
+
+  "menu": {
+    "guidelines": "Ka’idojin Al’umma",
+    "refresh": "Sabunta Tattaunawa",
+    "report": "Kai rahoton matsala",
+    "reportToastTitle": "Kai rahoton matsala",
+    "reportToastDesc": "Da fatan a tuntuɓi tallafi idan ka lura da wata matsala."
+  },
+
+  "calls": {
+    "joinVideo": "Shiga kiran bidiyo",
+    "joinAudio": "Shiga kiran sauti",
+    "startedTitleVideo": "An fara kiran bidiyo",
+    "startedTitleAudio": "An fara kiran sauti",
+    "startedDesc": "An wallafa hanyar shiga (link) a cikin tattaunawa.",
+    "permissionTitle": "Ana bukatar izini",
+    "permissionDescVideo": "Ana bukatar kyamara da makirufo.",
+    "permissionDescAudio": "Ana bukatar makirufo.",
+    "signInTitle": "Ana bukatar shiga",
+    "signInDesc": "Da fatan a shiga domin fara kira.",
+    "errorTitle": "Kuskure",
+    "errorDesc": "An kasa fara kiran."
+  },
+
+  "input": {
+    "placeholder": "Rubuta sakonka... (Ku kasance masu mutunci da kirki)",
+    "emojiAria": "Emoji",
+    "send": "Aika",
+    "cannotSendTitle": "Ba za a iya aika sako ba",
+    "cannotSendDesc": "Da fatan a tabbatar ka shiga asusu.",
+    "failedTitle": "An kasa aikawa",
+    "failedDesc": "Da fatan a sake gwadawa."
+  },
+
+  "voice": {
+    "recordAria": "Rikodin sakon murya",
+    "sentTitle": "An aika sakon murya",
+    "sentDesc": "An aika sakon muryarka zuwa tattaunawa.",
+    "failedTitle": "An kasa aikawa",
+    "failedDesc": "An kasa aika sakon murya."
+  },
+
+  "image": {
+    "sentTitle": "An aika hoto",
+    "sentDesc": "An raba hotonka a cikin tattaunawa.",
+    "failedTitle": "An kasa aikawa",
+    "failedDesc": "An kasa aika hoton."
+  },
+
+  "deleteDialog": {
+    "title": "Goge sako",
+    "desc": "Ka tabbata kana so ka goge wannan sakon? Ba za a iya mayarwa ba.",
+    "cancel": "Soke",
+    "confirm": "Goge"
+  },
+
+  "edited": "an gyara",
+  "save": "Ajiye",
+  "cancel": "Soke",
+  "edit": "Gyara",
+  "deletedMessage": "An goge wannan sakon",
+  "locationNotSet": "Ba a saita wuri ba",
+
+  "footerNote": "Tunatarwa: wannan wuri ne mai albarka ga al’ummarmu. Da fatan a kiyaye tarbiyyar Musulunci."
+}

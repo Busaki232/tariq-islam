@@ -1,0 +1,35 @@
+{
+  "quranSection": {
+    "badge": "Coran",
+    "title": "Écoutez le Saint Coran",
+    "subtitle": "Vivez une tranquillité spirituelle grâce à de belles récitations coraniques par des récitants de renommée mondiale",
+
+    "getStartedTitle": "Commencer",
+    "getStartedSubtitle": "Appuyez ci-dessous pour charger le lecteur du Coran.",
+    "loadPlayer": "Charger le lecteur du Coran",
+
+    "popular": {
+      "title": "Sourates populaires",
+      "versesCount": "{{count}} versets"
+    },
+
+    "toast": {
+      "loadingTitle": "Chargement de la sourate",
+      "loadingDesc": "Préparation du lecteur..."
+    },
+
+    "quote": {
+      "text": "C’est Nous qui avons fait descendre le Coran, et c’est Nous qui en sommes les gardiens.",
+      "ref": "- Sourate Al-Hijr (15:9)"
+    }
+  },
+
+  "ui": {
+    "selectReciter": "Choisir un récitateur",
+    "selectSurah": "Choisir une sourate",
+    "searchSurahPlaceholder": "Rechercher une sourate par nom ou numéro...",
+    "noResults": "Aucun résultat",
+    "versesCountShort": "{{count}} versets",
+    "recitedBy": "Récité par {{name}}"
+  }
+}

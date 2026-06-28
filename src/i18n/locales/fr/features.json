@@ -1,0 +1,174 @@
+{
+  "cta": {
+    "titleAuthed": "Explorez votre communauté",
+    "titleGuest": "Explorez votre communauté",
+    "subtitle": "Plongez dans l’expérience complète de Tariq Islam. Connectez-vous avec vos frères et sœurs, suivez vos prières et renforcez votre cheminement spirituel.",
+    "bullets": {
+      "worldwide": "Connectez-vous avec des musulmans du monde entier",
+      "events": "Rejoignez des événements communautaires locaux et mondiaux",
+      "inspire": "Partagez votre cheminement de foi et inspirez les autres",
+      "tools": "Accédez à des ressources et outils islamiques exclusifs"
+    },
+    "card": {
+      "titleAuthed": "Continuez votre parcours",
+      "titleGuest": "Créez votre compte gratuit",
+      "bodyAuthed": "Accédez à votre tableau de bord et aux fonctionnalités communautaires",
+      "bodyGuest": "Rejoignez Tariq Islam et commencez à vous connecter avec des musulmans du monde entier.",
+      "buttonAuthed": "Aller au tableau de bord",
+      "buttonGuest": "Rejoindre maintenant - c’est gratuit"
+    }
+  },
+  "explore": {
+    "title": "Explorez votre communauté",
+    "subtitle": "Plongez dans l’expérience complète de Tariq Islam. Connectez-vous avec vos frères et sœurs, suivez vos prières et renforcez votre cheminement spirituel.",
+    "bullets": {
+      "worldwide": "Connectez-vous avec des musulmans du monde entier",
+      "events": "Rejoignez des événements communautaires locaux et mondiaux",
+      "inspire": "Partagez votre cheminement de foi et inspirez les autres",
+      "tools": "Accédez à des ressources et outils islamiques exclusifs"
+    }
+  },
+  "continue": {
+    "title": "Continuez votre parcours",
+    "subtitle": "Accédez à votre tableau de bord et aux fonctionnalités communautaires",
+    "goToDashboard": "Aller au tableau de bord →"
+  },
+  "mosques": {
+    "title": "Mosquées dans le monde",
+    "subtitle": "Connecter les musulmans du monde entier",
+    "searchPlaceholder": "Rechercher des mosquées, des communautés ou des villes...",
+    "filterButton": "Filtrer les résultats",
+    "majorCitiesTitle": "Grandes villes du monde",
+    "featured": "En vedette",
+    "muslimsLabel": "{{count}} musulmans",
+    "mosquesLabel": "Mosquées"
+  },
+  "supportMission": {
+    "title": "Soutenez la mission",
+    "subtitle": "Aidez à maintenir Global Muslims Connect gratuit pour les musulmans du monde entier.",
+    "learnMore": "En savoir plus →"
+  },
+  "islamicCalendar": {
+    "title": "Calendrier islamique",
+    "subtitle": "Consultez la date hijri actuelle, explorez les mois islamiques et découvrez les principales fêtes et observances islamiques tout au long de l’année.",
+    "ah": "AH",
+    "today": "Aujourd’hui",
+    "major": "Important",
+    "upcomingEvents": "Événements à venir",
+    "noUpcoming": "Aucune fête à venir dans les 60 prochains jours",
+    "allHolidays": "Toutes les fêtes islamiques",
+    "dayHeaders": ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"],
+    "months": {
+      "muharram": "Muharram",
+      "safar": "Safar",
+      "rabiAlAwwal": "Rabiʿ al-Awwal",
+      "rabiAlThani": "Rabiʿ al-Thani",
+      "jumadaAlUla": "Jumada al-Ula",
+      "jumadaAlAkhirah": "Jumada al-Akhirah",
+      "rajab": "Rajab",
+      "shaban": "Shaʿban",
+      "ramadan": "Ramadan",
+      "shawwal": "Shawwal",
+      "dhuAlQidah": "Dhu al-Qiʿdah",
+      "dhuAlHijjah": "Dhu al-Hijjah"
+    },
+    "holidays": {
+      "islamic_new_year": {
+        "name": "Nouvel an islamique",
+        "description": "Le premier jour de Muharram, marquant le début de l’année du calendrier lunaire islamique.",
+        "significance": "Rappelle la Hijra (migration) du Prophète Muhammad de La Mecque vers Médine."
+      },
+      "day_of_ashura": {
+        "name": "Jour d’Achoura",
+        "description": "Un jour de jeûne et de commémoration, le 10 Muharram.",
+        "significance": "Commémore des événements majeurs, notamment le salut de Moïse face à Pharaon, et d’autres souvenirs historiques."
+      },
+      "mawlid_al_nabi": {
+        "name": "Mawlid an-Nabi",
+        "description": "Anniversaire du Prophète Muhammad (paix sur lui).",
+        "significance": "Célébration de la naissance du Prophète, observée dans de nombreuses communautés musulmanes."
+      },
+      "laylat_al_miraj": {
+        "name": "Laylat al-Mi‘raj",
+        "description": "La Nuit du voyage nocturne et de l’ascension du Prophète Muhammad.",
+        "significance": "Rappelle le voyage miraculeux de La Mecque à Jérusalem et l’ascension vers les cieux."
+      },
+      "laylat_al_baraah": {
+        "name": "Laylat al-Bara’ah",
+        "description": "Une nuit de pardon, de prière et de réflexion, au milieu de Shaʿban.",
+        "significance": "Souvent associée à la miséricorde, au pardon et au renouvellement spirituel."
+      },
+      "first_day_of_ramadan": {
+        "name": "Premier jour de Ramadan",
+        "description": "Début du mois de jeûne de Ramadan.",
+        "significance": "Marque l’entrée dans un mois de jeûne, de prière, de lecture du Coran et d’efforts spirituels."
+      },
+      "laylat_al_qadr": {
+        "name": "Laylat al-Qadr",
+        "description": "La Nuit du Destin, l’une des dix dernières nuits de Ramadan.",
+        "significance": "La nuit où le Coran fut révélé pour la première fois, meilleure que mille mois."
+      },
+      "eid_al_fitr": {
+        "name": "Aïd al-Fitr",
+        "description": "Fête de la rupture du jeûne.",
+        "significance": "Grande célébration marquant la fin de Ramadan, l’une des deux principales fêtes islamiques."
+      },
+      "day_of_arafah": {
+        "name": "Jour de ‘Arafah",
+        "description": "Le jour le plus important du pèlerinage du Hajj.",
+        "significance": "Jour du stationnement au mont ‘Arafat, associé au pardon et à la miséricorde."
+      },
+      "eid_al_adha": {
+        "name": "Aïd al-Adha",
+        "description": "Fête du sacrifice.",
+        "significance": "Commémore la foi et l’obéissance d’Ibrahim, et coïncide avec les rites du Hajj."
+      }
+    }
+  },
+  "journey": {
+    "title": "Tout ce dont vous avez besoin pour votre parcours islamique",
+    "subtitle": "Des outils complets et des fonctionnalités communautaires conçus pour les musulmans du monde entier",
+    "items": {
+      "qibla": {
+        "title": "Boussole Qibla",
+        "desc": "Direction précise de la Qibla où que vous soyez dans le monde grâce au GPS"
+      },
+      "mosques": {
+        "title": "Localisateur de mosquées",
+        "desc": "Trouvez des mosquées, des centres islamiques et des restaurants halal près de chez vous"
+      },
+      "calendar": {
+        "title": "Calendrier islamique",
+        "desc": "Ne manquez jamais les dates islamiques importantes, les fêtes et les événements communautaires"
+      },
+      "network": {
+        "title": "Réseau communautaire",
+        "desc": "Connectez-vous avec des musulmans de votre ville et du monde entier"
+      },
+      "learning": {
+        "title": "Apprentissage islamique",
+        "desc": "Accédez au Coran, aux hadiths et à des ressources éducatives islamiques en plusieurs langues"
+      },
+      "heritage": {
+        "title": "Patrimoine culturel",
+        "desc": "Célébrez les traditions islamiques et partagez des expériences culturelles du monde entier"
+      }
+    },
+    "cta": {
+      "title": "Prêt à rejoindre notre communauté ?",
+      "subtitle": "Commencez votre parcours avec des milliers de musulmans dans le monde qui ont trouvé leur foyer spirituel grâce à notre plateforme.",
+      "joinButton": "Rejoindre la communauté",
+      "exploreButton": "Découvrir les fonctionnalités",
+      "guidelinesButton": "Règles de la communauté"
+    },
+    "toasts": {
+      "signInRequiredTitle": "Connexion requise",
+      "signInRequiredDescNetwork": "Veuillez vous connecter pour rejoindre notre réseau communautaire.",
+      "signInRequiredDescChat": "Veuillez vous connecter pour rejoindre le chat de la communauté.",
+      "islamicLearningTitle": "Apprentissage islamique",
+      "islamicLearningDesc": "Explorez la section Coran et écoutez les récitations",
+      "culturalHeritageTitle": "Patrimoine culturel",
+      "culturalHeritageDesc": "Découvrez notre communauté et nos événements culturels"
+    }
+  }
+}

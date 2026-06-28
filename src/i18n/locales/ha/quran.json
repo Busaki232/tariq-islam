@@ -1,0 +1,35 @@
+{
+  "quranSection": {
+    "badge": "Alƙur’ani",
+    "title": "Saurari Alƙur’ani Mai Girma",
+    "subtitle": "Ka ji kwanciyar hankali ta ruhaniya ta hanyar kyawawan karatun Alƙur’ani daga shahararrun masu karatu a duniya",
+
+    "getStartedTitle": "Fara",
+    "getStartedSubtitle": "Danna ƙasa don loda mai kunnawa na Alƙur’ani.",
+    "loadPlayer": "Loda Mai Kunnawa",
+
+    "popular": {
+      "title": "Shahararrun Surori",
+      "versesCount": "{{count}} ayoyi"
+    },
+
+    "toast": {
+      "loadingTitle": "Ana lodin Sura",
+      "loadingDesc": "Ana shirya mai kunnawa..."
+    },
+
+    "quote": {
+      "text": "Lalle Mu ne muka saukar da Alƙur’ani, kuma lalle Mu ne za mu kiyaye shi.",
+      "ref": "- Suratul Al-Hijr (15:9)"
+    }
+  },
+
+  "ui": {
+    "selectReciter": "Zaɓi mai karatu",
+    "selectSurah": "Zaɓi sura",
+    "searchSurahPlaceholder": "Nemo sura da suna ko lamba...",
+    "noResults": "Babu sakamako",
+    "versesCountShort": "{{count}} ayoyi",
+    "recitedBy": "An karanta ta: {{name}}"
+  }
+}

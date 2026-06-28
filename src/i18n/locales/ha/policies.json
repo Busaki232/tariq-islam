@@ -1,0 +1,117 @@
+{
+  "childSafety": {
+    "title": "Manufofin Kare Yara",
+    "lastUpdatedLabel": "An sabunta:",
+    "lastUpdatedDate": "25 Nuwamba 2025",
+    "intro": "A Global Muslims Connect, muna da niyyar kare duk masu amfani, har da ƙananan yara, tare da tabbatar da muhalli mai tsaro, mutuntawa, kuma amintacce a yanar gizo. Ko da yake dandamalinmu ba a yi shi domin yara ƙasa da shekaru 13 ba, mun san cewa ƙananan yara na iya shiga wasu abubuwan yanar gizo. Wannan manufa tana bayyana matakan tsaro da muke dauka domin kare matasa da kuma kiyaye al’umma mai aminci.",
+    "sections": {
+      "adultsOnly": {
+        "title": "1. Manhaja ga Manyan Mutane",
+        "bullets": [
+          "An gina Global Muslims Connect domin manya (18+).",
+          "Ba ma nufin yara, kuma ba ma tsara fasali na musamman domin yara."
+        ]
+      },
+      "noChildContent": {
+        "title": "2. Babu Abubuwan da Aka Nufa da Yara",
+        "bullets": [
+          "Abubuwan da ke cikin manhaja, hanyoyin sadarwa, da ayyuka ba a nufa da yara ba.",
+          "Ba ma nuna hotuna ko zane-zanen motsi ko jigo da aka nufa da yara."
+        ]
+      },
+      "ugcSafety": {
+        "title": "3. Tsaron Abubuwan da Masu Amfani ke Kirkira",
+        "lead": "Domin tabbatar da muhalli mai tsaro:",
+        "bullets": [
+          "Dole ne duk masu amfani su bi Ka’idojin Al’umma.",
+          "An haramta kalaman ƙiyayya, tsangwama, abun batsa, damfara, cin zarafi, ko barazana.",
+          "Keta doka na iya haifar da dakatarwa ko goge asusu har abada."
+        ]
+      },
+      "reporting": {
+        "title": "4. Kayan Rahoto da Kulawa",
+        "lead": "Masu amfani za su iya bada rahoto game da:",
+        "items": [
+          "Sakon cin zarafi",
+          "Hotuna ko bidiyo marasa dacewa",
+          "Asusun da ake zargi",
+          "Keta ladabin Musulunci da dokokin al’umma"
+        ],
+        "note": "Tawagar kulawarmu tana duba duk rahotanni da wuri kuma tana daukar mataki idan ya zama dole."
+      },
+      "ageRestrictions": {
+        "title": "5. Takaita Shekaru",
+        "bullets": [
+          "Ba a yarda yara ƙasa da shekaru 13 su kirkiri asusu ba.",
+          "Muna ƙarfafa iyaye su kula da yadda ’ya’yansu ke amfani da na’ura."
+        ]
+      },
+      "dataProtection": {
+        "title": "6. Kariyar Bayanai",
+        "p1": "Ba mu tara bayanan sirri na yara ƙasa da shekaru 13 da gangan ba.",
+        "p2": "Idan mun gano ƙanana sun kirkiri asusu, muna goge shi nan take."
+      },
+      "expectations": {
+        "title": "7. Abubuwan da Muke Tsammani daga Masu Amfani",
+        "lead": "Dole ne duk masu amfani su:",
+        "bullets": [
+          "Girmama ƙa’idodin Musulunci",
+          "Rike ladabi a yanar gizo",
+          "Guji raba abubuwa masu cutarwa ko masu sirri",
+          "Bada rahoton halayen da ba su da tsaro nan take"
+        ]
+      },
+      "contact": {
+        "title": "8. Bayanan Tuntuɓa",
+        "lead": "Don tambayoyi ko damuwa game da tsaro, tuntube mu:",
+        "emailLabel": "Imel:",
+        "emailValue": "support@global-muslims-connect.com",
+        "businessLabel": "Sunan Kasuwanci:",
+        "businessValue": "Busaki Investments LLC",
+        "websiteLabel": "Gidan Yanar Gizo:",
+        "websiteValue": "www.global-muslims-connect.com"
+      }
+    }
+  },
+
+  "privacy": {
+    "title": "Dokar Sirri",
+    "lastUpdatedLabel": "An sabunta ƙarshe:",
+    "intro": "A Tariq Islam (\"Global Muslims Connect\"), mun jajirce wajen kare sirrinka da tabbatar da tsaron bayananka na sirri. Wannan Dokar Sirri tana bayanin yadda muke tattara, amfani, bayyana, da kare bayananka lokacin da kake amfani da dandamalinmu.",
+    "sections": {
+      "collect": {
+        "title": "Bayanan da muke tattarawa",
+        "personal": {
+          "title": "Bayanan sirri",
+          "body": "Lokacin da ka ƙirƙiri asusu, muna tattara bayanai kamar sunanka, adireshin imel, lambar waya, da wurinka."
+        },
+        "usage": {
+          "title": "Bayanan amfani",
+          "body": "Muna tattara bayanai game da yadda kake amfani da dandamali, ciki har da abubuwan da kake danna, abin da kake kallo, da lokacin da kake kashewa a kan ayyukanmu."
+        },
+        "device": {
+          "title": "Bayanan na’ura",
+          "body": "Muna tattara bayanai game da na’urar da kake amfani da ita, ciki har da IP address, irin burauza, da tsarin aiki."
+        }
+      },
+      "use": {
+        "title": "Yadda muke amfani da bayananka",
+        "bullets": [
+          "Ba da sabis, kula da su, da inganta su",
+          "Keɓance kwarewarka da nuna maka abun da ya dace",
+          "Tuntuɓarka game da sabuntawa, fasaloli, da abubuwan da suka shafi al’umma",
+          "Taimaka wa musulmi su haɗu da juna",
+          "Kare tsaro da ingancin dandamali",
+          "Bin dokoki da kare haƙƙinmu"
+        ]
+      },
+      "contact": {
+        "title": "Tuntube mu",
+        "lead": "Idan kana da tambayoyi game da wannan Dokar Sirri, tuntube mu:",
+        "emailLabel": "Imel:",
+        "emailValue": "privacy@global-muslims-connect.com",
+        "formLine": "Ta hanyar fom din \"Tuntube mu\" a cikin dandamali"
+      }
+    }
+  }
+}

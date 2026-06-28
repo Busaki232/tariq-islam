@@ -1,0 +1,48 @@
+{
+  "prayerTimes": {
+    "title": "Lokutan Salla",
+    "loading": "Ana lodawa lokutan salla...",
+    "enableLocationTitle": "Ba da Izinin Wuri",
+    "enableLocationBody": "Ba da izinin wuri don samun ingantattun lokutan salla a yankinka",
+    "getPrayerTimes": "Samo Lokutan Salla"
+  },
+  "status": {
+    "currentPrayer": "Sallar Yanzu",
+    "nextPrayer": "Salla ta Gaba"
+  },
+  "location": {
+    "unknown": "Ba a san wuri ba",
+    "update": "Sabunta Wuri",
+    "obtained": {
+      "title": "An samu wuri",
+      "desc": "Ana nuna masallatai a kusa da wurinka"
+    },
+    "unavailable": {
+      "title": "Ba a samu wuri ba",
+      "desc": "Ana nuna duk masallatai a yankinka"
+    },
+    "requestingTitle": "Ana neman wuri",
+    "requestingBody": "Da fatan ka ba da izinin wuri don ingantattun lokutan salla.",
+    "failedTitle": "Neman wuri ya kasa",
+    "failedBody": "Ba a iya samun wurinka ba. Duba saitunan burauzarka."
+  },
+  "actions": {
+    "refreshTimes": "Sabunta Lokuta"
+  },
+  "errors": {
+    "tryAgain": "Sake Gwada",
+    "retry": "Sake Gwada"
+  },
+  "date": {
+    "today": "Yau"
+  },
+  "qibla": {
+    "ariaLabel": "Nemo alkibla",
+    "show": "Nuna Kompas na Alkibla",
+    "hide": "Boye Kompas",
+    "locationRequiredTitle": "Ana bukatar wuri",
+    "locationRequiredBody": "Da fatan ka ba da izinin wuri don gano alkibla.",
+    "toastTitle": "🧭 Kompas na Alkibla",
+    "toastBody": "An nuna kompas a kasa"
+  }
+}

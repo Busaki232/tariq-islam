@@ -1,0 +1,73 @@
+{
+  "title": "Salon de discussion communautaire",
+  "subtitle": "Discussion de la communauté musulmane mondiale • Soyez respectueux et bienveillant",
+  "online": "En ligne",
+  "onlineCount": "{{count}} en ligne",
+
+  "authRequiredTitle": "Authentification requise",
+  "authRequiredBody": "Veuillez vous connecter pour accéder au chat communautaire.",
+
+  "menu": {
+    "guidelines": "Règles de la communauté",
+    "refresh": "Actualiser le chat",
+    "report": "Signaler un problème",
+    "reportToastTitle": "Signaler un problème",
+    "reportToastDesc": "Veuillez contacter le support si vous remarquez un souci."
+  },
+
+  "calls": {
+    "joinVideo": "Rejoindre un appel vidéo",
+    "joinAudio": "Rejoindre un appel audio",
+    "startedTitleVideo": "Appel vidéo démarré",
+    "startedTitleAudio": "Appel audio démarré",
+    "startedDesc": "Un lien pour rejoindre a été publié dans le chat.",
+    "permissionTitle": "Autorisation requise",
+    "permissionDescVideo": "Caméra et microphone requis.",
+    "permissionDescAudio": "Microphone requis.",
+    "signInTitle": "Connexion requise",
+    "signInDesc": "Veuillez vous connecter pour démarrer un appel.",
+    "errorTitle": "Erreur",
+    "errorDesc": "Impossible de démarrer l’appel."
+  },
+
+  "input": {
+    "placeholder": "Écrivez votre message... (Soyez respectueux et bienveillant)",
+    "emojiAria": "Emoji",
+    "send": "Envoyer",
+    "cannotSendTitle": "Impossible d’envoyer le message",
+    "cannotSendDesc": "Veuillez vous assurer d’être connecté.",
+    "failedTitle": "Échec de l’envoi",
+    "failedDesc": "Veuillez réessayer."
+  },
+
+  "voice": {
+    "recordAria": "Enregistrer un message vocal",
+    "sentTitle": "Message vocal envoyé",
+    "sentDesc": "Votre message vocal a été envoyé au chat.",
+    "failedTitle": "Échec de l’envoi",
+    "failedDesc": "Impossible d’envoyer le message vocal."
+  },
+
+  "image": {
+    "sentTitle": "Image envoyée",
+    "sentDesc": "Votre image a été partagée dans le chat.",
+    "failedTitle": "Échec de l’envoi",
+    "failedDesc": "Impossible d’envoyer l’image."
+  },
+
+  "deleteDialog": {
+    "title": "Supprimer le message",
+    "desc": "Êtes-vous sûr de vouloir supprimer ce message ? Cette action est irréversible.",
+    "cancel": "Annuler",
+    "confirm": "Supprimer"
+  },
+
+  "edited": "modifié",
+  "save": "Enregistrer",
+  "cancel": "Annuler",
+  "edit": "Modifier",
+  "deletedMessage": "Ce message a été supprimé",
+  "locationNotSet": "Localisation non définie",
+
+  "footerNote": "Rappel : c’est un espace sacré pour notre communauté. Merci de respecter l’étiquette islamique."
+}

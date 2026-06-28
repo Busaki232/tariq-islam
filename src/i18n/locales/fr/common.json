@@ -1,0 +1,208 @@
+{
+  "loading": "Chargement...",
+  "errors": {
+    "timeout": "Délai d’attente dépassé"
+  },
+  "presence": {
+    "online": "En ligne",
+    "offline": "Hors ligne",
+    "seenMinutes": "Vu il y a {{count}} min",
+    "seenHours": "Vu il y a {{count}} h",
+    "seenDate": "Vu le {{date}}"
+  },
+  "privateChat": {
+    "directory": {
+      "requestedOn": "Demandé le {{date}}"
+    }
+  },
+  "settings": {
+    "title": "Paramètres",
+    "profile": "Profil",
+    "profile_title": "Votre profil",
+    "profile_alt": "Profil",
+    "no_photo": "Aucune photo",
+    "uploading": "Téléversement...",
+    "change_photo": "Changer la photo",
+    "username_label": "Nom d’utilisateur",
+    "username_help": "Utilisé pour les invitations en chat privé. Pas d’espaces. Lettres, chiffres, point et underscore autorisés.",
+    "username_placeholder": "Exemple : @taofikbusari",
+    "saving": "Enregistrement...",
+    "save": "Enregistrer",
+    "saved": "Enregistré",
+    "username_saved_hint": "Enregistré",
+    "username_saved_title": "Nom d’utilisateur enregistré",
+    "username_invalid_short": "Invalide",
+    "username_invalid_title": "Nom d’utilisateur invalide",
+    "username_invalid_desc": "Utilisez 3 à 20 caractères. Lettres, chiffres, point et underscore uniquement.",
+    "username_save_failed_title": "Impossible d’enregistrer le nom d’utilisateur",
+    "username_taken": "Ce nom d’utilisateur est déjà pris.",
+    "username_preview": "Aperçu",
+    "none": "Aucun",
+    "appearance": "Apparence",
+    "theme": "Thème",
+    "online_visibility": "Visibilité en ligne",
+    "online_hidden": "Masqué (hors ligne)",
+    "online_visible": "Visible (en ligne)",
+    "show_online": "Afficher en ligne",
+    "hide_online": "Masquer en ligne",
+    "stored_on_device": "Enregistré sur cet appareil.",
+    "notifications": "Notifications",
+    "messages": "Messages",
+    "calls": "Appels",
+    "local_toggles_note": "Ces options sont locales pour le moment.",
+    "adhan": "Adhan",
+    "adhan_enabled": "Adhan activé",
+    "adhan_disabled": "Adhan désactivé",
+    "adhan_note": "Vous pouvez l’activer ou le désactiver à tout moment.",
+    "adhan_location_title": "Localisation pour l’Adhan",
+    "adhan_location_subtitle": "Utilisez la position de l’appareil ou entrez les coordonnées manuellement.",
+    "adhan_location_device": "Utiliser l’appareil",
+    "adhan_location_manual": "Manuel",
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "latitude_placeholder": "41.8781",
+    "longitude_placeholder": "-87.6298",
+    "save_location": "Enregistrer la localisation",
+    "invalid_location": "Localisation invalide",
+    "invalid_location_desc": "Veuillez entrer une latitude et longitude valides.",
+    "location_saved": "Localisation enregistrée",
+    "location_up_to_date": "Localisation à jour",
+    "device_location_captured": "Localisation enregistrée",
+    "device_location_saved": "Localisation enregistrée",
+    "device_location_not_saved": "Localisation non enregistrée",
+    "could_not_get_location": "Impossible d’obtenir la localisation",
+    "location_unavailable": "Localisation indisponible",
+    "location_unavailable_desc": "La géolocalisation n’est pas prise en charge.",
+    "permission_needed": "Autorisation requise",
+    "permission_needed_desc": "Veuillez autoriser l’accès à la localisation.",
+    "account_deletion": "Suppression du compte",
+    "deletion_intro": "Vous pouvez demander la suppression de votre compte.",
+    "deletion_note": "Les demandes sont traitées sous 30 jours.",
+    "request_deletion": "Demander la suppression",
+    "email_support_instead": "Envoyer un email au support",
+    "deletion_email_subject": "Demande de suppression",
+    "deletion_email_hello": "Bonjour Support,",
+    "deletion_email_line1": "Je souhaite supprimer mon compte.",
+    "deletion_email_account": "Email du compte",
+    "deletion_email_user_id": "ID utilisateur",
+    "deletion_email_thanks": "Merci.",
+    "blocked_users": "Utilisateurs bloqués",
+    "no_blocked_users": "Aucun utilisateur bloqué.",
+    "blocked_fallback_name": "Utilisateur bloqué",
+    "unblock": "Débloquer",
+    "signout": "Se déconnecter",
+    "not_signed_in": "Non connecté.",
+    "language": {
+      "title": "Langue",
+      "subtitle": "Langue de l’application",
+      "placeholder": "Choisir une langue",
+      "current": "Actuelle",
+      "english": "Anglais",
+      "french": "Français",
+      "hausa": "Haoussa",
+      "arabic": "Arabe"
+    }
+  },
+  "test_language": "Test de langue",
+  "home": {
+    "hero": {
+      "bgAlt": "Motif géométrique islamique",
+      "greetingTranslation": "Que la paix et la miséricorde d’Allah soient sur vous",
+      "title": "Restez connecté à votre foi et communauté",
+      "subtitle": "Trouvez les horaires de prière et des mosquées."
+    },
+    "cta": {
+      "joinChat": "Rejoindre le chat",
+      "joinChatAria": "Rejoindre le chat communautaire",
+      "findMosques": "Trouver des mosquées",
+      "findMosquesAria": "Trouver des mosquées proches",
+      "gettingLocation": "Localisation...",
+      "qibla": "Trouver la Qibla",
+      "qiblaAria": "Ouvrir la Qibla",
+      "qiblaDirectionAria": "Trouver la direction",
+      "joinNow": "Rejoindre maintenant",
+      "joinNowAria": "S’inscrire",
+      "islamicCalendar": "Calendrier islamique",
+      "islamicCalendarAria": "Ouvrir le calendrier"
+    },
+    "location": {
+      "obtained": {
+        "title": "Localisation obtenue",
+        "desc": "Mosquées proches affichées"
+      },
+      "unavailable": {
+        "title": "Localisation indisponible",
+        "desc": "Toutes les mosquées affichées"
+      }
+    },
+    "why": {
+      "title": "Pourquoi rejoindre Tariq Islam ?",
+      "bullet1": "Rencontrez des musulmans en temps réel",
+      "bullet2": "Trouvez mosquées et événements",
+      "bullet3": "Accédez au Coran et horaires"
+    },
+    "privacy": "Vos données sont protégées."
+  },
+
+  "howToListenTitle": "🎧 Comment écouter",
+  "getStartedSubtitle": "Sélectionnez un récitateur et une sourate ci-dessous pour commencer à écouter le Noble Coran.",
+  "howToListenSteps": {
+    "1": "Sélectionnez un récitateur.",
+    "2": "Sélectionnez une sourate.",
+    "3": "Appuyez sur Lecture pour écouter."
+  },
+
+  "islamicCalendar": {
+    "months": {
+      "muharram": "Mouharram",
+      "safar": "Safar",
+      "rabiAlAwwal": "Rabiʿ al-Awwal",
+      "rabiAlThani": "Rabiʿ ath-Thani",
+      "jumadaAlUla": "Joumada al-Oula",
+      "jumadaAlAkhirah": "Joumada ath-Thania",
+      "rajab": "Rajab",
+      "shaban": "Chaabane",
+      "ramadan": "Ramadan",
+      "shawwal": "Chawwal",
+      "dhuAlQidah": "Dhou al-Qiʿda",
+      "dhuAlHijjah": "Dhou al-Hijja"
+    }
+  },
+  "footer": {
+    "cta": {
+      "title": "Prêt à rejoindre notre communauté ?",
+      "subtitle": "Rejoignez des milliers de musulmans dans le monde.",
+      "join": "Rejoindre maintenant",
+      "explore": "Explorer",
+      "guidelines": "Règles"
+    },
+    "brand": {
+      "name": "Tariq Islam",
+      "alt": "Logo Tariq Islam",
+      "note": "Veuillez respecter notre communauté"
+    },
+    "columns": {
+      "community": "Communauté",
+      "business": "Entreprises",
+      "support": "Support"
+    },
+    "links": {
+      "mosques": "Mosquées",
+      "events": "Événements",
+      "chatRoom": "Chat",
+      "communityGuidelines": "Règles",
+      "privacyPolicy": "Confidentialité",
+      "childSafetyPolicy": "Protection des enfants",
+      "advertise": "Publicité",
+      "businessListings": "Entreprises",
+      "supportPlatform": "Soutenir",
+      "contactUs": "Contact"
+    },
+    "copyright": "Tous droits réservés."
+  },
+  "contact": {
+    "title": "Nous contacter",
+    "subtitle": "Envoyez vos commentaires.",
+    "close": "Fermer"
+  }
+}

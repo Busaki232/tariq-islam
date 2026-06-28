@@ -1,0 +1,52 @@
+{
+  "title": "Kasuwa ta Al’umma",
+  "subtitle": "Gano kasuwancin halal, ayyukan Musulunci, da albarkatun al’umma da Musulmi a duniya suka amince da su",
+
+  "actions": {
+    "myAds": "Tallace-tallacena",
+    "postBusiness": "Sanya kasuwancinka",
+    "browseCategories": "Duba rukunoni"
+  },
+
+  "categories": {
+    "all": "Duka"
+  },
+
+  "featured": {
+    "title": "Tallace-tallace na Musamman",
+    "subtitle": "Kasuwanci da ayyuka masu inganci da al’ummarmu ta ba da shawara"
+  },
+
+  "states": {
+    "loading": "Ana loda tallace-tallace...",
+    "noAds": "Babu tallace-tallace a halin yanzu. Ka zama na farko da zai nuna kasuwancinsa ga al’umma.",
+    "noResults": "Ba a sami tallace-tallace ba.",
+    "noCategoryResults": "Babu tallace-tallace a rukunin {{category}}. Gwada wani rukuni ko saka kasuwancinka."
+  },
+
+  "card": {
+    "featured": "Musamman",
+    "views": "{{count}} dubawa",
+    "noImage": "Babu hoto"
+  },
+
+  "buttons": {
+    "requestContact": "Nemi tuntuɓa",
+    "signInToContact": "Shiga domin tuntuɓa",
+    "website": "Gidan yanar gizo",
+    "postFirst": "Sanya kasuwanci na farko",
+    "postBusiness": "Sanya kasuwancinka"
+  },
+
+  "cta": {
+    "title": "Haɓaka kasuwancinka tare da al’ummarmu",
+    "subtitle": "Kai dubban Musulmi a faɗin duniya. Sanya kasuwancinka, aikinka, ko ƙungiyar halal yau.",
+    "listBusiness": "Jerin kasuwanci",
+    "browseMarketplace": "Duba kasuwa"
+  },
+
+  "submit": {
+    "title": "Jerin kasuwancinka",
+    "subtitle": "Haɗu da al’ummar Musulmi kuma ka haɓaka kasuwancinka na halal"
+  }
+}

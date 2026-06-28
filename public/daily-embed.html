@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Daily Embed</title>
+    <script src="https://unpkg.com/@daily-co/daily-js"></script>
+</head>
+<body style="margin: 0; padding: 0; overflow: hidden;">
+<div id="frame-root" style="width: 100vw; height: 100vh;"></div>
+
+<script>
+    let callFrame = null;
+
+    function sendToParent(payload) {
+      try {
+        window.parent && window.parent.postMessage(payload, "*");
+      } catch (_) {}
+    }
+
+    // Tell parent we are loaded and listening
+    sendToParent({ type: "DAILY_EMBED_READY" });
+
+    window.addEventListener("message", async (ev) => {
+      const msg = ev.data;
+      if (!msg || !msg.action) return;
+
+      if (msg.action === "join") {
+        sendToParent({ type: "DAILY_EMBED_JOIN_RECEIVED" });
+
+        if (callFrame) {
+          try {
+            await callFrame.leave();
+          } catch (_) {}
+          try {
+            await callFrame.destroy();
+          } catch (_) {}
+          callFrame = null;
+        }
+
+        const root = document.getElementById("frame-root");
+
+        callFrame = window.DailyIframe.createFrame(root, {
+          iframeStyle: { width: "100%", height: "100%" },
+          showLeaveButton: false,
+        });
+
+        // Optional: helpful debug events
+        callFrame.on("joined-meeting", () => sendToParent({ type: "DAILY_JOINED" }));
+        callFrame.on("left-meeting", () => sendToParent({ type: "DAILY_LEFT" }));
+        callFrame.on("error", (e) => sendToParent({ type: "DAILY_ERROR", error: String(e?.errorMsg || e) }));
+
+        try {
+        await callFrame.join({
+            url: msg.roomUrl,
+            userName: msg.userName,
+            // For audio-only calls: audio on, video off
+            // For video calls: both on
+            startAudioOff: false,
+            startVideoOff: msg.audioOnly === true,
+          });
+        } catch (e) {
+          console.error("[Daily] join failed:", e);
+          sendToParent({ type: "DAILY_JOIN_FAILED", error: String(e?.message || e) });
+        }
+      }
+
+      if (msg.action === "leave") {
+        try {
+          await callFrame?.leave();
+          await callFrame?.destroy();
+        } catch (_) {}
+        callFrame = null;
+        sendToParent({ type: "DAILY_EMBED_LEFT" });
+      }
+    });
+</script>
+</body>
+</html>

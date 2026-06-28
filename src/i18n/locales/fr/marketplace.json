@@ -1,0 +1,52 @@
+{
+  "title": "Marché communautaire",
+  "subtitle": "Découvrez des entreprises halal, des services islamiques et des ressources communautaires recommandées par des musulmans du monde entier",
+
+  "actions": {
+    "myAds": "Mes annonces",
+    "postBusiness": "Publier votre entreprise",
+    "browseCategories": "Parcourir les catégories"
+  },
+
+  "categories": {
+    "all": "Toutes"
+  },
+
+  "featured": {
+    "title": "Annonces en vedette",
+    "subtitle": "Entreprises et services premium recommandés par notre communauté"
+  },
+
+  "states": {
+    "loading": "Chargement des annonces...",
+    "noAds": "Aucune annonce disponible pour le moment. Soyez le premier à présenter votre entreprise à la communauté.",
+    "noResults": "Aucune annonce trouvée.",
+    "noCategoryResults": "Aucune annonce trouvée dans la catégorie {{category}}. Essayez une autre catégorie ou publiez votre entreprise."
+  },
+
+  "card": {
+    "featured": "En vedette",
+    "views": "{{count}} vues",
+    "noImage": "Aucune image"
+  },
+
+  "buttons": {
+    "requestContact": "Demander un contact",
+    "signInToContact": "Connectez-vous pour contacter",
+    "website": "Site web",
+    "postFirst": "Publier la première entreprise",
+    "postBusiness": "Publier votre entreprise"
+  },
+
+  "cta": {
+    "title": "Développez votre entreprise avec notre communauté",
+    "subtitle": "Touchez des milliers de musulmans à travers le monde. Inscrivez votre entreprise, service ou organisation halal dès aujourd’hui.",
+    "listBusiness": "Lister votre entreprise",
+    "browseMarketplace": "Parcourir le marché"
+  },
+
+  "submit": {
+    "title": "Lister votre entreprise",
+    "subtitle": "Connectez-vous avec la communauté musulmane et développez votre entreprise halal"
+  }
+}

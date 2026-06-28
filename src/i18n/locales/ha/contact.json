@@ -1,0 +1,82 @@
+{
+  "title": "Tuntube Mu",
+  "subtitle": "Raba ra’ayinka, bada rahoton matsala, ko nemi sabon fasali. Muna daraja gudummuwarka kuma za mu amsa da wuri-wuri.",
+  "close": "Rufe",
+
+  "form": {
+    "nameLabel": "Suna",
+    "namePlaceholder": "Sunanka",
+    "emailLabel": "Imel",
+    "emailPlaceholder": "suna@email.com",
+    "subjectLabel": "Taken saƙo",
+    "subjectPlaceholder": "Takaitaccen bayani",
+    "typeLabel": "Nau’in bayani / Dalili",
+    "typePlaceholder": "Ra’ayi, rahoton matsala, neman fasali...",
+    "messageLabel": "Saƙo",
+    "messagePlaceholder": "Bayyana ƙarin bayani...",
+    "submit": "Aika",
+    "submitting": "Ana aikawa...",
+    "cancel": "Soke",
+    "securityNote": "Ana kula da saƙonni cikin tsaro domin kare sirri."
+  },
+
+  "business": {
+    "fallbackName": "Kasuwanci",
+    "title": "Tuntubi {{businessName}}",
+    "subtitle": "Aika saƙo mai tsaro domin neman bayanan tuntuɓa daga wannan kasuwanci.",
+    "sendButton": "Aika Buƙata Mai Tsaro",
+    "openMessaging": "Buɗe Saƙon Tsaro",
+    "highRiskNote": "Buƙatarka na iya buƙatar ƙarin tantancewa saboda manufofin tsaro."
+  },
+
+  "badges": {
+    "reputation": "Suna",
+    "risk": "Haɗari",
+    "riskLow": "Ƙasa",
+    "riskMedium": "Matsakaici",
+    "riskHigh": "Mai yawa"
+  },
+
+  "types": {
+    "general": "Ra’ayi na gabaɗaya",
+    "bug": "Rahoton matsala",
+    "feature": "Neman fasali",
+    "account": "Matsalar asusu",
+    "billing": "Biya / gudummawa",
+    "other": "Sauran"
+  },
+
+  "validation": {
+    "nameRequired": "Ana buƙatar suna",
+    "nameTooLong": "Suna bai kamata ya wuce haruffa 100 ba",
+    "emailRequired": "Ana buƙatar imel",
+    "emailInvalid": "Shigar da ingantaccen imel",
+    "emailTooLong": "Imel bai kamata ya wuce haruffa 255 ba",
+    "subjectRequired": "Ana buƙatar taken saƙo",
+    "subjectTooLong": "Taken saƙo bai kamata ya wuce haruffa 120 ba",
+    "reasonRequired": "Da fatan a bayyana dalilin tuntuɓa",
+    "reasonTooLong": "Dalili bai kamata ya wuce haruffa 500 ba",
+    "messageRequired": "Ana buƙatar saƙo",
+    "messageTooLong": "Saƙo bai kamata ya wuce haruffa 1000 ba"
+  },
+
+  "toast": {
+    "successTitle": "An aika",
+    "successBody": "Na gode. An karɓi saƙonka.",
+    "errorTitle": "An samu matsala",
+    "errorBody": "An kasa aika saƙo. Da fatan a sake gwadawa.",
+
+    "authRequiredTitle": "Ana buƙatar shiga asusu",
+    "authRequiredBody": "Da fatan a shiga asusu domin aika saƙo.",
+    "missingContextTitle": "Bayanai sun ɓace",
+    "missingContextBody": "Wannan fom na buƙatar advertisementId idan yana a yanayin kasuwanci.",
+    "invalidInputTitle": "Shigarwa ba daidai ba",
+    "invalidInputBody": "Da fatan a cire duk wani abu da ake zargi sannan a sake gwadawa.",
+    "businessSuccessTitle": "An aika buƙata",
+    "businessSuccessBody": "An aika buƙatarka cikin tsaro. Mai kasuwanci zai duba kuma zai iya tuntuɓarka ta hanyar saƙon tsaro.",
+    "rateLimitTitle": "An wuce iyaka",
+    "rateLimitBody": "Ka aika saƙonni da yawa a baya-bayan nan. Da fatan a jira sannan a sake gwadawa.",
+    "storageMissingTitle": "Ba a saita ajiyar saƙonni ba",
+    "storageMissingBody": "Shafin /contact yana buƙatar teburi domin adana saƙonni (misali: contact_messages)."
+  }
+}

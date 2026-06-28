@@ -1,0 +1,56 @@
+{
+  "header": {
+    "title": "Événements communautaires",
+    "subtitle": "Découvrez et rejoignez des événements dans la communauté musulmane mondiale"
+  },
+  "filters": {
+    "searchPlaceholder": "Rechercher des événements...",
+    "category": "Catégorie",
+    "all": "Toutes les catégories",
+    "religious": "Religieux",
+    "educational": "Éducatif",
+    "cultural": "Culturel",
+    "social": "Social",
+    "general": "Général"
+  },
+  "buttons": {
+    "create": "Créer un événement",
+    "view": "Voir les détails"
+  },
+  "create": "Créer un événement",
+  "creating": "Création de l’événement...",
+  "form": {
+    "titlePlaceholder": "Entrez le titre de l’événement...",
+    "descriptionPlaceholder": "Décrivez votre événement...",
+    "locationPlaceholder": "Entrez le lieu de l’événement...",
+    "categoryPlaceholder": "Sélectionner une catégorie",
+    "capacityPlaceholder": "Aucune limite",
+    "imagePlaceholder": "https://exemple.com/image.jpg"
+  },
+  "jumuahPoll": {
+    "title": "Qui va à la prière du vendredi (Jumu‘a) ?"
+  },
+    "known": {
+      "jumuahTitle": "Prière du Jumu‘ah",
+      "jumuahDesc": "Prière congregationale du vendredi (hebdomadaire)",
+      "mainMasjid": "Mosquée Principale"
+  },
+  "states": {
+    "loading": "Chargement des événements...",
+    "noResults": "Aucun événement trouvé",
+    "noUpcoming": "Aucun événement prévu pour le moment",
+    "full": "Complet",
+    "almostFull": "Presque complet",
+    "untitled": "Événement sans titre",
+    "locationTBD": "Lieu à confirmer",
+    "attending": "{{count}} participants",
+    "max": "max"
+  },
+  "fields": {
+    "title": "Événement",
+    "at": "à"
+  },
+  "toast": {
+    "errorBody": "Échec du chargement des événements. Veuillez réessayer."
+  }
+}

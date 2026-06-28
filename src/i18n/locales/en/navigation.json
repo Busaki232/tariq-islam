@@ -1,0 +1,20 @@
+{
+  "back": "Back",
+  "backToMessages": "Back to Messages",
+
+  "titles": {
+    "messages": "Messages",
+    "groups": "Groups",
+    "profile": "Profile",
+    "settings": "Settings",
+    "app": "Tariq Islam"
+  },
+
+  "bottomNav": {
+    "home": "Home",
+    "chat": "Chat Room",
+    "messages": "Messages",
+    "events": "Events",
+    "profile": "Profile"
+  }
+}

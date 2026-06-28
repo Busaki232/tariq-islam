@@ -1,0 +1,144 @@
+{
+  "title": "Messages",
+  "labels": {
+    "unknownUser": "Utilisateur inconnu"
+  },
+  "actions": {
+    "newChat": "Nouveau chat",
+    "newGroup": "Nouveau groupe",
+    "refresh": "Actualiser",
+    "retry": "Réessayer",
+    "findUsers": "Trouver des utilisateurs",
+    "close": "Fermer",
+    "save": "Enregistrer",
+    "saving": "Enregistrement..."
+  },
+  "tabs": {
+    "direct": "Direct ({{count}})",
+    "groups": "Groupes",
+    "requests": "Demandes"
+  },
+  "states": {
+    "loading": "Chargement..."
+  },
+  "pending": {
+    "text": "Vous avez {{count}} demande{{plural}} en attente. Ouvrez l’écran Nouveau chat pour accepter/refuser."
+  },
+  "empty": {
+    "title": "Aucun utilisateur connecté",
+    "desc": "Appuyez sur Nouveau chat pour envoyer une demande. Ils doivent accepter avant de pouvoir discuter."
+  },
+  "groups": {
+    "placeholder": "La liste des groupes apparaîtra ici."
+  },
+  "modal": {
+    "title": "Démarrer un nouveau chat"
+  },
+  "directory": {
+    "inviteTitle": "Inviter par nom d’utilisateur",
+    "inviteDesc": "Les personnes ne peuvent se connecter que si quelqu’un envoie une invitation.",
+    "invitePlaceholder": "nom d’utilisateur (ex: @ali)",
+    "inviteBtn": "Inviter",
+    "inviteBtnLoading": "Invitation...",
+    "searchPlaceholder": "Rechercher dans les connexions et demandes...",
+    "onlineTitle": "Visibilité en ligne",
+    "onlineHidden": "Masqué (vous apparaissez hors ligne)",
+    "onlineVisible": "Visible (vous apparaissez en ligne)",
+    "showOnline": "Afficher en ligne",
+    "hideOnline": "Masquer en ligne",
+    "tabs": {
+      "connected": "Connectés ({{count}})",
+      "requests": "Demandes",
+      "directory": "Annuaire"
+    },
+    "message": "Message",
+    "add": "Ajouter",
+    "adding": "Ajout...",
+    "noPending": "Aucune demande en attente",
+    "noRequestsMatch": "Aucune demande ne correspond à votre recherche",
+    "accept": "Accepter",
+    "reject": "Refuser",
+    "signInToSearch": "Connectez-vous pour rechercher des utilisateurs.",
+    "typeTwoChars": "Saisissez au moins 2 caractères pour rechercher.",
+    "searching": "Recherche...",
+    "noUsersFound": "Aucun utilisateur trouvé",
+    "noneConnected": "Aucune connexion",
+    "noneConnectedMatch": "Aucun utilisateur connecté trouvé",
+    "searchFailed": "Échec de la recherche dans l’annuaire. Votre politique SELECT sur profiles bloque peut-être la lecture.",
+    "requestedOn": "Demandé le {{date}}"
+  },
+  "toast": {
+    "signInRequired": "Connexion requise",
+    "enterUsernameTitle": "Saisissez un nom d’utilisateur",
+    "enterUsernameDesc": "Exemple: @muhammad (sans espaces)",
+    "userNotFoundTitle": "Utilisateur introuvable",
+    "userNotFoundDesc": "Aucun utilisateur avec le nom @{{uname}}",
+    "thatsYouTitle": "C’est vous",
+    "cantInviteSelf": "Vous ne pouvez pas vous inviter vous-même.",
+    "alreadyConnectedTitle": "Déjà connecté",
+    "alreadyConnectedDesc": "Vous pouvez lui écrire depuis Connectés.",
+    "requestAlreadySentTitle": "Demande déjà envoyée",
+    "requestAlreadySentDesc": "En attente de son acceptation.",
+    "theyRequestedYouTitle": "Il vous a déjà envoyé une demande",
+    "checkRequestsTab": "Vérifiez l’onglet Demandes pour accepter.",
+    "inviteSentTitle": "Invitation envoyée",
+    "inviteSentDesc": "Demande de connexion envoyée à @{{uname}}",
+    "couldNotSendInviteTitle": "Impossible d’envoyer l’invitation",
+    "couldNotSendInviteDesc": "Échec de l’envoi de l’invitation",
+    "requestSentTitle": "Demande envoyée",
+    "requestSentDesc": "Demande envoyée à {{otherUserName}}. Il doit accepter avant de pouvoir discuter.",
+    "requestSentToName": "Demande de connexion envoyée à {{name}}",
+    "couldNotSendRequestTitle": "Impossible d’envoyer la demande",
+    "couldNotSendRequestDesc": "Échec de l’envoi de la demande",
+    "connectedTitle": "Connecté",
+    "requestAccepted": "Demande acceptée.",
+    "couldNotAcceptTitle": "Impossible d’accepter",
+    "couldNotAcceptDesc": "Échec de l’acceptation de la demande",
+    "rejectedTitle": "Refusé",
+    "requestRejected": "Demande refusée.",
+    "couldNotRejectTitle": "Impossible de refuser",
+    "couldNotRejectDesc": "Échec du refus de la demande",
+    "newGroupTitle": "Nouveau groupe",
+    "newGroupDesc": "Créez un groupe et ajoutez des membres."
+  },
+  "onboarding": {
+    "chat": {
+      "title": "Discussion privée",
+      "desc": "Allez dans Messages, appuyez sur Ajouter au répertoire pour rechercher par nom d'utilisateur, puis consultez l’onglet Demandes pour accepter de nouvelles connexions."
+    }
+  },
+  "createGroup": {
+    "title": "Créer un nouveau groupe",
+    "groupNameLabel": "Nom du groupe",
+    "groupNamePlaceholder": "Exemple: Lagos Brothers",
+    "addMembersOptional": "Ajouter des membres maintenant (optionnel)",
+    "selectedCount": "Sélectionnés: {{count}}",
+    "searchConnections": "Rechercher vos connexions...",
+    "noMatches": "Aucun résultat",
+    "noConnections": "Aucune connexion",
+    "createBtn": "Créer le groupe",
+    "creating": "Création..."
+  },
+  "groupSettings": {
+    "title": "Paramètres du groupe",
+    "roleLabel": "Votre rôle",
+    "roleUnknown": "inconnu",
+    "groupName": "Nom du groupe",
+    "adminOnly": "Seuls les admins peuvent renommer le groupe.",
+    "members": "Membres",
+    "noMembers": "Aucun membre trouvé.",
+    "you": "Vous",
+    "leave": "Quitter le groupe",
+    "leaving": "Sortie..."
+  },
+  "presence": {
+    "online": "En ligne",
+    "offline": "Hors ligne",
+    "seenMinutes": "Vu il y a {{count}} min",
+    "seenHours": "Vu il y a {{count}} h",
+    "seenDate": "Vu le {{date}}"
+  },
+  "errors": {
+    "timeout": "Délai d’attente dépassé"
+  }
+}

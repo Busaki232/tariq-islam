@@ -1,0 +1,35 @@
+{
+  "quranSection": {
+    "badge": "القرآن",
+    "title": "استمع إلى القرآن الكريم",
+    "subtitle": "عِش السكينة الروحية من خلال تلاوات قرآنية جميلة بصوت قرّاء عالميين",
+
+    "getStartedTitle": "ابدأ",
+    "getStartedSubtitle": "اضغط بالأسفل لتحميل مشغّل القرآن.",
+    "loadPlayer": "تحميل مشغّل القرآن",
+
+    "popular": {
+      "title": "سور شائعة",
+      "versesCount": "{{count}} آية"
+    },
+
+    "toast": {
+      "loadingTitle": "جارٍ تحميل السورة",
+      "loadingDesc": "جارٍ تجهيز المشغّل..."
+    },
+
+    "quote": {
+      "text": "إِنَّا نَحْنُ نَزَّلْنَا الذِّكْرَ وَإِنَّا لَهُ لَحَافِظُونَ",
+      "ref": "- سورة الحجر (15:9)"
+    }
+  },
+
+  "ui": {
+    "selectReciter": "اختر القارئ",
+    "selectSurah": "اختر سورة",
+    "searchSurahPlaceholder": "ابحث عن السورة بالاسم أو الرقم...",
+    "noResults": "لا توجد نتائج",
+    "versesCountShort": "{{count}} آيات",
+    "recitedBy": "تلاوة: {{name}}"
+  }
+}

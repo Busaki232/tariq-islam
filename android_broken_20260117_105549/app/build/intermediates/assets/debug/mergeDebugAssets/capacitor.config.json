@@ -1,0 +1,23 @@
+{
+	"appId": "com.tariqislam.app",
+	"appName": "Tariq Islam",
+	"webDir": "dist",
+	"android": {
+		"allowMixedContent": true,
+		"webContentsDebuggingEnabled": false
+	},
+	"plugins": {
+		"SplashScreen": {
+			"launchShowDuration": 1500,
+			"backgroundColor": "#1e3a8a",
+			"showSpinner": false,
+			"androidSpinnerStyle": "large",
+			"iosSpinnerStyle": "small",
+			"spinnerColor": "#ffffff",
+			"splashFullScreen": true,
+			"splashImmersive": true,
+			"layoutName": "launch_screen",
+			"useDialog": false
+		}
+	}
+}

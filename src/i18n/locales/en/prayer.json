@@ -1,0 +1,48 @@
+{
+  "prayerTimes": {
+    "title": "Prayer Times",
+    "loading": "Loading prayer times...",
+    "enableLocationTitle": "Enable Location Access",
+    "enableLocationBody": "Allow location access to get accurate prayer times for your area",
+    "getPrayerTimes": "Get Prayer Times"
+  },
+  "status": {
+    "currentPrayer": "Current Prayer",
+    "nextPrayer": "Next Prayer"
+  },
+  "location": {
+    "unknown": "Unknown Location",
+    "update": "Update Location",
+    "obtained": {
+      "title": "Location obtained",
+      "desc": "Showing mosques near your location"
+    },
+    "unavailable": {
+      "title": "Location unavailable",
+      "desc": "Showing all mosques in your area"
+    },
+    "requestingTitle": "Requesting Location",
+    "requestingBody": "Please allow location access for accurate prayer times.",
+    "failedTitle": "Location Request Failed",
+    "failedBody": "Unable to get your location. Please check your browser settings."
+  },
+  "actions": {
+    "refreshTimes": "Refresh Times"
+  },
+  "errors": {
+    "tryAgain": "Try Again",
+    "retry": "Retry"
+  },
+  "date": {
+    "today": "Today"
+  },
+  "qibla": {
+    "ariaLabel": "Find Qibla direction",
+    "show": "Show Qibla Compass",
+    "hide": "Hide Compass",
+    "locationRequiredTitle": "Location Required",
+    "locationRequiredBody": "Please allow location access to find Qibla direction.",
+    "toastTitle": "🧭 Qibla Compass",
+    "toastBody": "Interactive compass displayed below"
+  }
+}

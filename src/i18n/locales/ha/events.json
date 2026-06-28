@@ -1,0 +1,56 @@
+{
+  "header": {
+    "title": "Taron Al'umma",
+    "subtitle": "Gano kuma shiga tarurruka a cikin al’ummar Musulmi ta duniya"
+  },
+  "filters": {
+    "searchPlaceholder": "Bincika tarurruka...",
+    "category": "Rukuni",
+    "all": "Dukkan Rukuni",
+    "religious": "Addini",
+    "educational": "Ilmantarwa",
+    "cultural": "Al’adu",
+    "social": "Zamantakewa",
+    "general": "Na gaba ɗaya"
+  },
+  "buttons": {
+    "create": "Ƙirƙiri Taro",
+    "view": "Duba Cikakkun Bayani"
+  },
+  "create": "Ƙirƙiri Taro",
+  "creating": "Ana ƙirƙirar taro...",
+  "form": {
+    "titlePlaceholder": "Shigar da taken taro...",
+    "descriptionPlaceholder": "Bayyana taronku...",
+    "locationPlaceholder": "Shigar da wurin taro...",
+    "categoryPlaceholder": "Zaɓi rukuni",
+    "capacityPlaceholder": "Babu iyaka",
+    "imagePlaceholder": "https://example.com/image.jpg"
+  },
+  "jumuahPoll": {
+    "title": "Wa zai je sallar Juma’a?"
+  },
+  "known": {
+    "jumuahTitle": "Sallar Jumu'a",
+    "jumuahDesc": "Sallar jam'i ta kowace Juma'a",
+    "mainMasjid": "Babban Masallaci"
+  },
+  "states": {
+    "loading": "Ana loda tarurruka...",
+    "noResults": "Ba a sami wani taro ba",
+    "noUpcoming": "Babu wani taro da aka shirya a yanzu",
+    "full": "Cike",
+    "almostFull": "Kusa da cikewa",
+    "untitled": "Taro mara take",
+    "locationTBD": "Wuri ba a tabbatar ba",
+    "attending": "{{count}} suna halarta",
+    "max": "iyaka"
+  },
+  "fields": {
+    "title": "Taro",
+    "at": "a"
+  },
+  "toast": {
+    "errorBody": "An kasa loda tarurruka. Da fatan za a sake gwadawa."
+  }
+}

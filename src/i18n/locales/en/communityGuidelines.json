@@ -1,0 +1,26 @@
+{
+  "title": "Community Guidelines",
+  "intro": "By using Tariq Islam, you agree to follow these guidelines to keep the community safe and respectful.",
+  "sections": {
+    "respect": {
+      "title": "Respect & Safety",
+      "items": [
+        "No harassment, hate speech, bullying, or threats.",
+        "No explicit sexual content or exploitation.",
+        "No scams, impersonation, or fraud."
+      ]
+    },
+    "content": {
+      "title": "Content Standards",
+      "items": [
+        "Do not post content that promotes violence, extremism, or hate.",
+        "Do not share illegal content or instructions for wrongdoing.",
+        "Respect Islamic values and keep discussions appropriate."
+      ]
+    },
+    "enforcement": {
+      "title": "Enforcement",
+      "body": "Violations may result in warnings, content removal, suspension, or permanent bans."
+    }
+  }
+}

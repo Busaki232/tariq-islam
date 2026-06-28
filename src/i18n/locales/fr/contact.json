@@ -1,0 +1,82 @@
+{
+  "title": "Nous contacter",
+  "subtitle": "Partagez vos retours, signalez un bug ou demandez une fonctionnalité. Nous apprécions votre avis et répondrons dès que possible.",
+  "close": "Fermer",
+
+  "form": {
+    "nameLabel": "Nom",
+    "namePlaceholder": "Votre nom",
+    "emailLabel": "E-mail",
+    "emailPlaceholder": "votre.email@exemple.com",
+    "subjectLabel": "Sujet",
+    "subjectPlaceholder": "Résumé",
+    "typeLabel": "Type / Motif",
+    "typePlaceholder": "Retour, bug, demande de fonctionnalité...",
+    "messageLabel": "Message",
+    "messagePlaceholder": "Dites-nous en plus...",
+    "submit": "Envoyer",
+    "submitting": "Envoi...",
+    "cancel": "Annuler",
+    "securityNote": "Les messages sont traités de manière sécurisée pour protéger la confidentialité."
+  },
+
+  "business": {
+    "fallbackName": "Entreprise",
+    "title": "Contacter {{businessName}}",
+    "subtitle": "Envoyez un message sécurisé pour demander les coordonnées de cette entreprise.",
+    "sendButton": "Envoyer une demande sécurisée",
+    "openMessaging": "Ouvrir la messagerie sécurisée",
+    "highRiskNote": "Votre demande peut nécessiter une vérification supplémentaire en raison des politiques de sécurité."
+  },
+
+  "badges": {
+    "reputation": "Réputation",
+    "risk": "Risque",
+    "riskLow": "Faible",
+    "riskMedium": "Moyen",
+    "riskHigh": "Élevé"
+  },
+
+  "types": {
+    "general": "Retour général",
+    "bug": "Signalement de bug",
+    "feature": "Demande de fonctionnalité",
+    "account": "Problème de compte",
+    "billing": "Paiement / dons",
+    "other": "Autre"
+  },
+
+  "validation": {
+    "nameRequired": "Le nom est requis",
+    "nameTooLong": "Le nom doit contenir moins de 100 caractères",
+    "emailRequired": "L’e-mail est requis",
+    "emailInvalid": "Entrez une adresse e-mail valide",
+    "emailTooLong": "L’e-mail doit contenir moins de 255 caractères",
+    "subjectRequired": "Le sujet est requis",
+    "subjectTooLong": "Le sujet doit contenir moins de 120 caractères",
+    "reasonRequired": "Veuillez indiquer un motif de contact",
+    "reasonTooLong": "Le motif doit contenir moins de 500 caractères",
+    "messageRequired": "Le message est requis",
+    "messageTooLong": "Le message doit contenir moins de 1000 caractères"
+  },
+
+  "toast": {
+    "successTitle": "Message envoyé",
+    "successBody": "Merci. Nous vous répondrons bientôt.",
+    "errorTitle": "Une erreur est survenue",
+    "errorBody": "Veuillez réessayer.",
+
+    "authRequiredTitle": "Authentification requise",
+    "authRequiredBody": "Veuillez vous connecter pour envoyer un message.",
+    "missingContextTitle": "Contexte entreprise manquant",
+    "missingContextBody": "Ce formulaire nécessite un advertisementId en mode entreprise.",
+    "invalidInputTitle": "Saisie invalide",
+    "invalidInputBody": "Veuillez supprimer tout contenu suspect et réessayer.",
+    "businessSuccessTitle": "Demande envoyée",
+    "businessSuccessBody": "Votre demande a été envoyée de manière sécurisée. Le propriétaire examinera la demande et pourra vous contacter via notre messagerie sécurisée.",
+    "rateLimitTitle": "Limite atteinte",
+    "rateLimitBody": "Vous avez envoyé trop de messages récemment. Veuillez patienter et réessayer.",
+    "storageMissingTitle": "Stockage des messages non configuré",
+    "storageMissingBody": "La page /contact a besoin d’une table pour stocker les messages. Créez une table (exemple : \"contact_messages\") ou reliez-la à votre table existante."
+  }
+}

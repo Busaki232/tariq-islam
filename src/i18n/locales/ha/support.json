@@ -1,0 +1,46 @@
+{
+  "header": {
+    "title": "Tallafa wa Manufa",
+    "body": {
+      "before": "Tariq Islam zai kasance",
+      "free": "100% kyauta",
+      "after": "ga al’ummar Musulmi (Ummah). Gudummawarka ta son rai tana taimaka mana wajen kula da sabobinmu, ƙara sabbin fasali, da yi wa Musulmi hidima a duniya."
+    },
+    "quote": {
+      "text": "“Duk wanda ya shiryar da wani zuwa alheri, zai samu lada kamar wanda ya aikata shi.”",
+      "attribution": "- Annabi ﷺ"
+    }
+  },
+  "tiers": {
+    "supporter": {
+      "name": "Mai Tallafawa",
+      "price": "$5",
+      "period": "wata",
+      "description": "Ka taimaka wajen kula da dandamali da bunƙasa shi",
+      "benefits": [
+        "Taimakawa kula da dandamali",
+        "Tallafa kuɗin sabobi (servers)",
+        "A saka sunanka a jerin masu tallafawa",
+        "Taimakawa a ci gaba da bayar da kyauta ga kowa"
+      ]
+    },
+    "communityFriend": {
+      "name": "Abokin Al’umma",
+      "price": "$10",
+      "period": "wata",
+      "description": "Ka zama ginshiƙin al’ummar Musulmi",
+      "benefits": [
+        "Dukkan fa’idodin Mai Tallafawa",
+        "Girmamawa daga al’umma",
+        "Fifiko wajen buƙatar sabbin fasali",
+        "Taimaka mana faɗaɗa zuwa duniya baki ɗaya"
+      ]
+    },
+    "buttonPrefix": "Zama"
+  },
+  "bottom": {
+    "optionalTitle": "Wannan shiri na son rai ne 100%",
+    "optionalBody": "Manhajar za ta kasance kyauta ga Ummah koyaushe. Babu wani fasali da aka kulle saboda gudummawa. Tallafinka yana taimaka mana ne kawai mu bunƙasa da hidimar Musulmi da yawa.",
+    "footerNote": "Dukkan gudummawa na son rai ne, kuma suna taimakawa wajen kula da sabobi, haɓaka sabbin fasali, da faɗaɗa hidimarmu ga Musulmi a duniya."
+  }
+}

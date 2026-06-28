@@ -1,0 +1,59 @@
+{
+  "editTitle": "Gyara Tallanka",
+  "submitTitle": "Tura Kasuwancinka",
+  "editSubtitle": "Sabunta bayanan kasuwancinka a kasa.",
+  "submitSubtitle": "Raba kasuwancinka ko aikin halal da al’umma.",
+
+  "form": {
+    "businessName": "Sunan Kasuwanci",
+    "businessNamePlaceholder": "Shigar da sunan kasuwancinka",
+    "description": "Bayani",
+    "descriptionPlaceholder": "Bayyana kasuwancinka, ayyuka, ko kayayyaki...",
+    "category": "Rukuni",
+    "categoryPlaceholder": "Zaɓi rukuni",
+    "location": "Wuri",
+    "locationPlaceholder": "Birni, Jiha",
+    "phoneNumber": "Lambar Waya",
+    "phoneNumberPlaceholder": "(555) 123-4567",
+    "emailPlaceholder": "business@example.com",
+    "websiteOptional": "Gidan Yanar Gizo (Zabi)",
+    "websitePlaceholder": "https://www.yourbusiness.com (ko ka barshi babu komai)",
+    "websiteHelp": "Shigar da URL na gidan yanar gizanka ko ka barshi babu komai idan ba ka da shi yanzu",
+    "businessImage": "Hoton Kasuwanci",
+    "currentImageAlt": "Na yanzu",
+    "removeImage": "Cire hoto",
+    "changeImage": "Canja hoto",
+    "chooseImage": "Zaɓi hoto"
+  },
+
+  "buttons": {
+    "updating": "Ana sabuntawa...",
+    "submitting": "Ana turawa...",
+    "update": "Sabunta talla",
+    "submit": "Tura talla"
+  },
+
+  "toast": {
+    "loadCategoriesFail": "An kasa loda rukuni",
+    "uploadImageFail": "An kasa loda hoto",
+    "mustBeLoggedIn": "Dole ne ka shiga kafin ka tura talla",
+    "submitted": "An tura tallarka don dubawa",
+    "updated": "An sabunta tallarka",
+    "unexpected": "An samu kuskure ba zato ba tsammani",
+    "imageTooLarge": "Hoton bai kamata ya wuce 5MB ba"
+  },
+
+  "validation": {
+    "titleMin": "Sunan dole ya kasance akalla haruffa 3",
+    "titleMax": "Sunan bai kamata ya wuce haruffa 100 ba",
+    "descriptionMin": "Bayani dole ya kasance akalla haruffa 10",
+    "descriptionMax": "Bayani bai kamata ya wuce haruffa 1000 ba",
+    "categoryRequired": "Da fatan zaɓi rukuni",
+    "locationMax": "Wuri bai kamata ya wuce haruffa 100 ba",
+    "phoneMax": "Lambar waya bai kamata ya wuce haruffa 20 ba",
+    "emailInvalid": "Imel ba daidai ba ne",
+    "emailMax": "Imel bai kamata ya wuce haruffa 255 ba",
+    "websiteMax": "Adireshin yanar gizo bai kamata ya wuce haruffa 255 ba",
+    "websiteInvalid": "Shigar da adireshin yanar gizo mai inganci ko wani bayani"
+  }
+}

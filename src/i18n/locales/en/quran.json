@@ -1,0 +1,35 @@
+{
+  "quranSection": {
+    "badge": "Quran",
+    "title": "Listen to the Holy Quran",
+    "subtitle": "Experience spiritual tranquility through beautiful Quranic recitations by world-renowned reciters",
+
+    "getStartedTitle": "Get started",
+    "getStartedSubtitle": "Tap below to load the Quran player.",
+    "loadPlayer": "Load Quran Player",
+
+    "popular": {
+      "title": "Popular Surahs",
+      "versesCount": "{{count}} verses"
+    },
+
+    "toast": {
+      "loadingTitle": "Loading Surah",
+      "loadingDesc": "Preparing the player..."
+    },
+
+    "quote": {
+      "text": "Indeed, it is We who sent down the Quran and indeed, We will be its guardian.",
+      "ref": "- Surah Al-Hijr (15:9)"
+    }
+  },
+
+  "ui": {
+    "selectReciter": "Select Reciter",
+    "selectSurah": "Select a surah",
+    "searchSurahPlaceholder": "Search surah by name or number...",
+    "noResults": "No results",
+    "versesCountShort": "{{count}} verses",
+    "recitedBy": "Recited by {{name}}"
+  }
+}

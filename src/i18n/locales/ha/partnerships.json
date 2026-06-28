@@ -1,0 +1,135 @@
+{
+  "meta": {
+    "title": "Haɗin gwiwa & Talla | Tariq Islam - Ka isa ga al’ummar Musulmi ta duniya",
+    "description": "Ka zama abokin hulɗa da Tariq Islam domin ka isa ga Musulmi masu himma a duniya. Zaɓuɓɓukan talla daga $99/wata. Dandali na al’umma mai amana.",
+    "keywords": "talla ga musulmi, kasuwancin islamiyya, haɗin gwiwar kasuwanci na musulmi, al’ummar musulmi ta duniya, kasuwanci mai ɗa’a, talla halal",
+    "ogTitle": "Haɗin gwiwa & Talla | Tariq Islam",
+    "ogDescription": "Ka isa ga Musulmi a duniya ta hanyar haɗin gwiwa da tallace-tallace masu niyya a kan dandali mai amana."
+  },
+  "hero": {
+    "title": "Ka zama abokin hulɗa da Tariq Islam",
+    "subtitle": "Ka isa ga Musulmi a duniya ta hanyar dandali na al’umma mai amana",
+    "cta": {
+      "start": "Fara haɗin gwiwa",
+      "viewPricing": "Duba farashi"
+    }
+  },
+  "stats": {
+    "activeUsers": { "label": "Masu amfani masu aiki", "value": "50,000+" },
+    "monthlyEngagement": { "label": "Mu'amala kowane wata", "value": "200,000+" },
+    "communityEvents": { "label": "Taron al’umma", "value": "500+" },
+    "partnerBusinesses": { "label": "Kasuwancin abokanshoshi", "value": "1,000+" }
+  },
+  "why": {
+    "title": "Me ya sa za ka zama abokin hulɗa?",
+    "cards": {
+      "market": {
+        "title": "Isa ga masu kallo na musamman",
+        "body": "Ka isa kai tsaye ga masu saye Musulmi a duniya, masu kallo masu mu'amala kuma suna da amincewa ta al’umma."
+      },
+      "trust": {
+        "title": "Amincewa da sahihanci",
+        "body": "Dandali da al’umma ke ba da shawara. Alamar kasuwancinka na ƙara samun amincewa saboda daidaito da ƙimomin Musulunci."
+      },
+      "roi": {
+        "title": "Sakamako tabbatacce",
+        "body": "Gasa ta fi ƙanƙanta fiye da manyan dandali na gama-gari kuma kana samun sakamako mafi kyau saboda niyya mai dacewa da al’adu."
+      }
+    }
+  },
+  "pricing": {
+    "title": "Kunshin haɗin gwiwa",
+    "subtitle": "Zaɓi kunshin da ya dace da burinka. Duk sun haɗa da damar isa ga al’ummarmu mai mu'amala.",
+    "mostPopular": "Mafi shahara"
+  },
+  "tiers": {
+    "free": {
+      "name": "Kunshin kyauta",
+      "price": "$0",
+      "period": "/wata",
+      "description": "Ga ƙananan kasuwanci da ke farawa",
+      "features": [
+        "Bayanan kasuwanci na asali",
+        "Sanya a rukuni",
+        "Haɗa fom ɗin tuntuɓa",
+        "Bayyanar al’umma"
+      ],
+      "cta": "Fara"
+    },
+    "featured": {
+      "name": "Kunshin fito",
+      "price": "$99",
+      "period": "/wata",
+      "description": "Ka bambanta a sakamakon bincike",
+      "features": [
+        "Duk fa’idodin kunshin kyauta",
+        "Alamar « fito »",
+        "Gaba a sakamakon bincike",
+        "Kididdiga na gaba",
+        "Tallafi na gaggawa"
+      ],
+      "cta": "Tuntuɓe mu"
+    },
+    "premium": {
+      "name": "Kunshin premium",
+      "price": "$299",
+      "period": "/wata",
+      "description": "Mafi girman bayyanuwa",
+      "features": [
+        "Duk fa’idodin kunshin fito",
+        "Tabbacin sanya gaba",
+        "Bannoni a shafin gida",
+        "Manajan asusu na musamman",
+        "Zaɓuɓɓukan haɗawa na musamman",
+        "Rahoton aiki kowane kwata"
+      ],
+      "cta": "Tuntuɓe mu"
+    },
+    "enterprise": {
+      "name": "Babbar kamfani",
+      "price": "Na musamman",
+      "period": "",
+      "description": "Ga manyan alamu",
+      "features": [
+        "Duk fa’idodin kunshin premium",
+        "Sharudda na musamman",
+        "Tallafawa rukuni",
+        "Tallafawa taruka",
+        "Samun API don haɗawa",
+        "Tallafi na musamman",
+        "Zaɓin white label"
+      ],
+      "cta": "Tsara kira"
+    }
+  },
+  "contact": {
+    "title": "Tuntuɓe mu",
+    "subtitle": "Kana sha’awar haɗin gwiwa? Cika fom ɗin kuma za mu amsa cikin sa’o’i 24 zuwa 48.",
+    "form": {
+      "companyName": "Sunan kamfani",
+      "companyPlaceholder": "Amazon, Target, da sauransu",
+      "contactName": "Sunan mai tuntuɓa",
+      "contactPlaceholder": "Aliyu Musa",
+      "email": "Adireshin imel",
+      "emailPlaceholder": "partnerships@company.com",
+      "phone": "Lambar waya",
+      "phonePlaceholder": "+1 (555) 000-0000",
+      "message": "Saƙo",
+      "messagePlaceholder": "Bayyana burinka na haɗin gwiwa...",
+      "characters": "haruffa",
+      "submit": "Aika buƙata",
+      "sending": "Ana aikawa..."
+    },
+    "direct": {
+      "label": "Ko kuma ka tuntuɓe mu kai tsaye:"
+    }
+  },
+  "toast": {
+    "successTitle": "Mun gode da sha’awarka!",
+    "successBody": "Za mu tuntuɓe ka cikin sa’o’i 24 zuwa 48 domin tattauna damar haɗin gwiwa.",
+    "validationTitle": "Kuskuren tabbatarwa",
+    "validationBody": "Da fatan a duba fom ɗin sannan a sake gwadawa.",
+    "errorTitle": "Kuskure",
+    "errorBody": "Ba a iya aika buƙata ba. Da fatan a gwada ta imel."
+  }
+}

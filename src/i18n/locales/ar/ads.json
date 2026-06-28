@@ -1,0 +1,59 @@
+{
+  "submitTitle": "إضافة نشاطك التجاري",
+  "submitSubtitle": "شارك نشاطك أو خدمتك الحلال مع المجتمع",
+  "editTitle": "تعديل إعلانك",
+  "editSubtitle": "حدّث بيانات نشاطك التجاري أدناه.",
+
+  "form": {
+    "businessName": "اسم النشاط التجاري",
+    "businessNamePlaceholder": "أدخل اسم نشاطك التجاري",
+    "description": "الوصف",
+    "descriptionPlaceholder": "صف نشاطك التجاري أو خدماتك أو منتجاتك...",
+    "category": "الفئة",
+    "categoryPlaceholder": "اختر فئة",
+    "location": "الموقع",
+    "locationPlaceholder": "المدينة، الولاية/المنطقة",
+    "phoneNumber": "رقم الهاتف",
+    "phoneNumberPlaceholder": "(555) 123-4567",
+    "emailPlaceholder": "business@example.com",
+    "websiteOptional": "الموقع الإلكتروني (اختياري)",
+    "websitePlaceholder": "https://www.yourbusiness.com (أو اتركه فارغًا)",
+    "websiteHelp": "أدخل رابط موقعك الإلكتروني أو اتركه فارغًا إذا لم يكن لديك موقع حاليًا",
+    "businessImage": "صورة النشاط التجاري",
+    "currentImageAlt": "الحالية",
+    "removeImage": "إزالة الصورة",
+    "changeImage": "تغيير الصورة",
+    "chooseImage": "اختيار صورة"
+  },
+
+  "buttons": {
+    "submit": "إرسال الإعلان",
+    "submitting": "جارٍ الإرسال...",
+    "update": "تحديث الإعلان",
+    "updating": "جارٍ التحديث..."
+  },
+
+  "toast": {
+    "loadCategoriesFail": "تعذر تحميل الفئات",
+    "uploadImageFail": "تعذر رفع الصورة",
+    "mustBeLoggedIn": "يجب تسجيل الدخول لإرسال إعلان",
+    "submitted": "تم إرسال إعلانك للمراجعة",
+    "updated": "تم تحديث إعلانك",
+    "unexpected": "حدث خطأ غير متوقع",
+    "imageTooLarge": "يجب ألا يزيد حجم الصورة عن 5MB"
+  },
+
+  "validation": {
+    "titleMin": "يجب أن يكون العنوان 3 أحرف على الأقل",
+    "titleMax": "يجب ألا يزيد العنوان عن 100 حرف",
+    "descriptionMin": "يجب أن يكون الوصف 10 أحرف على الأقل",
+    "descriptionMax": "يجب ألا يزيد الوصف عن 1000 حرف",
+    "categoryRequired": "يرجى اختيار فئة",
+    "locationMax": "يجب ألا يزيد الموقع عن 100 حرف",
+    "phoneMax": "يجب ألا يزيد رقم الهاتف عن 20 حرفًا",
+    "emailInvalid": "البريد الإلكتروني غير صالح",
+    "emailMax": "يجب ألا يزيد البريد الإلكتروني عن 255 حرفًا",
+    "websiteMax": "يجب ألا يزيد الموقع الإلكتروني عن 255 حرفًا",
+    "websiteInvalid": "يرجى إدخال رابط صحيح أو نص وصفي"
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "loading": "جارٍ تحميل لوحة التحكم...",
+  "welcome": "مرحبًا!",
+  "editProfile": "تعديل الملف الشخصي",
+  "title": "لوحة التحكم الخاصة بي",
+  "subtitle": "تتبع مساهماتك ونشاطك في المجتمع",
+  "stats": {
+    "myAds": "إعلاناتي",
+    "myEvents": "فعالياتي",
+    "mosques": "المساجد",
+    "applications": "الطلبات",
+    "messages": "الرسائل"
+  },
+  "quickActions": {
+    "title": "إجراءات سريعة",
+    "subtitle": "أنشئ محتوى جديدًا أو أدر الطلبات الحالية"
+  },
+  "actions": {
+    "listBusiness": "إضافة نشاط تجاري",
+    "createEvent": "إنشاء فعالية",
+    "submitMosque": "إضافة مسجد",
+    "applyLeadership": "طلب قيادة"
+  },
+  "tabs": {
+    "myAds": "إعلاناتي",
+    "myEvents": "فعالياتي",
+    "mosques": "المساجد",
+    "applications": "الطلبات"
+  },
+  "empty": {
+    "adsTitle": "لا توجد إعلانات بعد",
+    "adsSubtitle": "ابدأ بإضافة أول نشاط تجاري أو خدمة",
+    "adsCta": "إنشاء أول إعلان",
+    "eventsTitle": "لا توجد فعاليات بعد",
+    "eventsSubtitle": "أنشئ أول فعالية مجتمعية",
+    "eventsCta": "إنشاء فعالية",
+    "mosquesTitle": "لا توجد طلبات مساجد بعد",
+    "mosquesSubtitle": "ساعدنا في توسيع دليل المساجد",
+    "mosquesCta": "إضافة مسجد",
+    "leadershipTitle": "لا توجد طلبات قيادة بعد",
+    "leadershipSubtitle": "قدّم لتصبح قائدًا في المجتمع",
+    "leadershipCta": "قدّم الآن"
+  },
+  "leadershipForm": {
+    "title": "طلب القيادة",
+    "pageTitle": "كن قائدًا في المجتمع",
+    "pageSubtitle": "ساعد في توسيع شبكة مجتمع Tariq Islam العالمية في منطقتك",
+    "successDesc": "شكرًا لاهتمامك بأن تصبح قائدًا في المجتمع. سنراجع طلبك ونتواصل معك قريبًا.",
+    "labels": {
+      "fullName": "الاسم الكامل *",
+      "email": "البريد الإلكتروني *",
+      "phoneNumber": "رقم الهاتف",
+      "location": "المدينة/الموقع *",
+      "experience": "الخبرة ذات الصلة *",
+      "motivation": "الدافع *",
+      "availability": "التفرغ *"
+    },
+    "placeholders": {
+      "fullName": "أدخل اسمك الكامل",
+      "email": "أدخل بريدك الإلكتروني",
+      "phoneNumber": "أدخل رقم هاتفك",
+      "location": "أدخل مدينتك والولاية",
+      "experience": "صف خبرتك في القيادة المجتمعية أو المنظمات الإسلامية أو العمل التطوعي...",
+      "motivation": "لماذا تريد أن تصبح قائدًا في المجتمع؟ ما الذي يدفعك لخدمة مجتمع المسلمين العالمي؟",
+      "availability": "صف مدى تفرغك وكم من الوقت يمكنك تخصيصه لأنشطة القيادة المجتمعية..."
+    },
+    "buttons": {
+      "cancel": "إلغاء",
+      "submit": "إرسال الطلب",
+      "submitting": "جارٍ الإرسال..."
+    },
+    "toasts": {
+      "authRequiredTitle": "تسجيل الدخول مطلوب",
+      "authRequiredDesc": "يرجى تسجيل الدخول لإرسال طلبك.",
+      "submittedTitle": "تم إرسال الطلب!",
+      "submissionFailedTitle": "فشل الإرسال",
+      "submissionFailedDesc": "حدث خطأ أثناء الإرسال. حاول مرة أخرى."
+    },
+    "validation": {
+      "fullNameMin": "يجب أن يكون الاسم الكامل حرفين على الأقل",
+      "invalidEmail": "بريد إلكتروني غير صالح",
+      "locationRequired": "الموقع مطلوب",
+      "experienceMin": "صف خبرتك (10 أحرف على الأقل)",
+      "motivationMin": "اذكر دافعك (10 أحرف على الأقل)",
+      "availabilityMin": "صف تفرغك"
+    }
+  },
+  "status": {
+    "approved": "مقبول",
+    "pending": "قيد الانتظار",
+    "rejected": "مرفوض",
+    "upcoming": "قريبًا"
+  },
+  "labels": {
+    "views": "{{count}} مشاهدة",
+    "attending": "{{count}} حاضر",
+    "created": "تم الإنشاء: {{date}}",
+    "eventDate": "تاريخ الفعالية: {{date}}",
+    "submitted": "تم التقديم: {{date}}",
+    "applied": "تم التقديم: {{date}}",
+    "leadershipApplication": "طلب قيادة"
+  },
+  "errors": {
+    "takingTooLong": "تأخر تحميل لوحة التحكم.",
+    "timedOut": "انتهت مهلة لوحة التحكم",
+    "failedToLoad": "فشل تحميل بيانات لوحة التحكم"
+  }
+}

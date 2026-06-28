@@ -1,0 +1,117 @@
+{
+  "header": {
+    "title": "Trouver des mosquées et centres islamiques",
+    "subtitle": "Découvrez des centres islamiques accueillants à travers le monde. Trouvez les horaires de prière, des communautés musulmanes diverses et des programmes d’éducation islamique près de chez vous."
+  },
+  "filters": {
+    "searchPlaceholder": "Rechercher par nom, ville ou imam...",
+    "filterResults": "Filtrer les résultats",
+    "locationsLabel": "Lieux :",
+    "servicesLabel": "Services :"
+  },
+  "listings": {
+    "title": "Centres islamiques ({{count}} lieux)",
+    "subtitle": "Annuaire complet des mosquées et centres islamiques à travers le monde"
+  },
+  "badges": {
+    "featured": "En vedette",
+    "diverseCommunity": "Communauté diverse"
+  },
+  "card": {
+    "reviews": "({{count}} avis)",
+    "imamLabel": "Imam :",
+    "languagesLabel": "Langues :",
+    "moreServices": "+{{count}} de plus"
+  },
+  "prayerTimes": {
+    "title": "Horaires de prière",
+    "fajr": "Fajr",
+    "dhuhr": "Dhuhr",
+    "asr": "Asr",
+    "maghrib": "Maghrib",
+    "isha": "Isha",
+    "jummah": "Jumu‘a"
+  },
+  "buttons": {
+    "directions": "Itinéraire",
+    "moreDetails": "Plus de détails"
+  },
+  "cta": {
+    "title": "Votre mosquée n’apparaît pas ?",
+    "subtitle": "Aidez-nous à bâtir un annuaire complet. Soumettez votre mosquée ou centre islamique pour l’ajouter à l’annuaire communautaire.",
+    "submitMosque": "Soumettre une mosquée",
+    "submitting": "En cours de soumission...",
+    "prayerTimeUpdates": "Mises à jour des horaires"
+  },
+  "auth": {
+    "signInRequiredTitle": "Connexion requise",
+    "submitMosqueBody": "Veuillez vous connecter pour soumettre une mosquée.",
+    "prayerUpdatesBody": "Veuillez vous connecter pour soumettre des mises à jour des horaires de prière."
+  },
+  "submitPageTitle": "Soumettre une mosquée",
+  "submitPageSubtitle": "Aidez-nous à construire un annuaire complet des mosquées et centres islamiques à travers le monde.",
+  "form": {
+    "sections": {
+      "basicInfo": "Informations de base",
+      "contactInfo": "Coordonnées",
+      "religiousInfo": "Informations religieuses"
+    },
+    "labels": {
+      "mosqueName": "Nom de la mosquée / centre islamique *",
+      "streetAddress": "Adresse *",
+      "city": "Ville *",
+      "state": "État / Région *",
+      "zip": "Code postal",
+      "phone": "Numéro de téléphone",
+      "email": "E-mail",
+      "website": "Site web",
+      "imam": "Imam / responsable religieux",
+      "languagesSpoken": "Langues parlées",
+      "servicesOffered": "Services proposés",
+      "description": "Description"
+    },
+    "placeholders": {
+      "mosqueName": "ex. : Islamic Center of Chicago",
+      "streetAddress": "123 rue Principale",
+      "city": "Chicago",
+      "state": "IL",
+      "zip": "60610",
+      "phone": "(312) 555-0100",
+      "email": "info@masjid.org",
+      "website": "www.masjid.org",
+      "imam": "Cheikh Abdullah Hassan",
+      "description": "Parlez-nous de votre mosquée, des programmes communautaires, des services proposés..."
+    },
+    "prayerTimesHint": "Veuillez indiquer les horaires au format 12 h (ex. : 5:30 AM)."
+  },
+  "submitPage": {
+    "backToMosques": "Retour aux mosquées",
+    "guidelinesTitle": "Consignes de soumission",
+    "guidelines": {
+      "requiredInfoTitle": "Informations requises",
+      "requiredInfoItems": [
+        "Nom de la mosquée ou du centre islamique",
+        "Adresse complète",
+        "Ville et État/Région"
+      ],
+      "reviewProcessTitle": "Processus de vérification",
+      "reviewProcessItems": [
+        "Les soumissions sont examinées sous 3 à 5 jours ouvrés",
+        "Nous pouvons vous contacter pour des informations supplémentaires",
+        "Les fiches approuvées apparaissent dans notre annuaire"
+      ],
+      "helpfulTipsTitle": "Conseils utiles",
+      "helpfulTipsItems": [
+        "Fournissez des horaires de prière exacts",
+        "Ajoutez les programmes et services proposés",
+        "Ajoutez des informations de contact si possible"
+      ],
+      "updatesTitle": "Mises à jour",
+      "updatesItems": [
+        "Contactez-nous pour mettre à jour une fiche existante",
+        "Les horaires de prière sont mis à jour selon les saisons",
+        "Les contributions de la communauté aident à garder les informations à jour"
+      ]
+    }
+  }
+}

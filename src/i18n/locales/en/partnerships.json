@@ -1,0 +1,135 @@
+{
+  "meta": {
+    "title": "Corporate Partnerships & Advertising | Tariq Islam - Reach Global Muslim Community",
+    "description": "Partner with Tariq Islam to reach engaged Muslims worldwide. Enterprise advertising solutions starting from $99/month. Trusted global community platform.",
+    "keywords": "Muslim advertising, Islamic community marketing, Muslim business partnerships, global Muslim community, faith-based marketing, halal business advertising",
+    "ogTitle": "Corporate Partnerships & Advertising | Tariq Islam",
+    "ogDescription": "Reach Muslims worldwide through targeted advertising and enterprise partnerships on a trusted community platform."
+  },
+  "hero": {
+    "title": "Partner with Tariq Islam",
+    "subtitle": "Reach Muslims worldwide through a trusted, community-driven platform",
+    "cta": {
+      "start": "Start Partnership",
+      "viewPricing": "View Pricing"
+    }
+  },
+  "stats": {
+    "activeUsers": { "label": "Active Users", "value": "50,000+" },
+    "monthlyEngagement": { "label": "Monthly Engagement", "value": "200,000+" },
+    "communityEvents": { "label": "Community Events", "value": "500+" },
+    "partnerBusinesses": { "label": "Partner Businesses", "value": "1,000+" }
+  },
+  "why": {
+    "title": "Why Partner with Us?",
+    "cards": {
+      "market": {
+        "title": "Niche Market Access",
+        "body": "Direct pipeline to Muslim consumers worldwide, a highly engaged demographic with strong purchasing power and community trust."
+      },
+      "trust": {
+        "title": "Trust Factor",
+        "body": "Community-vetted platform where recommendations carry weight. Your brand gains credibility through association with trusted Islamic values."
+      },
+      "roi": {
+        "title": "Proven ROI",
+        "body": "Lower competition than generic ad platforms, with higher conversion rates through culturally relevant targeting and engagement."
+      }
+    }
+  },
+  "pricing": {
+    "title": "Partnership Tiers",
+    "subtitle": "Choose the plan that fits your business goals. All tiers include access to our engaged community.",
+    "mostPopular": "Most Popular"
+  },
+  "tiers": {
+    "free": {
+      "name": "Free Tier",
+      "price": "$0",
+      "period": "/month",
+      "description": "For small businesses getting started",
+      "features": [
+        "Basic business listing",
+        "Category placement",
+        "Contact form integration",
+        "Community visibility"
+      ],
+      "cta": "Get Started"
+    },
+    "featured": {
+      "name": "Featured Tier",
+      "price": "$99",
+      "period": "/month",
+      "description": "Stand out in search results",
+      "features": [
+        "All Free features",
+        "Featured badge",
+        "Priority in search results",
+        "Enhanced analytics",
+        "Priority support"
+      ],
+      "cta": "Contact Us"
+    },
+    "premium": {
+      "name": "Premium Tier",
+      "price": "$299",
+      "period": "/month",
+      "description": "Maximum visibility and impact",
+      "features": [
+        "All Featured features",
+        "Top placement guarantee",
+        "Homepage banner ads",
+        "Dedicated account manager",
+        "Custom integration options",
+        "Quarterly performance reports"
+      ],
+      "cta": "Contact Us"
+    },
+    "enterprise": {
+      "name": "Enterprise",
+      "price": "Custom",
+      "period": "",
+      "description": "For major brands and corporations",
+      "features": [
+        "All Premium features",
+        "Custom partnership terms",
+        "Sponsored category placement",
+        "Community event sponsorships",
+        "API access for integration",
+        "Dedicated support team",
+        "White-label opportunities"
+      ],
+      "cta": "Schedule Call"
+    }
+  },
+  "contact": {
+    "title": "Get in Touch",
+    "subtitle": "Interested in partnering with Tariq Islam? Fill out the form below and we'll contact you within 24-48 hours.",
+    "form": {
+      "companyName": "Company Name",
+      "companyPlaceholder": "Amazon, Target, etc.",
+      "contactName": "Contact Name",
+      "contactPlaceholder": "John Doe",
+      "email": "Email Address",
+      "emailPlaceholder": "partnerships@company.com",
+      "phone": "Phone Number",
+      "phonePlaceholder": "+1 (555) 000-0000",
+      "message": "Message",
+      "messagePlaceholder": "Tell us about your partnership interests and goals...",
+      "characters": "characters",
+      "submit": "Submit Partnership Inquiry",
+      "sending": "Sending..."
+    },
+    "direct": {
+      "label": "Or contact us directly:"
+    }
+  },
+  "toast": {
+    "successTitle": "Thank you for your interest!",
+    "successBody": "We'll contact you within 24-48 hours to discuss partnership opportunities.",
+    "validationTitle": "Validation Error",
+    "validationBody": "Please check the form and try again.",
+    "errorTitle": "Error",
+    "errorBody": "Failed to submit inquiry. Please try emailing us directly."
+  }
+}

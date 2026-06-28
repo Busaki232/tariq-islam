@@ -1,0 +1,174 @@
+{
+  "cta": {
+    "titleAuthed": "Bincika Al’ummarka",
+    "titleGuest": "Bincika Al’ummarka",
+    "subtitle": "Shiga cikakken kwarewar Tariq Islam. Haɗu da ’yan’uwa maza da mata, bi sawun sallolinka, kuma ka ƙarfafa tafiyarka ta imani.",
+    "bullets": {
+      "worldwide": "Haɗu da Musulmi a duniya",
+      "events": "Shiga tarukan al’umma na gida da na duniya",
+      "inspire": "Raba tafiyarka ta imani ka kuma ƙarfafa wasu",
+      "tools": "Samun albarkatun Musulunci na musamman da kayan aiki"
+    },
+    "card": {
+      "titleAuthed": "Ci gaba da Tafiyarka",
+      "titleGuest": "Ƙirƙiri Asusunka Kyauta",
+      "bodyAuthed": "Samun damar dashboard ɗinka da fasalolin al’umma",
+      "bodyGuest": "Shiga Tariq Islam ka fara haɗuwa da Musulmi a duniya.",
+      "buttonAuthed": "Je zuwa Dashboard",
+      "buttonGuest": "Shiga Yanzu - Kyauta ne"
+    }
+  },
+  "explore": {
+    "title": "Bincika Al’ummarka",
+    "subtitle": "Shiga cikakken kwarewar Tariq Islam. Haɗu da ’yan’uwa maza da mata, bi sawun sallolinka, kuma ka ƙarfafa tafiyarka ta imani.",
+    "bullets": {
+      "worldwide": "Haɗu da Musulmi a duniya",
+      "events": "Shiga tarukan al’umma na gida da na duniya",
+      "inspire": "Raba tafiyarka ta imani ka kuma ƙarfafa wasu",
+      "tools": "Samun albarkatun Musulunci na musamman da kayan aiki"
+    }
+  },
+  "continue": {
+    "title": "Ci gaba da Tafiyarka",
+    "subtitle": "Samun damar dashboard ɗinka da fasalolin al’umma",
+    "goToDashboard": "Je zuwa Dashboard →"
+  },
+  "mosques": {
+    "title": "Masallatai a Duniya",
+    "subtitle": "Haɗa Musulmi a duk duniya",
+    "searchPlaceholder": "Nemo masallatai, al’ummomi, ko birane...",
+    "filterButton": "Tace Sakamako",
+    "majorCitiesTitle": "Manyan Birane na Duniya",
+    "featured": "Fitacce",
+    "muslimsLabel": "Musulmi {{count}}",
+    "mosquesLabel": "Masallatai"
+  },
+  "supportMission": {
+    "title": "Tallafa wa Manufa",
+    "subtitle": "Taimaka a ci gaba da Global Muslims Connect kyauta ga Musulmi a duk duniya.",
+    "learnMore": "Kara sani →"
+  },
+  "islamicCalendar": {
+    "title": "Kalanda ta Musulunci",
+    "subtitle": "Duba ranar Hijira ta yanzu, bincika watannin Musulunci, kuma gano muhimman bukukuwa da ranaku na Musulunci a tsawon shekara.",
+    "ah": "AH",
+    "today": "Yau",
+    "major": "Babban Biki",
+    "upcomingEvents": "Abubuwan da ke Tafe",
+    "noUpcoming": "Babu manyan ranaku a cikin kwanaki 60 masu zuwa",
+    "allHolidays": "Duk Bukukuwan Musulunci",
+    "dayHeaders": ["Lah", "Lit", "Tal", "Lar", "Alh", "Jum", "Asa"],
+    "months": {
+      "muharram": "Muharram",
+      "safar": "Safar",
+      "rabiAlAwwal": "Rabi'ul Awwal",
+      "rabiAlThani": "Rabi'ul Thani",
+      "jumadaAlUla": "Jumada al-Ula",
+      "jumadaAlAkhirah": "Jumada al-Akhirah",
+      "rajab": "Rajab",
+      "shaban": "Sha'aban",
+      "ramadan": "Ramadan",
+      "shawwal": "Shawwal",
+      "dhuAlQidah": "Dhu al-Qi'dah",
+      "dhuAlHijjah": "Dhu al-Hijjah"
+    },
+    "holidays": {
+      "islamic_new_year": {
+        "name": "Sabuwar Shekarar Musulunci",
+        "description": "Rana ta farko ta Muharram, tana nuna fara sabuwar shekarar kalandar Musulunci.",
+        "significance": "Tana tunatar da Hijira (ƙaura) ta Annabi Muhammad daga Makka zuwa Madina."
+      },
+      "day_of_ashura": {
+        "name": "Ranar Ashura",
+        "description": "Rana ta azumi da tunawa a ranar 10 ga Muharram.",
+        "significance": "Ana tunawa da manyan al’amura, ciki har da tsirar Musa daga Fir’auna, da sauran abubuwan tarihi masu muhimmanci."
+      },
+      "mawlid_al_nabi": {
+        "name": "Mawlid al-Nabi",
+        "description": "Ranar haihuwar Annabi Muhammad (tsira da amincin Allah su tabbata a gare shi).",
+        "significance": "Ana murnar haihuwar Annabi, kuma Musulmi da dama suna gudanar da tunawa da wannan rana."
+      },
+      "laylat_al_miraj": {
+        "name": "Darar Mi'iraji",
+        "description": "Darar Isra’i da Mi’iraji na Annabi Muhammad.",
+        "significance": "Ana tunawa da tafiyar mu’ujiza daga Makka zuwa Urushalima da kuma hawan sama."
+      },
+      "laylat_al_baraah": {
+        "name": "Darar Bara'ah",
+        "description": "Dare na gafara, ibada, da tunani a tsakiyar Sha’aban.",
+        "significance": "Ana alakanta shi da rahama, gafara, da sabunta zuciya a ibada."
+      },
+      "first_day_of_ramadan": {
+        "name": "Farkon Ranar Ramadan",
+        "description": "Farkon watan Ramadan, watan azumi.",
+        "significance": "Yana fara wata na azumi, sallah, karatun Alƙur’ani, da ƙara ƙoƙari a ibada."
+      },
+      "laylat_al_qadr": {
+        "name": "Darar Lailatul Qadr",
+        "description": "Darar Qadr, ɗaya daga cikin dararen goma na ƙarshe na Ramadan.",
+        "significance": "Darar da aka saukar da Alƙur’ani a farko, ta fi alheri fiye da watanni dubu."
+      },
+      "eid_al_fitr": {
+        "name": "Eid al-Fitr",
+        "description": "Bikin kammala azumi (bikin buɗe baki).",
+        "significance": "Babban biki da ke nuna ƙarshen Ramadan, ɗaya daga cikin manyan bukukuwan Musulunci."
+      },
+      "day_of_arafah": {
+        "name": "Ranar Arafah",
+        "description": "Mafi muhimmiyar rana a Hajji.",
+        "significance": "Ranar tsayuwa a Dutsen Arafat, rana ta gafara da rahama."
+      },
+      "eid_al_adha": {
+        "name": "Eid al-Adha",
+        "description": "Bikin Layya.",
+        "significance": "Ana tunawa da imani da biyayya ta Ibrahim, kuma yana zo da lokacin ibadar Hajji."
+      }
+    }
+  },
+  "journey": {
+    "title": "Duk Abin da Kake Bukata Don Tafiyarka ta Musulunci",
+    "subtitle": "Kayan aiki masu cikawa da fasalolin al’umma da aka tsara don Musulmi a duk duniya",
+    "items": {
+      "qibla": {
+        "title": "Neman Alkibla",
+        "desc": "Cikakkiyar alkibla a duk inda kake a duniya ta amfani da GPS"
+      },
+      "mosques": {
+        "title": "Neman Masallatai",
+        "desc": "Nemo masallatai, cibiyoyin Musulunci, da gidajen abinci na halal a yankinka"
+      },
+      "calendar": {
+        "title": "Kalanda ta Musulunci",
+        "desc": "Kada ka rasa muhimman ranakun Musulunci, bukukuwa, da tarukan al’umma"
+      },
+      "network": {
+        "title": "Hanyar Haɗin Al’umma",
+        "desc": "Haɗu da Musulmi a birninka da kuma a duk duniya"
+      },
+      "learning": {
+        "title": "Ilimin Musulunci",
+        "desc": "Samun Alƙur’ani, Hadisi, da darussan Musulunci a harsuna da dama"
+      },
+      "heritage": {
+        "title": "Gadon Al’adu",
+        "desc": "Yi murnar al’adun Musulunci ka kuma raba kwarewar al’adu daga ko’ina cikin duniya"
+      }
+    },
+    "cta": {
+      "title": "Ka shirya ka shiga al’ummarmu?",
+      "subtitle": "Fara tafiyarka tare da dubban Musulmi a duniya da suka sami gidansu na ruhaniya ta wannan manhaja.",
+      "joinButton": "Shiga Al’umma Yanzu",
+      "exploreButton": "Bincika Fasaloli",
+      "guidelinesButton": "Ka’idojin Al’umma"
+    },
+    "toasts": {
+      "signInRequiredTitle": "Ana bukatar shiga",
+      "signInRequiredDescNetwork": "Da fatan za a shiga domin shiga hanyar haɗin al’umma.",
+      "signInRequiredDescChat": "Da fatan za a shiga domin shiga tattaunawar al’umma.",
+      "islamicLearningTitle": "Ilimin Musulunci",
+      "islamicLearningDesc": "Bincika sashen Alƙur’ani ka saurari karatuttuka",
+      "culturalHeritageTitle": "Gadon Al’adu",
+      "culturalHeritageDesc": "Gano al’ummarmu da tarukan al’adu"
+    }
+  }
+}

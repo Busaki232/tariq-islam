@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleDisplayName</key>
+	<string>Tariq Islam</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.1.22</string>
+	<key>CFBundleVersion</key>
+	<string>22</string>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Tariq Islam uses the camera for video calls and media uploads.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Tariq Islam may use your location to provide mosque locations and prayer times relevant to your area.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Tariq Islam uses your location to show nearby mosques and accurate prayer times.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Tariq Islam uses the microphone for audio calls, video calls, and voice recordings.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Tariq Islam needs permission to save media when needed.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Tariq Islam uses your photo library so you can choose profile photos, images, and videos to share.</string>
+	<key>NSVoIPUsageDescription</key>
+	<string>Tariq Islam uses VoIP to allow members to make audio and video calls with each other.</string>
+	<key>SUPABASE_ANON_KEY</key>
+	<string>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVuZXZqaW9kYm1uZ25rd2t3dXVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg3NjAwNDksImV4cCI6MjA3NDMzNjA0OX0.S32V7VzipElYgj8l21-xMMEji6fcnAloBYuOAjERz-w</string>
+	<key>SUPABASE_URL</key>
+	<string>https://enevjiodbmngnkwkwuud.supabase.co</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>voip</string>
+		<string>remote-notification</string>
+	</array>
+	<key>UILaunchStoryboardName</key>
+	<string>LaunchScreen</string>
+	<key>UIMainStoryboardFile</key>
+	<string>Main</string>
+	<key>UIRequiredDeviceCapabilities</key>
+	<array>
+		<string>armv7</string>
+	</array>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<true/>
+</dict>
+</plist>

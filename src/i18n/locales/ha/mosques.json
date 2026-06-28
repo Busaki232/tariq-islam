@@ -1,0 +1,117 @@
+{
+  "header": {
+    "title": "Nemo Masallatai da Cibiyoyin Musulunci",
+    "subtitle": "Gano cibiyoyin Musulunci masu tarba a duniya. Nemo lokutan sallah, al’ummomi daban-daban na Musulmi, da shirye-shiryen ilimin addini a kusa da kai."
+  },
+  "filters": {
+    "searchPlaceholder": "Nemo da suna, birni, ko liman...",
+    "filterResults": "Tace sakamako",
+    "locationsLabel": "Wurare:",
+    "servicesLabel": "Ayyuka:"
+  },
+  "listings": {
+    "title": "Cibiyoyin Musulunci ({{count}} wurare)",
+    "subtitle": "Cikakken kundin masallatai da cibiyoyin Musulunci a duniya"
+  },
+  "badges": {
+    "featured": "Musamman",
+    "diverseCommunity": "Al’umma mai bambance-bambance"
+  },
+  "card": {
+    "reviews": "({{count}} bita)",
+    "imamLabel": "Liman:",
+    "languagesLabel": "Harsuna:",
+    "moreServices": "+{{count}} ƙari"
+  },
+  "prayerTimes": {
+    "title": "Lokutan Sallah",
+    "fajr": "Asuba",
+    "dhuhr": "Azahar",
+    "asr": "La’asar",
+    "maghrib": "Magariba",
+    "isha": "Isha’i",
+    "jummah": "Juma’a"
+  },
+  "buttons": {
+    "directions": "Nemo hanya",
+    "moreDetails": "Ƙarin bayani"
+  },
+  "cta": {
+    "title": "Masallacinka ba ya nan?",
+    "subtitle": "Taimaka mana mu gina kundin bayanai cikakke. Ka saka masallacinka ko cibiyar Musulunci domin ta bayyana a kundin al’umma.",
+    "submitMosque": "Saka Masallaci",
+    "submitting": "Ana turawa...",
+    "prayerTimeUpdates": "Sabunta lokutan sallah"
+  },
+  "auth": {
+    "signInRequiredTitle": "Ana buƙatar shiga",
+    "submitMosqueBody": "Da fatan za a shiga domin saka masallaci.",
+    "prayerUpdatesBody": "Da fatan za a shiga domin aika sabuntawar lokutan sallah."
+  },
+  "submitPageTitle": "Saka Masallaci",
+  "submitPageSubtitle": "Taimaka mana mu gina cikakken kundin masallatai da cibiyoyin Musulunci a duniya.",
+  "form": {
+    "sections": {
+      "basicInfo": "Bayanan Asali",
+      "contactInfo": "Bayanan Tuntuɓa",
+      "religiousInfo": "Bayanan Addini"
+    },
+    "labels": {
+      "mosqueName": "Sunan Masallaci/Cibiyar Musulunci *",
+      "streetAddress": "Adireshin Titin *",
+      "city": "Birni *",
+      "state": "Jiha *",
+      "zip": "Lambar ZIP",
+      "phone": "Lambar waya",
+      "email": "Imel",
+      "website": "Gidan yanar gizo",
+      "imam": "Liman/Shugaban Addini",
+      "languagesSpoken": "Harsunan da ake amfani da su",
+      "servicesOffered": "Ayyukan da ake bayarwa",
+      "description": "Bayani"
+    },
+    "placeholders": {
+      "mosqueName": "misali: Islamic Center of Chicago",
+      "streetAddress": "123 Main Street",
+      "city": "Chicago",
+      "state": "IL",
+      "zip": "60610",
+      "phone": "(312) 555-0100",
+      "email": "info@masjid.org",
+      "website": "www.masjid.org",
+      "imam": "Sheikh Abdullah Hassan",
+      "description": "Faɗa mana game da masallacin ku, shirye-shiryen al’umma, da abubuwan musamman..."
+    },
+    "prayerTimesHint": "Da fatan a rubuta lokutan sallah a tsarin sa’a 12 (misali: 5:30 AM)."
+  },
+  "submitPage": {
+    "backToMosques": "Komawa Mosallatai",
+    "guidelinesTitle": "Ka’idojin Gabatarwa",
+    "guidelines": {
+      "requiredInfoTitle": "Bayanan da ake bukata",
+      "requiredInfoItems": [
+        "Sunan masallaci ko cibiyar Musulunci",
+        "Cikakken adireshin titi",
+        "Birni da jiha"
+      ],
+      "reviewProcessTitle": "Tsarin Bita",
+      "reviewProcessItems": [
+        "Ana duba gabatarwa cikin kwanakin aiki 3-5",
+        "Za mu iya tuntubarka don karin bayani",
+        "Abubuwan da aka amince da su za su bayyana a kundinmu"
+      ],
+      "helpfulTipsTitle": "Shawarwari Masu Amfani",
+      "helpfulTipsItems": [
+        "Ka bayar da sahihan lokutan sallah",
+        "Ka hada shirye-shirye da ayyuka na musamman",
+        "Ka kara bayanan tuntuɓa idan zai yiwu"
+      ],
+      "updatesTitle": "Sabuntawa",
+      "updatesItems": [
+        "Tuntube mu don sabunta bayanan da suke akwai",
+        "Ana sabunta lokutan sallah bisa yanayi (season)",
+        "Gudummawar al’umma na taimaka wajen sabunta bayanai"
+      ]
+    }
+  }
+}

@@ -1,0 +1,208 @@
+{
+  "loading": "Ana lodawa...",
+  "errors": {
+    "timeout": "Lokacin jira ya wuce"
+  },
+  "presence": {
+    "online": "Yana kan layi",
+    "offline": "Ba ya kan layi",
+    "seenMinutes": "An gani minti {{count}} da suka wuce",
+    "seenHours": "An gani sa’a {{count}} da suka wuce",
+    "seenDate": "An gani a ranar {{date}}"
+  },
+  "privateChat": {
+    "directory": {
+      "requestedOn": "An nema a ranar {{date}}"
+    }
+  },
+  "settings": {
+    "title": "Saituna",
+    "profile": "Bayanan martaba",
+    "profile_title": "Bayanan martabarka",
+    "profile_alt": "Bayanan martaba",
+    "no_photo": "Babu hoto",
+    "uploading": "Ana ɗorawa...",
+    "change_photo": "Canza hoto",
+    "username_label": "Sunan mai amfani",
+    "username_help": "Ana amfani da shi don gayyata a hira ta sirri. Babu sarari. Haruffa, lambobi, dige da underscore kawai.",
+    "username_placeholder": "Misali: @taofikbusari",
+    "saving": "Ana adanawa...",
+    "save": "Ajiye",
+    "saved": "An ajiye",
+    "username_saved_hint": "An ajiye",
+    "username_saved_title": "An ajiye sunan mai amfani",
+    "username_invalid_short": "Ba daidai ba",
+    "username_invalid_title": "Sunan mai amfani ba daidai ba",
+    "username_invalid_desc": "Yi amfani da haruffa 3 zuwa 20. Haruffa, lambobi, dige da underscore kawai.",
+    "username_save_failed_title": "An kasa ajiye sunan mai amfani",
+    "username_taken": "An riga an ɗauki wannan sunan.",
+    "username_preview": "Dubawa",
+    "none": "Babu",
+    "appearance": "Bayyanar",
+    "theme": "Jigo",
+    "online_visibility": "Bayyanar kan layi",
+    "online_hidden": "A boye (ba ya kan layi)",
+    "online_visible": "A bayyane (yana kan layi)",
+    "show_online": "Nuna kan layi",
+    "hide_online": "Boye kan layi",
+    "stored_on_device": "An ajiye a wannan na’urar.",
+    "notifications": "Sanarwa",
+    "messages": "Saƙonni",
+    "calls": "Kira",
+    "local_toggles_note": "Waɗannan zaɓuɓɓukan na na’ura ne kawai a yanzu.",
+    "adhan": "Adhan",
+    "adhan_enabled": "An kunna Adhan",
+    "adhan_disabled": "An kashe Adhan",
+    "adhan_note": "Za ka iya kunnawa ko kashewa kowane lokaci.",
+    "adhan_location_title": "Wuri don Adhan",
+    "adhan_location_subtitle": "Yi amfani da wurin na’ura ko shigar da lamba da hannu.",
+    "adhan_location_device": "Yi amfani da na’ura",
+    "adhan_location_manual": "Da hannu",
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "latitude_placeholder": "41.8781",
+    "longitude_placeholder": "-87.6298",
+    "save_location": "Ajiye wuri",
+    "invalid_location": "Wuri ba daidai ba",
+    "invalid_location_desc": "Da fatan ka shigar da latitude da longitude masu inganci.",
+    "location_saved": "An ajiye wuri",
+    "location_up_to_date": "Wuri yana sabo",
+    "device_location_captured": "An kama wuri",
+    "device_location_saved": "An ajiye wuri",
+    "device_location_not_saved": "Ba a ajiye wuri ba",
+    "could_not_get_location": "An kasa samun wuri",
+    "location_unavailable": "Wuri ba ya samuwa",
+    "location_unavailable_desc": "Geolocation ba ya aiki a nan.",
+    "permission_needed": "Ana bukatar izini",
+    "permission_needed_desc": "Da fatan ka ba da izinin samun wuri.",
+    "account_deletion": "Goge asusu",
+    "deletion_intro": "Za ka iya neman a goge asusunka.",
+    "deletion_note": "Ana kammala buƙatu cikin kwanaki 30.",
+    "request_deletion": "Nemi goge asusu",
+    "email_support_instead": "Aika imel zuwa tallafi",
+    "deletion_email_subject": "Buƙatar goge asusu",
+    "deletion_email_hello": "Sannu Tallafi,",
+    "deletion_email_line1": "Ina so a goge asusuna.",
+    "deletion_email_account": "Imel na asusu",
+    "deletion_email_user_id": "ID na mai amfani",
+    "deletion_email_thanks": "Na gode.",
+    "blocked_users": "Masu amfani da aka toshe",
+    "no_blocked_users": "Babu wanda aka toshe.",
+    "blocked_fallback_name": "Mai amfani da aka toshe",
+    "unblock": "Cire toshewa",
+    "signout": "Fita",
+    "not_signed_in": "Ba a shiga ba.",
+    "language": {
+      "title": "Harshe",
+      "subtitle": "Harshen manhaja",
+      "placeholder": "Zaɓi harshe",
+      "current": "Na yanzu",
+      "english": "Turanci",
+      "french": "Faransanci",
+      "hausa": "Hausa",
+      "arabic": "Larabci"
+    }
+  },
+  "test_language": "Gwajin harshe",
+  "home": {
+    "hero": {
+      "bgAlt": "Tsarin zane na Musulunci",
+      "greetingTranslation": "Salama da rahamar Allah su tabbata a gare ku",
+      "title": "Kasance a haɗe da addininka da al’umma",
+      "subtitle": "Nemo lokutan sallah da masallatai."
+    },
+    "cta": {
+      "joinChat": "Shiga hira",
+      "joinChatAria": "Shiga hirar al’umma",
+      "findMosques": "Nemo masallatai",
+      "findMosquesAria": "Nemo masallatai kusa",
+      "gettingLocation": "Ana samun wuri...",
+      "qibla": "Nemo Alƙibla",
+      "qiblaAria": "Buɗe Alƙibla",
+      "qiblaDirectionAria": "Nemo alkibla",
+      "joinNow": "Shiga yanzu",
+      "joinNowAria": "Yi rajista",
+      "islamicCalendar": "Kalandar Musulunci",
+      "islamicCalendarAria": "Buɗe kalanda"
+    },
+    "location": {
+      "obtained": {
+        "title": "An samu wuri",
+        "desc": "Ana nuna masallatai kusa"
+      },
+      "unavailable": {
+        "title": "Wuri ba ya samuwa",
+        "desc": "Ana nuna duk masallatai"
+      }
+    },
+    "why": {
+      "title": "Me ya sa ka shiga Tariq Islam?",
+      "bullet1": "Haɗu da Musulmi a ainihin lokaci",
+      "bullet2": "Nemo masallatai da abubuwan da ke faruwa",
+      "bullet3": "Samu Alƙur’ani da lokutan sallah"
+    },
+    "privacy": "Ana kare bayananka."
+  },
+
+  "howToListenTitle": "🎧 Yadda ake sauraron Alkur’ani",
+  "getStartedSubtitle": "Zaɓi mai karatu da sura a ƙasa don fara sauraron Alkur’ani mai girma.",
+  "howToListenSteps": {
+    "1": "Zaɓi mai karatu.",
+    "2": "Zaɓi sura.",
+    "3": "Danna play don sauraro."
+  },
+
+  "islamicCalendar": {
+    "months": {
+      "muharram": "Muharram",
+      "safar": "Safar",
+      "rabiAlAwwal": "Rabiʿ al-Awwal",
+      "rabiAlThani": "Rabiʿ ath-Thani",
+      "jumadaAlUla": "Jumada al-Ula",
+      "jumadaAlAkhirah": "Jumada al-Akhirah",
+      "rajab": "Rajab",
+      "shaban": "Sha’aban",
+      "ramadan": "Ramadan",
+      "shawwal": "Shawwal",
+      "dhuAlQidah": "Dhu al-Qiʿdah",
+      "dhuAlHijjah": "Dhu al-Hijjah"
+    }
+  },
+  "footer": {
+    "cta": {
+      "title": "Ka shirya shiga al’ummarmu?",
+      "subtitle": "Shiga dubban Musulmi a duniya.",
+      "join": "Shiga yanzu",
+      "explore": "Bincika",
+      "guidelines": "Ka’idoji"
+    },
+    "brand": {
+      "name": "Tariq Islam",
+      "alt": "Alamar Tariq Islam",
+      "note": "Da fatan a mutunta al’ummarmu"
+    },
+    "columns": {
+      "community": "Al’umma",
+      "business": "Kasuwanci",
+      "support": "Tallafi"
+    },
+    "links": {
+      "mosques": "Masallatai",
+      "events": "Abubuwan da ke faruwa",
+      "chatRoom": "Hira",
+      "communityGuidelines": "Ka’idoji",
+      "privacyPolicy": "Sirri",
+      "childSafetyPolicy": "Kare yara",
+      "advertise": "Tallatawa",
+      "businessListings": "Kasuwanci",
+      "supportPlatform": "Tallafa",
+      "contactUs": "Tuntuɓe mu"
+    },
+    "copyright": "Dukkan haƙƙoƙi na kiyayye."
+  },
+  "contact": {
+    "title": "Tuntuɓe mu",
+    "subtitle": "Aika ra’ayinka.",
+    "close": "Rufe"
+  }
+}

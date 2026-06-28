@@ -1,0 +1,76 @@
+{
+  "childSafety": {
+    "title": "Child Safety Policy",
+    "lastUpdatedLabel": "Last updated:",
+    "lastUpdatedDate": "25 November 2025",
+    "intro": "At Global Muslims Connect, we are committed to protecting all users, including minors, and ensuring a safe, respectful, and secure online environment. Although our platform is not intended for children under 13, we recognize that minors may still access online content. This policy explains the safety measures we take to protect younger users and maintain a safe community.",
+    "sections": {
+      "adultsOnly": {
+        "title": "1. App Intended for Adults",
+        "bullets": [
+          "Global Muslims Connect is developed for adults (18+).",
+          "We do not target children, and we do not design features specifically for children."
+        ]
+      },
+      "noChildContent": {
+        "title": "2. No Child-Directed Content",
+        "bullets": [
+          "Our app content, communication features, and services are not aimed at children.",
+          "We do not display child-directed images, animations, or themes."
+        ]
+      },
+      "ugcSafety": {
+        "title": "3. User-Generated Content (UGC) Safety",
+        "lead": "To ensure a safe environment:",
+        "bullets": [
+          "All users must follow our Community Guidelines.",
+          "Hate speech, harassment, explicit content, scams, bullying, or threats are prohibited.",
+          "Violations may result in account suspension or permanent removal."
+        ]
+      },
+      "reporting": {
+        "title": "4. Reporting & Moderation Tools",
+        "lead": "Users can report:",
+        "items": [
+          "Abusive messages",
+          "Inappropriate photos or videos",
+          "Suspicious accounts",
+          "Violations of Islamic conduct and community rules"
+        ],
+        "note": "Our moderation team reviews all reports promptly and takes action when needed."
+      },
+      "ageRestrictions": {
+        "title": "5. Age Restrictions",
+        "bullets": [
+          "Children under 13 are not allowed to create an account.",
+          "We encourage parents to monitor their children's device usage."
+        ]
+      },
+      "dataProtection": {
+        "title": "6. Data Protection",
+        "p1": "We do not knowingly collect personal information from children under 13.",
+        "p2": "If we discover that a minor has created an account, we remove it immediately."
+      },
+      "expectations": {
+        "title": "7. Safety Expectations for Users",
+        "lead": "All users must:",
+        "bullets": [
+          "Respect Islamic values",
+          "Maintain modest conduct online",
+          "Avoid sharing sensitive or harmful content",
+          "Report unsafe behavior immediately"
+        ]
+      },
+      "contact": {
+        "title": "8. Contact Information",
+        "lead": "For questions or safety concerns, contact us:",
+        "emailLabel": "Email:",
+        "emailValue": "support@global-muslims-connect.com",
+        "businessLabel": "Business Name:",
+        "businessValue": "Busaki Investments LLC",
+        "websiteLabel": "Website:",
+        "websiteValue": "www.global-muslims-connect.com"
+      }
+    }
+  }
+}

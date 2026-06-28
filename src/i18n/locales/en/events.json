@@ -1,0 +1,53 @@
+{
+  "header": {
+    "title": "Community Events",
+    "subtitle": "Discover and join events in the global Muslim community"
+  },
+  "filters": {
+    "searchPlaceholder": "Search events...",
+    "category": "Category",
+    "all": "All Categories",
+    "religious": "Religious",
+    "educational": "Educational",
+    "cultural": "Cultural",
+    "social": "Social",
+    "general": "General"
+  },
+  "buttons": {
+    "create": "Create Event",
+    "view": "View Details"
+  },
+
+  "creating": "Creating Event...",
+  "form": {
+    "titlePlaceholder": "Enter event title...",
+    "descriptionPlaceholder": "Describe your event...",
+    "locationPlaceholder": "Enter event location...",
+    "categoryPlaceholder": "Select category",
+    "capacityPlaceholder": "No limit",
+    "imagePlaceholder": "https://example.com/image.jpg"
+},
+  "jumuahPoll": {
+    "title": "Who's going to Jumu'ah?"
+  },
+  "states": {
+    "loading": "Loading events...",
+    "noResults": "No events found",
+    "noUpcoming": "No events are currently scheduled",
+    "full": "Full",
+    "almostFull": "Almost Full",
+    "untitled": "Untitled event",
+    "locationTBD": "Location TBD",
+    "attending": "{{count}} attending",
+    "max": "max"
+  },
+  "fields": {
+    "title": "Event",
+    "at": "at"
+  },
+  "toast": {
+    "errorBody": "Failed to load events. Please try again.",
+    "hanging": "Events request is hanging. Check network/Supabase URL.",
+    "timeout": "Events request timed out"
+  }
+}

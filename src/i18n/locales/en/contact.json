@@ -1,0 +1,43 @@
+{
+  "title": "Contact Us",
+  "subtitle": "Share your feedback, report a bug, or request a feature. We value your input and will respond as soon as possible.",
+  "close": "Close",
+
+  "form": {
+    "nameLabel": "Name",
+    "namePlaceholder": "Your name",
+    "emailLabel": "Email",
+    "emailPlaceholder": "your.email@example.com",
+    "subjectLabel": "Subject",
+    "subjectPlaceholder": "Brief summary",
+    "typeLabel": "Feedback Type / Reason",
+    "typePlaceholder": "General feedback, bug report, feature request...",
+    "messageLabel": "Message",
+    "messagePlaceholder": "Tell us more...",
+    "submit": "Send message",
+    "submitting": "Sending..."
+  },
+
+  "types": {
+    "general": "General feedback",
+    "bug": "Bug report",
+    "feature": "Feature request",
+    "account": "Account issue",
+    "billing": "Billing / donations",
+    "other": "Other"
+  },
+
+  "validation": {
+    "nameRequired": "Name is required",
+    "emailRequired": "Email is required",
+    "emailInvalid": "Enter a valid email address",
+    "messageRequired": "Message is required"
+  },
+
+  "toast": {
+    "successTitle": "Message sent",
+    "successBody": "Thanks. We’ll get back to you soon.",
+    "errorTitle": "Something went wrong",
+    "errorBody": "Please try again."
+  }
+}

@@ -1,0 +1,117 @@
+{
+  "header": {
+    "title": "ابحث عن المساجد والمراكز الإسلامية",
+    "subtitle": "اكتشف مراكز إسلامية مرحِّبة حول العالم. اعرف مواقيت الصلاة، والمجتمعات المسلمة المتنوعة، وبرامج التعليم الإسلامي بالقرب منك."
+  },
+  "filters": {
+    "searchPlaceholder": "ابحث بالاسم أو المدينة أو الإمام...",
+    "filterResults": "تصفية النتائج",
+    "locationsLabel": "المواقع:",
+    "servicesLabel": "الخدمات:"
+  },
+  "listings": {
+    "title": "المراكز الإسلامية ({{count}} موقع)",
+    "subtitle": "دليل شامل للمساجد والمراكز الإسلامية حول العالم"
+  },
+  "badges": {
+    "featured": "مميز",
+    "diverseCommunity": "مجتمع متنوع"
+  },
+  "card": {
+    "reviews": "({{count}} مراجعة)",
+    "imamLabel": "الإمام:",
+    "languagesLabel": "اللغات:",
+    "moreServices": "+{{count}} المزيد"
+  },
+  "prayerTimes": {
+    "title": "مواقيت الصلاة",
+    "fajr": "الفجر",
+    "dhuhr": "الظهر",
+    "asr": "العصر",
+    "maghrib": "المغرب",
+    "isha": "العشاء",
+    "jummah": "الجمعة"
+  },
+  "buttons": {
+    "directions": "الاتجاهات",
+    "moreDetails": "مزيد من التفاصيل"
+  },
+  "cta": {
+    "title": "هل مسجدك غير موجود؟",
+    "subtitle": "ساعدنا على بناء دليل شامل. أضف مسجدك أو مركزك الإسلامي ليظهر في دليل المجتمع.",
+    "submitMosque": "إضافة مسجد",
+    "submitting": "جارٍ الإرسال...",
+    "prayerTimeUpdates": "تحديث مواقيت الصلاة"
+  },
+  "auth": {
+    "signInRequiredTitle": "تسجيل الدخول مطلوب",
+    "submitMosqueBody": "يرجى تسجيل الدخول لإضافة مسجد.",
+    "prayerUpdatesBody": "يرجى تسجيل الدخول لإرسال تحديثات مواقيت الصلاة."
+  },
+  "submitPageTitle": "إضافة مسجد",
+  "submitPageSubtitle": "ساعدنا على بناء دليل شامل للمساجد والمراكز الإسلامية حول العالم.",
+  "form": {
+    "sections": {
+      "basicInfo": "معلومات أساسية",
+      "contactInfo": "معلومات التواصل",
+      "religiousInfo": "معلومات دينية"
+    },
+    "labels": {
+      "mosqueName": "اسم المسجد/المركز الإسلامي *",
+      "streetAddress": "عنوان الشارع *",
+      "city": "المدينة *",
+      "state": "الولاية/المنطقة *",
+      "zip": "الرمز البريدي",
+      "phone": "رقم الهاتف",
+      "email": "البريد الإلكتروني",
+      "website": "الموقع الإلكتروني",
+      "imam": "الإمام/المرشد الديني",
+      "languagesSpoken": "اللغات المستخدمة",
+      "servicesOffered": "الخدمات المتوفرة",
+      "description": "الوصف"
+    },
+    "placeholders": {
+      "mosqueName": "مثال: Islamic Center of Chicago",
+      "streetAddress": "123 Main Street",
+      "city": "Chicago",
+      "state": "IL",
+      "zip": "60610",
+      "phone": "(312) 555-0100",
+      "email": "info@masjid.org",
+      "website": "www.masjid.org",
+      "imam": "الشيخ عبدالله حسن",
+      "description": "حدثنا عن مسجدكم، برامج المجتمع، والخدمات أو الميزات الخاصة..."
+    },
+    "prayerTimesHint": "يرجى إدخال مواقيت الصلاة بصيغة 12 ساعة (مثال: 5:30 AM)."
+  },
+  "submitPage": {
+    "backToMosques": "العودة إلى المساجد",
+    "guidelinesTitle": "إرشادات الإضافة",
+    "guidelines": {
+      "requiredInfoTitle": "المعلومات المطلوبة",
+      "requiredInfoItems": [
+        "اسم المسجد أو المركز الإسلامي",
+        "العنوان الكامل",
+        "المدينة والولاية/المنطقة"
+      ],
+      "reviewProcessTitle": "آلية المراجعة",
+      "reviewProcessItems": [
+        "تتم مراجعة الإضافات خلال 3 إلى 5 أيام عمل",
+        "قد نتواصل معك لطلب معلومات إضافية",
+        "تظهر الإدخالات المعتمدة في دليلنا"
+      ],
+      "helpfulTipsTitle": "نصائح مفيدة",
+      "helpfulTipsItems": [
+        "قدّم مواقيت صلاة دقيقة",
+        "أضف البرامج والخدمات المتاحة",
+        "أضف معلومات التواصل إن أمكن"
+      ],
+      "updatesTitle": "التحديثات",
+      "updatesItems": [
+        "تواصل معنا لتحديث إدخال موجود",
+        "يتم تحديث مواقيت الصلاة بشكل موسمي",
+        "تساعد مساهمات المجتمع في إبقاء المعلومات محدّثة"
+      ]
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "back": "رجوع",
+  "backToMessages": "العودة إلى الرسائل",
+  "titles": {
+    "messages": "الرسائل",
+    "groups": "المجموعات",
+    "profile": "الملف الشخصي",
+    "settings": "الإعدادات",
+    "app": "Tariq Islam"
+  },
+  "bottomNav": {
+    "home": "الرئيسية",
+    "quran": "القرآن",
+    "qibla": "القبلة",
+    "tasbih": "التسبيح",
+    "messages": "الرسائل",
+    "community": "المجتمع",
+    "settings": "الإعدادات"
+  }
+}

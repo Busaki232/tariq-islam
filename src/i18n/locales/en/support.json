@@ -1,0 +1,46 @@
+{
+  "header": {
+    "title": "Support the Mission",
+    "body": {
+      "before": "Tariq Islam will always remain",
+      "free": "100% free",
+      "after": "for the Ummah. Your voluntary support helps us maintain servers, add new features, and serve Muslims worldwide."
+    },
+    "quote": {
+      "text": "\"Whoever guides someone to goodness will have a reward like one who did it.\"",
+      "attribution": "- Prophet ﷺ"
+    }
+  },
+  "tiers": {
+    "supporter": {
+      "name": "Supporter",
+      "price": "$5",
+      "period": "month",
+      "description": "Help us maintain and grow the platform",
+      "benefits": [
+        "Help maintain the platform",
+        "Support server costs",
+        "Featured in Supporters section",
+        "Contribute to free access for all"
+      ]
+    },
+    "communityFriend": {
+      "name": "Community Friend",
+      "price": "$10",
+      "period": "month",
+      "description": "Become a pillar of the community",
+      "benefits": [
+        "All Supporter benefits",
+        "Community recognition",
+        "Priority feature requests",
+        "Help us expand globally"
+      ]
+    },
+    "buttonPrefix": "Become a"
+  },
+  "bottom": {
+    "optionalTitle": "This program is 100% optional",
+    "optionalBody": "The app will always remain free for the Ummah. No features are locked behind donations. Your support simply helps us grow and serve more Muslims worldwide.",
+    "footerNote": "All contributions are voluntary and help maintain our servers, develop new features, and expand our reach to Muslims across the globe."
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "loading": "Ana lodawa dashboard...",
+  "welcome": "Barka da zuwa!",
+  "editProfile": "Gyara bayanan martaba",
+  "title": "Dashboard dina",
+  "subtitle": "Bi sawun gudummawarka da ayyukanka a al’umma",
+  "stats": {
+    "myAds": "Tallace-tallace na",
+    "myEvents": "Taron na",
+    "mosques": "Masallatai",
+    "applications": "Aikace-aikace",
+    "messages": "Saƙonni"
+  },
+  "quickActions": {
+    "title": "Ayyuka masu sauri",
+    "subtitle": "Ƙirƙiri sabbin abubuwa ko sarrafa waɗanda ka riga ka gabatar"
+  },
+  "actions": {
+    "listBusiness": "Ƙara kasuwanci",
+    "createEvent": "Ƙirƙiri taro",
+    "submitMosque": "Gabatar da masallaci",
+    "applyLeadership": "Nemi shugabanci"
+  },
+  "tabs": {
+    "myAds": "Tallace-tallace na",
+    "myEvents": "Taron na",
+    "mosques": "Masallatai",
+    "applications": "Aikace-aikace"
+  },
+  "empty": {
+    "adsTitle": "Babu tallace-tallace tukuna",
+    "adsSubtitle": "Fara da ƙara kasuwancinka ko sabis ɗinka na farko",
+    "adsCta": "Ƙirƙiri talla ta farko",
+    "eventsTitle": "Babu taro tukuna",
+    "eventsSubtitle": "Ƙirƙiri taron al’umma na farko",
+    "eventsCta": "Ƙirƙiri taro",
+    "mosquesTitle": "Babu gabatarwar masallaci tukuna",
+    "mosquesSubtitle": "Taimaka wajen faɗaɗa kundin masallatanmu",
+    "mosquesCta": "Gabatar da masallaci",
+    "leadershipTitle": "Babu aikace-aikacen shugabanci tukuna",
+    "leadershipSubtitle": "Nemi don zama jagoran al’umma",
+    "leadershipCta": "Nemi yanzu"
+  },
+  "leadershipForm": {
+    "title": "Neman Shugabanci",
+    "pageTitle": "Kasance Jagoran Al’umma",
+    "pageSubtitle": "Taimaka wajen faɗaɗa cibiyar sadarwar al’ummar Tariq Islam ta duniya a yankinka",
+    "successDesc": "Mun gode da sha’awarka na zama jagoran al’umma. Za mu duba aikace-aikacenka kuma mu dawo maka da amsa nan ba da jimawa ba.",
+    "labels": {
+      "fullName": "Cikakken suna *",
+      "email": "Imel *",
+      "phoneNumber": "Lambar waya",
+      "location": "Wuri/Gari *",
+      "experience": "Kwarewa mai dacewa *",
+      "motivation": "Dalili *",
+      "availability": "Lokacin da kake da shi *"
+    },
+    "placeholders": {
+      "fullName": "Shigar da cikakken sunanka",
+      "email": "Shigar da imel ɗinka",
+      "phoneNumber": "Shigar da lambar wayarka",
+      "location": "Shigar da garinka da jiha",
+      "experience": "Ka bayyana ƙwarewarka a shugabanci na al’umma, kungiyoyin Musulunci ko aikin sa-kai...",
+      "motivation": "Me ya sa kake son zama jagoran al’umma? Me ke motsa ka wajen gina al’ummar Musulmi ta duniya?",
+      "availability": "Ka bayyana lokutan da kake da su da kuma lokacin da za ka iya bayarwa ga ayyukan shugabanci..."
+    },
+    "buttons": {
+      "cancel": "Soke",
+      "submit": "Aika Aikace-aikacen",
+      "submitting": "Ana aikawa..."
+    },
+    "toasts": {
+      "authRequiredTitle": "Ana bukatar shiga",
+      "authRequiredDesc": "Da fatan ka shiga kafin ka aika aikace-aikacen.",
+      "submittedTitle": "An aika aikace-aikacen!",
+      "submissionFailedTitle": "Aikawa ta fadi",
+      "submissionFailedDesc": "An sami matsala wajen aikawa. Da fatan a sake gwadawa."
+    },
+    "validation": {
+      "fullNameMin": "Cikakken suna ya zama aƙalla haruffa 2",
+      "invalidEmail": "Imel bai inganta ba",
+      "locationRequired": "Ana bukatar wuri",
+      "experienceMin": "Bayyana kwarewarka (aƙalla haruffa 10)",
+      "motivationMin": "Bayyana dalilinka (aƙalla haruffa 10)",
+      "availabilityMin": "Bayyana lokacin da kake da shi"
+    }
+  },
+  "status": {
+    "approved": "an amince",
+    "pending": "ana jira",
+    "rejected": "an ƙi",
+    "upcoming": "mai zuwa"
+  },
+  "labels": {
+    "views": "{{count}} kallo",
+    "attending": "{{count}} masu halarta",
+    "created": "An ƙirƙira: {{date}}",
+    "eventDate": "Ranar taro: {{date}}",
+    "submitted": "An gabatar: {{date}}",
+    "applied": "An nema: {{date}}",
+    "leadershipApplication": "Aikace-aikacen shugabanci"
+  },
+  "errors": {
+    "takingTooLong": "Dashboard yana ɗaukar lokaci mai tsawo wajen lodawa.",
+    "timedOut": "Lokacin dashboard ya ƙare",
+    "failedToLoad": "An kasa lodawa bayanan dashboard"
+  }
+}

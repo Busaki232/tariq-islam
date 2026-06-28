@@ -1,0 +1,144 @@
+{
+  "title": "Saƙonni",
+  "labels": {
+    "unknownUser": "Ba a san mai amfani ba"
+  },
+  "actions": {
+    "newChat": "Sabon hira",
+    "newGroup": "Sabon rukuni",
+    "refresh": "Sabunta",
+    "retry": "Sake gwadawa",
+    "findUsers": "Nemo masu amfani",
+    "close": "Rufe",
+    "save": "Ajiye",
+    "saving": "Ana ajiye..."
+  },
+  "tabs": {
+    "direct": "Kai tsaye ({{count}})",
+    "groups": "Rukuni",
+    "requests": "Buƙatu"
+  },
+  "states": {
+    "loading": "Ana lodawa..."
+  },
+  "pending": {
+    "text": "Kana da buƙata {{count}} a jira{{plural}}. Buɗe Sabon hira don karɓa ko ƙi."
+  },
+  "empty": {
+    "title": "Babu haɗin kai tukuna",
+    "desc": "Danna Sabon hira don aika buƙata. Sai sun amince kafin ku iya hira."
+  },
+  "groups": {
+    "placeholder": "Jerin rukunoni zai bayyana a nan."
+  },
+  "modal": {
+    "title": "Fara sabon hira"
+  },
+  "directory": {
+    "inviteTitle": "Gayyata da username",
+    "inviteDesc": "Mutane ba za su haɗu ba sai an aika musu gayyata.",
+    "invitePlaceholder": "username (misali: @ali)",
+    "inviteBtn": "Gayyata",
+    "inviteBtnLoading": "Ana gayyata...",
+    "searchPlaceholder": "Bincika haɗe da buƙatu...",
+    "onlineTitle": "Bayyanar online",
+    "onlineHidden": "A ɓoye (kana bayyana offline)",
+    "onlineVisible": "A bayyane (kana bayyana online)",
+    "showOnline": "Nuna online",
+    "hideOnline": "Boye online",
+    "tabs": {
+      "connected": "Haɗe ({{count}})",
+      "requests": "Buƙatu",
+      "directory": "Jerin masu amfani"
+    },
+    "message": "Saƙo",
+    "add": "Ƙara",
+    "adding": "Ana ƙara...",
+    "noPending": "Babu buƙatu a jira",
+    "noRequestsMatch": "Babu buƙatu da ya dace da bincikenka",
+    "accept": "Karɓa",
+    "reject": "Ƙi",
+    "signInToSearch": "Shiga don bincika masu amfani.",
+    "typeTwoChars": "Rubuta aƙalla haruffa 2 don bincike.",
+    "searching": "Ana bincike...",
+    "noUsersFound": "Ba a sami mai amfani ba",
+    "noneConnected": "Babu haɗin kai",
+    "noneConnectedMatch": "Ba a sami haɗe da ya dace ba",
+    "searchFailed": "Binciken directory ya gaza. Wataƙila dokar SELECT ta profiles tana hana karantawa.",
+    "requestedOn": "An nema a ranar {{date}}"
+  },
+  "toast": {
+    "signInRequired": "Ana buƙatar shiga",
+    "enterUsernameTitle": "Shigar da username",
+    "enterUsernameDesc": "Misali: @muhammad (ba tare da sarari ba)",
+    "userNotFoundTitle": "Ba a sami mai amfani ba",
+    "userNotFoundDesc": "Babu mai amfani da username @{{uname}}",
+    "thatsYouTitle": "Kai ne",
+    "cantInviteSelf": "Ba za ka iya gayyatar kanka ba.",
+    "alreadyConnectedTitle": "Kun riga kun haɗu",
+    "alreadyConnectedDesc": "Za ka iya aika saƙo daga Haɗe.",
+    "requestAlreadySentTitle": "An riga an aika buƙata",
+    "requestAlreadySentDesc": "Ana jiran su amince.",
+    "theyRequestedYouTitle": "Sun riga sun nemi ka",
+    "checkRequestsTab": "Duba tab ɗin Buƙatu don karɓa.",
+    "inviteSentTitle": "An aika gayyata",
+    "inviteSentDesc": "An aika buƙatar haɗi zuwa @{{uname}}",
+    "couldNotSendInviteTitle": "Ba a iya aika gayyata ba",
+    "couldNotSendInviteDesc": "Aika gayyata ya gaza",
+    "requestSentTitle": "An aika buƙata",
+    "requestSentDesc": "An aika buƙata zuwa {{otherUserName}}. Sai sun amince kafin ku iya hira.",
+    "requestSentToName": "An aika buƙatar haɗi zuwa {{name}}",
+    "couldNotSendRequestTitle": "Ba a iya aika buƙata ba",
+    "couldNotSendRequestDesc": "Aika buƙata ya gaza",
+    "connectedTitle": "An haɗu",
+    "requestAccepted": "An karɓi buƙata.",
+    "couldNotAcceptTitle": "Ba a iya karɓa ba",
+    "couldNotAcceptDesc": "Karɓar buƙata ya gaza",
+    "rejectedTitle": "An ƙi",
+    "requestRejected": "An ƙi buƙata.",
+    "couldNotRejectTitle": "Ba a iya ƙi ba",
+    "couldNotRejectDesc": "Ƙin buƙata ya gaza",
+    "newGroupTitle": "Sabon rukuni",
+    "newGroupDesc": "Ƙirƙiri rukuni ka ƙara mambobi."
+  },
+  "onboarding": {
+    "chat": {
+      "title": "Saƙon Sirri",
+      "desc": "Je zuwa Messages, danna Add Directory don nemo ta sunan mai amfani, sannan ka duba Requests don amincewa da sabbin haɗuwa."
+    }
+  },
+  "createGroup": {
+    "title": "Ƙirƙiri sabon rukuni",
+    "groupNameLabel": "Sunan rukuni",
+    "groupNamePlaceholder": "Misali: Lagos Brothers",
+    "addMembersOptional": "Ƙara mambobi yanzu (zaɓi ne)",
+    "selectedCount": "An zaɓa: {{count}}",
+    "searchConnections": "Bincika haɗin ka...",
+    "noMatches": "Babu abin da ya dace",
+    "noConnections": "Babu haɗin kai tukuna",
+    "createBtn": "Ƙirƙiri rukuni",
+    "creating": "Ana ƙirƙira..."
+  },
+  "groupSettings": {
+    "title": "Saitin rukuni",
+    "roleLabel": "Matsayinka",
+    "roleUnknown": "ba a sani ba",
+    "groupName": "Sunan rukuni",
+    "adminOnly": "Sai admin kaɗai zai iya canza sunan rukuni.",
+    "members": "Mambobi",
+    "noMembers": "Ba a sami mambobi ba.",
+    "you": "Kai",
+    "leave": "Fita daga rukuni",
+    "leaving": "Ana fita..."
+  },
+  "presence": {
+    "online": "Online",
+    "offline": "Offline",
+    "seenMinutes": "An gan shi {{count}}m da suka wuce",
+    "seenHours": "An gan shi {{count}}h da suka wuce",
+    "seenDate": "An gan shi {{date}}"
+  },
+  "errors": {
+    "timeout": "Lokacin buƙata ya ƙare"
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "title": "اتصل بنا",
+  "subtitle": "شارك ملاحظاتك، أبلغ عن مشكلة، أو اطلب ميزة جديدة. نحن نقدر رأيك وسنرد في أقرب وقت ممكن.",
+  "close": "إغلاق",
+
+  "form": {
+    "nameLabel": "الاسم",
+    "namePlaceholder": "اسمك",
+    "emailLabel": "البريد الإلكتروني",
+    "emailPlaceholder": "بريدك@مثال.com",
+    "subjectLabel": "الموضوع",
+    "subjectPlaceholder": "ملخص قصير",
+    "typeLabel": "نوع الملاحظة / السبب",
+    "typePlaceholder": "ملاحظة عامة، بلاغ عن مشكلة، طلب ميزة...",
+    "messageLabel": "الرسالة",
+    "messagePlaceholder": "اكتب التفاصيل...",
+    "submit": "إرسال",
+    "submitting": "جارٍ الإرسال...",
+    "cancel": "إلغاء",
+    "securityNote": "تتم معالجة الرسائل بشكل آمن لحماية الخصوصية."
+  },
+
+  "business": {
+    "fallbackName": "الجهة",
+    "title": "التواصل مع {{businessName}}",
+    "subtitle": "أرسل رسالة آمنة لطلب معلومات التواصل من هذه الجهة.",
+    "sendButton": "إرسال طلب آمن",
+    "openMessaging": "فتح المراسلة الآمنة",
+    "highRiskNote": "قد يتطلب طلبك تحققًا إضافيًا وفقًا لسياسات الأمان."
+  },
+
+  "badges": {
+    "reputation": "السمعة",
+    "risk": "المخاطر",
+    "riskLow": "منخفضة",
+    "riskMedium": "متوسطة",
+    "riskHigh": "مرتفعة"
+  },
+
+  "types": {
+    "general": "ملاحظة عامة",
+    "bug": "بلاغ عن مشكلة",
+    "feature": "طلب ميزة",
+    "account": "مشكلة في الحساب",
+    "billing": "الدفع / التبرعات",
+    "other": "أخرى"
+  },
+
+  "validation": {
+    "nameRequired": "الاسم مطلوب",
+    "nameTooLong": "يجب ألا يتجاوز الاسم 100 حرف",
+    "emailRequired": "البريد الإلكتروني مطلوب",
+    "emailInvalid": "أدخل بريدًا إلكترونيًا صحيحًا",
+    "emailTooLong": "يجب ألا يتجاوز البريد الإلكتروني 255 حرفًا",
+    "subjectRequired": "الموضوع مطلوب",
+    "subjectTooLong": "يجب ألا يتجاوز الموضوع 120 حرفًا",
+    "reasonRequired": "يرجى توضيح سبب التواصل",
+    "reasonTooLong": "يجب ألا يتجاوز السبب 500 حرف",
+    "messageRequired": "الرسالة مطلوبة",
+    "messageTooLong": "يجب ألا تتجاوز الرسالة 1000 حرف"
+  },
+
+  "toast": {
+    "successTitle": "تم الإرسال",
+    "successBody": "شكرًا لك. تم استلام رسالتك.",
+    "errorTitle": "حدث خطأ",
+    "errorBody": "فشل إرسال الرسالة. يرجى المحاولة مرة أخرى.",
+
+    "authRequiredTitle": "تسجيل الدخول مطلوب",
+    "authRequiredBody": "يرجى تسجيل الدخول لإرسال رسالة.",
+    "missingContextTitle": "بيانات غير مكتملة",
+    "missingContextBody": "يتطلب هذا النموذج معرف الإعلان في وضع الأعمال.",
+    "invalidInputTitle": "مدخلات غير صالحة",
+    "invalidInputBody": "يرجى إزالة أي محتوى مشبوه والمحاولة مرة أخرى.",
+    "businessSuccessTitle": "تم إرسال الطلب",
+    "businessSuccessBody": "تم إرسال طلبك بشكل آمن. سيقوم صاحب الجهة بمراجعته وقد يتواصل معك عبر نظام المراسلة الآمن.",
+    "rateLimitTitle": "تم تجاوز الحد",
+    "rateLimitBody": "لقد أرسلت عددًا كبيرًا من الرسائل مؤخرًا. يرجى الانتظار ثم المحاولة لاحقًا.",
+    "storageMissingTitle": "تخزين الرسائل غير مهيأ",
+    "storageMissingBody": "تحتاج صفحة التواصل إلى جدول لتخزين الرسائل (مثل: contact_messages)."
+  }
+}

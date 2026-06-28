@@ -1,0 +1,22 @@
+{
+  "back": "Komawa",
+  "backToMessages": "Komawa zuwa saƙonni",
+
+  "titles": {
+    "messages": "Saƙonni",
+    "groups": "Rukunai",
+    "profile": "Bayani",
+    "settings": "Saituna",
+    "app": "Tariq Islam"
+  },
+
+  "bottomNav": {
+    "home": "Gida",
+    "quran": "Alƙur’ani",
+    "qibla": "Alƙibla",
+    "tasbih": "Tasbih",
+    "messages": "Saƙonni",
+    "community": "Al’umma",
+    "settings": "Saituna"
+  }
+}

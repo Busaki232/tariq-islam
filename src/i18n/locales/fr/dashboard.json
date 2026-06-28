@@ -1,0 +1,108 @@
+{
+  "loading": "Chargement du tableau de bord...",
+  "welcome": "Bienvenue !",
+  "editProfile": "Modifier le profil",
+  "title": "Mon tableau de bord",
+  "subtitle": "Suivez vos contributions et votre activité dans la communauté",
+  "stats": {
+    "myAds": "Mes annonces",
+    "myEvents": "Mes événements",
+    "mosques": "Mosquées",
+    "applications": "Candidatures",
+    "messages": "Messages"
+  },
+  "quickActions": {
+    "title": "Actions rapides",
+    "subtitle": "Créez du nouveau contenu ou gérez vos soumissions existantes"
+  },
+  "actions": {
+    "listBusiness": "Ajouter une entreprise",
+    "createEvent": "Créer un événement",
+    "submitMosque": "Soumettre une mosquée",
+    "applyLeadership": "Postuler au leadership"
+  },
+  "tabs": {
+    "myAds": "Mes annonces",
+    "myEvents": "Mes événements",
+    "mosques": "Mosquées",
+    "applications": "Candidatures"
+  },
+  "empty": {
+    "adsTitle": "Aucune annonce pour le moment",
+    "adsSubtitle": "Commencez par publier votre première entreprise ou service",
+    "adsCta": "Créer la première annonce",
+    "eventsTitle": "Aucun événement pour le moment",
+    "eventsSubtitle": "Créez votre premier événement communautaire",
+    "eventsCta": "Créer un événement",
+    "mosquesTitle": "Aucune soumission de mosquée pour le moment",
+    "mosquesSubtitle": "Aidez à développer notre annuaire des mosquées",
+    "mosquesCta": "Soumettre une mosquée",
+    "leadershipTitle": "Aucune candidature au leadership pour le moment",
+    "leadershipSubtitle": "Postulez pour devenir un leader communautaire",
+    "leadershipCta": "Postuler maintenant"
+  },
+  "leadershipForm": {
+    "title": "Candidature au leadership",
+    "pageTitle": "Devenir un leader communautaire",
+    "pageSubtitle": "Aidez à développer le réseau communautaire mondial de Tariq Islam dans votre région",
+    "successDesc": "Merci pour votre intérêt à devenir un leader communautaire. Nous examinerons votre candidature et vous répondrons bientôt.",
+    "labels": {
+      "fullName": "Nom complet *",
+      "email": "Adresse e-mail *",
+      "phoneNumber": "Numéro de téléphone",
+      "location": "Ville/Lieu *",
+      "experience": "Expérience pertinente *",
+      "motivation": "Motivation *",
+      "availability": "Disponibilité *"
+    },
+    "placeholders": {
+      "fullName": "Entrez votre nom complet",
+      "email": "Entrez votre e-mail",
+      "phoneNumber": "Entrez votre numéro de téléphone",
+      "location": "Entrez votre ville et région",
+      "experience": "Décrivez votre expérience en leadership communautaire, organisations islamiques ou bénévolat...",
+      "motivation": "Pourquoi souhaitez-vous devenir un leader communautaire ? Qu’est-ce qui motive votre engagement envers la communauté musulmane mondiale ?",
+      "availability": "Décrivez votre disponibilité et le temps que vous pouvez consacrer aux activités de leadership communautaire..."
+    },
+    "buttons": {
+      "cancel": "Annuler",
+      "submit": "Envoyer la candidature",
+      "submitting": "Envoi..."
+    },
+    "toasts": {
+      "authRequiredTitle": "Authentification requise",
+      "authRequiredDesc": "Veuillez vous connecter pour envoyer votre candidature.",
+      "submittedTitle": "Candidature envoyée !",
+      "submissionFailedTitle": "Échec de l’envoi",
+      "submissionFailedDesc": "Une erreur s’est produite. Veuillez réessayer."
+    },
+    "validation": {
+      "fullNameMin": "Le nom complet doit contenir au moins 2 caractères",
+      "invalidEmail": "Adresse e-mail invalide",
+      "locationRequired": "La localisation est requise",
+      "experienceMin": "Décrivez votre expérience (au moins 10 caractères)",
+      "motivationMin": "Expliquez votre motivation (au moins 10 caractères)",
+      "availabilityMin": "Décrivez votre disponibilité"
+    }
+  },
+  "status": {
+    "approved": "approuvé",
+    "pending": "en attente",
+    "rejected": "rejeté",
+    "upcoming": "à venir"
+  },
+  "labels": {
+    "views": "{{count}} vues",
+    "attending": "{{count}} participants",
+    "created": "Créé le : {{date}}",
+    "eventDate": "Date de l'événement : {{date}}",
+    "submitted": "Soumis le : {{date}}",
+    "applied": "Postulé le : {{date}}",
+    "leadershipApplication": "Candidature au leadership"
+  },
+  "errors": {
+    "takingTooLong": "Le tableau de bord met trop de temps à charger.",
+    "timedOut": "Le tableau de bord a expiré",
+    "failedToLoad": "Échec du chargement des données du tableau de bord"
+  }
+}

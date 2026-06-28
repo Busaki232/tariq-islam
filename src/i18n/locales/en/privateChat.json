@@ -1,0 +1,144 @@
+{
+  "title": "Messages",
+  "labels": {
+    "unknownUser": "Unknown User"
+  },
+  "actions": {
+    "newChat": "New Chat",
+    "newGroup": "New Group",
+    "refresh": "Refresh",
+    "retry": "Retry",
+    "findUsers": "Find users",
+    "close": "Close",
+    "save": "Save",
+    "saving": "Saving..."
+  },
+  "tabs": {
+    "direct": "Direct ({{count}})",
+    "groups": "Groups",
+    "requests": "Requests"
+  },
+  "states": {
+    "loading": "Loading..."
+  },
+  "pending": {
+    "text": "You have {{count}} pending request{{plural}}. Open the New Chat screen to accept/reject."
+  },
+  "empty": {
+    "title": "No connected users yet",
+    "desc": "Tap New Chat to send a request. They must accept before you can message."
+  },
+  "groups": {
+    "placeholder": "Groups list goes here."
+  },
+  "modal": {
+    "title": "Start a new chat"
+  },
+  "directory": {
+    "inviteTitle": "Invite by username",
+    "inviteDesc": "People can only connect if someone sends an invite.",
+    "invitePlaceholder": "username (example: @ali)",
+    "inviteBtn": "Invite",
+    "inviteBtnLoading": "Inviting...",
+    "searchPlaceholder": "Search connected and requests...",
+    "onlineTitle": "Online visibility",
+    "onlineHidden": "Hidden (you appear offline)",
+    "onlineVisible": "Visible (you appear online)",
+    "showOnline": "Show Online",
+    "hideOnline": "Hide Online",
+    "tabs": {
+      "connected": "Connected ({{count}})",
+      "requests": "Requests",
+      "directory": "Directory"
+    },
+    "message": "Message",
+    "add": "Add",
+    "adding": "Adding...",
+    "noPending": "No pending requests",
+    "noRequestsMatch": "No requests match your search",
+    "accept": "Accept",
+    "reject": "Reject",
+    "signInToSearch": "Sign in to search users.",
+    "typeTwoChars": "Type at least 2 characters to search.",
+    "searching": "Searching...",
+    "noUsersFound": "No users found",
+    "noneConnected": "No connections yet",
+    "noneConnectedMatch": "No connected users found",
+    "searchFailed": "Directory search failed. Your profiles SELECT policy might be blocking reads.",
+    "requestedOn": "Requested on {{date}}"
+  },
+  "toast": {
+    "signInRequired": "Sign in required",
+    "enterUsernameTitle": "Enter a username",
+    "enterUsernameDesc": "Example: @muhammad (no spaces)",
+    "userNotFoundTitle": "User not found",
+    "userNotFoundDesc": "No user with username @{{uname}}",
+    "thatsYouTitle": "That’s you",
+    "cantInviteSelf": "You can’t invite yourself.",
+    "alreadyConnectedTitle": "Already connected",
+    "alreadyConnectedDesc": "You can message them from Connected.",
+    "requestAlreadySentTitle": "Request already sent",
+    "requestAlreadySentDesc": "Waiting for them to accept.",
+    "theyRequestedYouTitle": "They already requested you",
+    "checkRequestsTab": "Check Requests tab to accept.",
+    "inviteSentTitle": "Invite sent",
+    "inviteSentDesc": "Connection request sent to @{{uname}}",
+    "couldNotSendInviteTitle": "Could not send invite",
+    "couldNotSendInviteDesc": "Failed to send invite",
+    "requestSentTitle": "Request sent",
+    "requestSentDesc": "Sent request to {{otherUserName}}. They must accept before you can chat.",
+    "requestSentToName": "Connection request sent to {{name}}",
+    "couldNotSendRequestTitle": "Could not send request",
+    "couldNotSendRequestDesc": "Failed to send request",
+    "connectedTitle": "Connected",
+    "requestAccepted": "Request accepted.",
+    "couldNotAcceptTitle": "Could not accept",
+    "couldNotAcceptDesc": "Failed to accept request",
+    "rejectedTitle": "Rejected",
+    "requestRejected": "Request rejected.",
+    "couldNotRejectTitle": "Could not reject",
+    "couldNotRejectDesc": "Failed to reject request",
+    "newGroupTitle": "New Group",
+    "newGroupDesc": "Create a group and add members."
+  },
+  "onboarding": {
+    "chat": {
+      "title": "Private Chat",
+      "desc": "Go to Messages, tap Add Directory to search by username, then check Requests to accept new connections."
+    }
+  },
+  "createGroup": {
+    "title": "Create new group",
+    "groupNameLabel": "Group name",
+    "groupNamePlaceholder": "Example: Lagos Brothers",
+    "addMembersOptional": "Add members now (optional)",
+    "selectedCount": "Selected: {{count}}",
+    "searchConnections": "Search your connections...",
+    "noMatches": "No matches",
+    "noConnections": "No connections yet",
+    "createBtn": "Create group",
+    "creating": "Creating..."
+  },
+  "groupSettings": {
+    "title": "Group settings",
+    "roleLabel": "Your role",
+    "roleUnknown": "unknown",
+    "groupName": "Group name",
+    "adminOnly": "Only admins can rename the group.",
+    "members": "Members",
+    "noMembers": "No members found.",
+    "you": "You",
+    "leave": "Leave group",
+    "leaving": "Leaving..."
+  },
+  "presence": {
+    "online": "Online",
+    "offline": "Offline",
+    "seenMinutes": "Seen {{count}}m ago",
+    "seenHours": "Seen {{count}}h ago",
+    "seenDate": "Seen {{date}}"
+  },
+  "errors": {
+    "timeout": "Request timeout"
+  }
+}

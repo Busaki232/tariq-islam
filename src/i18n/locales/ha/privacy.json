@@ -1,0 +1,99 @@
+{
+  "title": "Manufar Sirri",
+  "lastUpdatedLabel": "Sabuntawa na ƙarshe:",
+  "intro": "Muna girmama sirrinka kuma muna ƙoƙarin kare bayananka na sirri yayin da kake amfani da manhajar Tariq Islam da gidan yanar gizo.",
+  "sections": {
+    "collect": {
+      "title": "Bayanan da Muke Tarawa",
+      "personal": {
+        "title": "Bayanan Sirri",
+        "body": "Za mu iya tattara sunanka, adireshin imel, da bayanan profile lokacin da ka ƙirƙiri asusu."
+      },
+      "usage": {
+        "title": "Bayanan Amfani",
+        "body": "Muna tattara bayani kan yadda kake amfani da manhajar, ciki har da fasalolin da ka buɗe da lokacin da ka ɓata a ciki."
+      },
+      "device": {
+        "title": "Bayanan Na’ura",
+        "body": "Za mu iya tattara nau’in na’ura, tsarin aiki (OS), da wasu bayanan fasaha na asali."
+      }
+    },
+    "use": {
+      "title": "Yadda Muke Amfani da Bayananka",
+      "bullets": [
+        "Don samar da manhajar da kula da ita",
+        "Don inganta kwarewar mai amfani",
+        "Don keɓance abun ciki",
+        "Don aika muhimman sabuntawa",
+        "Don tabbatar da tsaro",
+        "Don cika bukatun doka"
+      ]
+    },
+    "sharing": {
+      "title": "Yadda Muke Raba Bayanai",
+      "lead": "Ba ma sayar da bayananka na sirri. Amma za mu iya raba wasu bayanai a waɗannan lokuta:",
+      "items": {
+        "withUsers": {
+          "label": "Tare da sauran masu amfani:",
+          "body": "Bayanan profile ɗinka na iya kasancewa a bayyane ga sauran masu amfani."
+        },
+        "providers": {
+          "label": "Masu ba da sabis:",
+          "body": "Za mu iya raba bayanai da amintattun masu ba da sabis da ke taimaka mana gudanar da manhajar."
+        },
+        "legal": {
+          "label": "Bukatun doka:",
+          "body": "Za mu iya bayyana bayanai idan doka ta buƙata."
+        },
+        "transfers": {
+          "label": "Canjin kasuwanci:",
+          "body": "Za a iya canja bayanai idan an yi haɗaka (merger) ko saye (acquisition) na kasuwanci."
+        }
+      }
+    },
+    "security": {
+      "title": "Tsaro",
+      "body": "Muna ɗaukar matakan tsaro masu ma’ana don kare bayananka."
+    },
+    "rights": {
+      "title": "Haƙƙoƙinka",
+      "items": {
+        "access": {
+          "label": "Samun dama:",
+          "body": "Kana iya neman damar ganin bayananka."
+        },
+        "deletion": {
+          "label": "Goge bayanai:",
+          "body": "Kana iya neman a goge asusunka."
+        },
+        "optOut": {
+          "label": "Ficewa:",
+          "body": "Kana iya ficewa daga wasu saƙonni ko sanarwa."
+        },
+        "portability": {
+          "label": "Matsar da bayanai:",
+          "body": "Kana iya neman kwafin bayananka."
+        }
+      }
+    },
+    "cookies": {
+      "title": "Cookies",
+      "body": "Za mu iya amfani da cookies da makamantansu domin inganta kwarewarka."
+    },
+    "children": {
+      "title": "Yara",
+      "body": "Manhajar ba ta nufin yara ƙasa da shekaru 13 ba tare da kulawar iyaye ba."
+    },
+    "changes": {
+      "title": "Sauye-sauye ga Wannan Manufa",
+      "body": "Za mu iya sabunta wannan manufar lokaci zuwa lokaci."
+    },
+    "contact": {
+      "title": "Tuntuɓe Mu",
+      "lead": "Idan kana da tambayoyi game da wannan Manufar Sirri, tuntuɓe mu:",
+      "emailLabel": "Imel:",
+      "emailValue": "support@global-muslims-connect.com",
+      "formLine": "Kana iya tuntuɓar mu ta cikin manhajar ma."
+    }
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "title": "Politique de Confidentialité",
+  "lastUpdatedLabel": "Dernière mise à jour :",
+  "intro": "Nous respectons votre vie privée et nous engageons à protéger vos informations personnelles lorsque vous utilisez l’application et le site Tariq Islam.",
+  "sections": {
+    "collect": {
+      "title": "Informations que nous collectons",
+      "personal": {
+        "title": "Informations personnelles",
+        "body": "Nous pouvons collecter votre nom, adresse e-mail et informations de profil lorsque vous créez un compte."
+      },
+      "usage": {
+        "title": "Informations d’utilisation",
+        "body": "Nous collectons des informations sur la façon dont vous utilisez l’application, y compris les fonctionnalités consultées et le temps passé."
+      },
+      "device": {
+        "title": "Informations sur l’appareil",
+        "body": "Nous pouvons collecter le type d’appareil, le système d’exploitation et des informations techniques de base."
+      }
+    },
+    "use": {
+      "title": "Comment nous utilisons vos informations",
+      "bullets": [
+        "Fournir et maintenir l’application",
+        "Améliorer l’expérience utilisateur",
+        "Personnaliser le contenu",
+        "Envoyer des mises à jour importantes",
+        "Assurer la sécurité",
+        "Respecter les obligations légales"
+      ]
+    },
+    "sharing": {
+      "title": "Comment nous partageons les informations",
+      "lead": "Nous ne vendons pas vos informations personnelles. Nous pouvons partager des informations dans les situations suivantes :",
+      "items": {
+        "withUsers": {
+          "label": "Avec d’autres utilisateurs :",
+          "body": "Vos informations de profil peuvent être visibles par d’autres utilisateurs."
+        },
+        "providers": {
+          "label": "Prestataires de services :",
+          "body": "Nous pouvons partager des données avec des prestataires de confiance qui nous aident à exploiter l’application."
+        },
+        "legal": {
+          "label": "Exigences légales :",
+          "body": "Nous pouvons divulguer des informations si la loi l’exige."
+        },
+        "transfers": {
+          "label": "Transferts d’entreprise :",
+          "body": "Les informations peuvent être transférées en cas de fusion ou d’acquisition."
+        }
+      }
+    },
+    "security": {
+      "title": "Sécurité",
+      "body": "Nous mettons en œuvre des mesures de sécurité raisonnables pour protéger vos informations."
+    },
+    "rights": {
+      "title": "Vos droits",
+      "items": {
+        "access": {
+          "label": "Accès :",
+          "body": "Vous pouvez demander l’accès à vos données."
+        },
+        "deletion": {
+          "label": "Suppression :",
+          "body": "Vous pouvez demander la suppression de votre compte."
+        },
+        "optOut": {
+          "label": "Désinscription :",
+          "body": "Vous pouvez vous désinscrire de certaines communications."
+        },
+        "portability": {
+          "label": "Portabilité :",
+          "body": "Vous pouvez demander une copie de vos données."
+        }
+      }
+    },
+    "cookies": {
+      "title": "Cookies",
+      "body": "Nous pouvons utiliser des cookies et des technologies similaires pour améliorer votre expérience."
+    },
+    "children": {
+      "title": "Enfants",
+      "body": "L’application n’est pas destinée aux enfants de moins de 13 ans sans la supervision d’un parent."
+    },
+    "changes": {
+      "title": "Modifications de cette politique",
+      "body": "Nous pouvons mettre à jour cette politique de temps à autre."
+    },
+    "contact": {
+      "title": "Nous contacter",
+      "lead": "Si vous avez des questions concernant cette Politique de Confidentialité, contactez-nous :",
+      "emailLabel": "E-mail :",
+      "emailValue": "support@global-muslims-connect.com",
+      "formLine": "Vous pouvez également nous contacter via l’application."
+    }
+  }
+}

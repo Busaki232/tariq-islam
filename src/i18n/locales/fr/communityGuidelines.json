@@ -1,0 +1,26 @@
+{
+  "title": "Règles de la communauté",
+  "intro": "En utilisant Tariq Islam, vous acceptez de respecter ces règles afin de garder la communauté sûre et respectueuse.",
+  "sections": {
+    "respect": {
+      "title": "Respect & sécurité",
+      "items": [
+        "Aucun harcèlement, discours haineux, intimidation ou menace.",
+        "Aucun contenu sexuel explicite ni exploitation.",
+        "Aucune arnaque, usurpation d’identité ou fraude."
+      ]
+    },
+    "content": {
+      "title": "Normes de contenu",
+      "items": [
+        "Ne publiez pas de contenu qui promeut la violence, l’extrémisme ou la haine.",
+        "Ne partagez pas de contenu illégal ni d’instructions pour commettre des actes répréhensibles.",
+        "Respectez les valeurs islamiques et gardez les discussions appropriées."
+      ]
+    },
+    "enforcement": {
+      "title": "Application",
+      "body": "Les violations peuvent entraîner des avertissements, la suppression de contenu, une suspension ou un bannissement définitif."
+    }
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "submitTitle": "Submit Your Business",
+  "submitSubtitle": "Share your halal business or service with the community",
+  "editTitle": "Edit Your Advertisement",
+  "editSubtitle": "Update your business listing details below.",
+
+  "form": {
+    "businessName": "Business Name",
+    "businessNamePlaceholder": "Enter your business name",
+    "description": "Description",
+    "descriptionPlaceholder": "Describe your business, services, or products...",
+    "category": "Category",
+    "categoryPlaceholder": "Select a category",
+    "location": "Location",
+    "locationPlaceholder": "City, State",
+    "phoneNumber": "Phone Number",
+    "phoneNumberPlaceholder": "(555) 123-4567",
+    "emailPlaceholder": "business@example.com",
+    "websiteOptional": "Website (Optional)",
+    "websitePlaceholder": "https://www.yourbusiness.com (or leave blank)",
+    "websiteHelp": "Enter your website URL or leave blank if you don't have one yet",
+    "businessImage": "Business Image",
+    "currentImageAlt": "Current",
+    "removeImage": "Remove Image",
+    "changeImage": "Change Image",
+    "chooseImage": "Choose Image"
+  },
+
+  "buttons": {
+    "submit": "Submit Advertisement",
+    "submitting": "Submitting...",
+    "update": "Update Advertisement",
+    "updating": "Updating..."
+  },
+
+  "toast": {
+    "loadCategoriesFail": "Failed to load categories",
+    "uploadImageFail": "Failed to upload image",
+    "mustBeLoggedIn": "You must be logged in to submit an ad",
+    "submitted": "Your advertisement has been submitted for review",
+    "updated": "Your advertisement has been updated",
+    "unexpected": "An unexpected error occurred",
+    "imageTooLarge": "Image must be less than 5MB"
+  },
+
+  "validation": {
+    "titleMin": "Title must be at least 3 characters",
+    "titleMax": "Title must be less than 100 characters",
+    "descriptionMin": "Description must be at least 10 characters",
+    "descriptionMax": "Description must be less than 1000 characters",
+    "categoryRequired": "Please select a category",
+    "locationMax": "Location must be less than 100 characters",
+    "phoneMax": "Phone must be less than 20 characters",
+    "emailInvalid": "Invalid email address",
+    "emailMax": "Email must be less than 255 characters",
+    "websiteMax": "Website must be less than 255 characters",
+    "websiteInvalid": "Please enter a valid URL or descriptive text"
+  }
+}

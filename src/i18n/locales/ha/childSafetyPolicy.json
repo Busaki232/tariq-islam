@@ -1,13 +1,13 @@
 {
   "title": "Manufofin Kare Yara",
   "lastUpdatedLabel": "An sabunta:",
-  "lastUpdatedDate": "25 Nuwamba 2025",
-  "intro": "A Global Muslims Connect, muna da niyyar kare duk masu amfani, har da ƙananan yara, tare da tabbatar da muhalli mai tsaro, mutuntawa, kuma amintacce a yanar gizo. Ko da yake dandamalinmu ba a yi shi domin yara ƙasa da shekaru 13 ba, mun san cewa ƙananan yara na iya shiga wasu abubuwan yanar gizo. Wannan manufa tana bayyana matakan tsaro da muke dauka domin kare matasa da kuma kiyaye al’umma mai aminci.",
+  "lastUpdatedDate": "29 Yuni 2026",
+  "intro": "A Tariq Islam, mallakin Busaki Media, muna da niyyar kare duk masu amfani, har da yara ƙanana, tare da tabbatar da muhalli mai tsaro, mutuntawa, kuma amintacce a yanar gizo. Ko da yake dandamalinmu an yi shi ne domin manya, muna da tsauraran matakan kare yara kuma muna haramta duk wani abu ko hali da zai jefa yara cikin haɗari.",
   "sections": {
     "1": {
       "title": "1. Manhaja ga Manyan Mutane",
       "bullets": {
-        "1": "An gina Global Muslims Connect domin manya (18+).",
+        "1": "An gina Tariq Islam domin manya (18+).",
         "2": "Ba ma nufin yara, kuma ba ma tsara fasali na musamman domin yara."
       }
     },
@@ -15,7 +15,7 @@
       "title": "2. Babu Abubuwan da Aka Nufa da Yara",
       "bullets": {
         "1": "Abubuwan da ke cikin manhaja, hanyoyin sadarwa, da ayyuka ba a nufa da yara ba.",
-        "2": "Ba ma nuna hotuna ko zane-zanen motsi ko jigo da aka nufa da yara."
+        "2": "Ba ma nuna hotuna ko zane-zane ko jigogi da aka nufa da yara."
       }
     },
     "3": {
@@ -34,7 +34,8 @@
         "1": "Sakon cin zarafi",
         "2": "Hotuna ko bidiyo marasa dacewa",
         "3": "Asusun da ake zargi",
-        "4": "Keta ladabin Musulunci da dokokin al’umma"
+        "4": "Damuwar kare yara",
+        "5": "Keta ladabin Musulunci da dokokin al’umma"
       },
       "note": "Tawagar kulawarmu tana duba duk rahotanni da wuri kuma tana daukar mataki idan ya zama dole."
     },
@@ -48,7 +49,7 @@
     "6": {
       "title": "6. Kariyar Bayanai",
       "p1": "Ba mu tara bayanan sirri na yara ƙasa da shekaru 13 da gangan ba.",
-      "p2": "Idan mun gano ƙanana sun kirkiri asusu, muna goge shi nan take."
+      "p2": "Idan mun gano ƙanana sun kirkiri asusu, za mu cire shi nan take."
     },
     "7": {
       "title": "7. Abubuwan da Muke Tsammani daga Masu Amfani",
@@ -61,13 +62,13 @@
       }
     },
     "8": {
-      "title": "8. Bayanan Tuntuɓa",
-      "lead": "Don tambayoyi ko damuwa game da tsaro, tuntube mu:",
-      "emailLabel": "Imel:",
-      "emailValue": "support@global-muslims-connect.com",
-      "businessLabel": "Sunan Kasuwanci:",
-      "businessValue": "Busaki Investments LLC",
-      "websiteLabel": "Gidan Yanar Gizo:",
+      "title": "8. Manufofin Kare Yara daga Cin Zarafi da Amfani da su ta Hanyar Jima'i (CSAE)",
+      "lead": "Tariq Islam, mallakin Busaki Media, yana da manufar rashin yarda da duk wani nau’in cin zarafi ko amfani da yara ta hanyar jima’i (CSAE), kayan cin zarafin yara (CSAM), yaudara, ko duk wani abu da zai jefa yara cikin haɗari.",
+      "emailLabel": "An haramta wa masu amfani wallafawa, rabawa, aikawa, ko tallata duk wani nau’in kayan cin zarafin yara ko halayen amfani da yara ta hanyar Tariq Islam, ciki har da saƙonnin sirri, rubuce-rubucen al’umma, kiran murya, kiran bidiyo, da tattaunawar rukuni.",
+      "emailValue": "Duk wanda aka samu da karya wannan doka za a dakatar da shi har abada, kuma za a cire abin da ya wallafa nan take. Tariq Islam na da ikon kai rahoton duk wani abu da ake zargi ga hukumomin tsaro da ƙungiyoyin kare yara.",
+      "businessLabel": "Tuntuɓar Kare Yara:",
+      "businessValue": "Busaki Media - info@global-muslims-connect.com",
+      "websiteLabel": "Shafin yanar gizo:",
       "websiteValue": "www.global-muslims-connect.com"
     }
   }

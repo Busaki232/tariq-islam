@@ -29,8 +29,8 @@ android {
         applicationId "com.tariqislam.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 44
-        versionName "1.0.44"
+        versionCode 48
+        versionName "1.0.48"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -78,4 +78,4 @@ try {
     }
 } catch (Exception e) {
     logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
-}cd
+}

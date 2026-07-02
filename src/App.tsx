@@ -713,7 +713,8 @@ export default function App() {
                 <Route path="/connect" element={<Connect />} />
                 <Route path="/community-guidelines" element={<CommunityGuidelines />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                <Route path="/child-safety-policy" element={<ChildSafetyPolicy />} />
+                  <Route path="/childSafetyPolicy" element={<ChildSafetyPolicy />} />
+                  <Route path="/child-safety-policy" element={<ChildSafetyPolicy />} />
                 <Route path="/anti-extremism" element={<AntiExtremismEducation />} />
                 <Route path="/advertise" element={<Partnerships />} />
                 <Route path="/business-listings" element={<Advertisement />} />

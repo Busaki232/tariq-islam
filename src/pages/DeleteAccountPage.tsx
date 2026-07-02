@@ -69,11 +69,12 @@ export default function DeleteAccountPage() {
 
   return (
     <main style={{ padding: 24, maxWidth: 900, margin: "0 auto", lineHeight: 1.6 }}>
-      <h1>Delete Account and Data</h1>
+      <h1>Delete Your Tariq Islam Account</h1>
 
       <p>
-        You can use this page to permanently request deletion of your account and associated
-        data. This action cannot be undone.
+        Tariq Islam is owned and operated by Busaki Media. You can use this page to
+        request permanent deletion of your Tariq Islam account and associated data.
+        This action cannot be undone.
       </p>
 
       <h2>Before you continue</h2>
@@ -135,8 +136,13 @@ export default function DeleteAccountPage() {
         processed according to your retention policy.
       </p>
 
+<h2>Contact</h2>
+<p>
+  For Tariq Islam account deletion help, contact Busaki Media at{" "}
+  <strong>info@global-muslims-connect.com</strong>.
+</p>
       <p style={{ marginTop: 24, fontSize: 12, opacity: 0.7 }}>
-        Last updated: March 2026
+        Last updated: June 2026
       </p>
     </main>
   );

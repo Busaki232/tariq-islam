@@ -30,7 +30,7 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
-
+  const [editing, setEditing] = useState(false);
   const [fullName, setFullName] = useState("");
   const [location, setLocation] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -41,6 +41,7 @@ export default function Profile() {
   const [followingCount, setFollowingCount] = useState(0);
   const [mutualCount, setMutualCount] = useState(0);
   const [followStatus, setFollowStatus] = useState<FollowStatus>("none");
+
 
   useEffect(() => {
     let alive = true;
@@ -323,29 +324,40 @@ const handleCancelRequest = async () => {
   }
 };
 
-  const handleSave = async () => {
-    if (!user?.id) return;
+const handleSave = async () => {
+  if (!user?.id) {
+    alert("You must be signed in.");
+    return;
+  }
 
-    setSaving(true);
+  setSaving(true);
 
-    try {
-      const payload: ProfileRow = {
-        user_id: user.id,
-        full_name: fullName.trim() || null,
-        location: location.trim() || null,
-        bio: bio.trim() || null,
-        avatar_url: avatarUrl ?? null,
-      };
+  try {
+    const { error } = await supabase
+      .from("profiles")
+      .upsert(
+        {
+          id: user.id,
+          user_id: user.id,
+          full_name: fullName.trim() || null,
+          location: location.trim() || null,
+          bio: bio.trim() || null,
+          avatar_url: avatarUrl ?? null,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "user_id" }
+      );
 
-      const { error } = await supabase.from("profiles").upsert(payload, {
-        onConflict: "user_id",
-      });
+    if (error) throw error;
 
-      if (error) throw error;
-    } finally {
-      setSaving(false);
-    }
-  };
+    alert("Profile updated successfully.");
+  } catch (error: any) {
+    console.error("[Profile] Save failed:", error);
+    alert(error?.message || "Failed to save profile.");
+  } finally {
+    setSaving(false);
+  }
+};
 
   if (!user) return null;
 
@@ -420,16 +432,27 @@ const handleCancelRequest = async () => {
             )}
           </div>
 
-          <div className="min-w-0 flex-1">
-            <div className="font-semibold text-lg truncate">
-              {fullName || "Unnamed User"}
-            </div>
 
-            <div className="text-sm text-muted-foreground truncate">
-              {location || "Location not set"}
-            </div>
+            <div className="min-w-0 flex-1">
+              <div className="font-semibold text-lg truncate">
+                {fullName || "Unnamed User"}
+              </div>
 
-            {bio && <div className="mt-2 text-sm break-words">{bio}</div>}
+              <div className="text-sm text-muted-foreground truncate">
+                {location || "Location not set"}
+              </div>
+
+              {bio && <div className="mt-2 text-sm break-words">{bio}</div>}
+
+              {isOwnProfile && !editing && (
+                <button
+                  type="button"
+                  onClick={() => setEditing(true)}
+                  className="w-full rounded-xl border py-2 mt-3"
+                >
+                  Edit Profile
+                </button>
+              )}
 
             {!isOwnProfile && (
               <div className="mt-3 flex flex-wrap gap-2">
@@ -512,7 +535,7 @@ const handleCancelRequest = async () => {
   </div>
 </div>
 
-        {isOwnProfile && (
+        {isOwnProfile && editing && (
           <>
             <div>
               <div className="text-sm text-muted-foreground mb-1">

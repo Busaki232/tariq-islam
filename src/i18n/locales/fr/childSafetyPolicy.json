@@ -61,12 +61,12 @@
       }
     },
     "8": {
-      "title": "8. Informations de contact",
-      "lead": "Pour toute question ou préoccupation liée à la sécurité, contactez-nous :",
-      "emailLabel": "Email :",
-      "emailValue": "support@global-muslims-connect.com",
-      "businessLabel": "Nom de l’entreprise :",
-      "businessValue": "Busaki Investments LLC",
+      "title": "8. Politique contre l’exploitation et les abus sexuels sur les enfants (CSAE)",
+      "lead": "Tariq Islam, détenu et exploité par Busaki Media, applique une politique de tolérance zéro contre l’exploitation et les abus sexuels sur les enfants (CSAE), le matériel d’abus sexuels sur enfants (CSAM), le grooming, l’exploitation ou tout contenu mettant les mineurs en danger.",
+      "emailLabel": "Les utilisateurs ont l’interdiction stricte de publier, partager, transmettre ou promouvoir toute forme de matériel d’abus sexuels sur enfants ou de comportement exploitant via Tariq Islam, y compris les messages privés, publications communautaires, appels audio, appels vidéo et discussions de groupe.",
+      "emailValue": "Tout utilisateur violant cette politique sera définitivement banni et le contenu incriminé pourra être supprimé immédiatement. Tariq Islam se réserve le droit de signaler toute activité illégale présumée aux autorités compétentes et aux organisations de protection de l’enfance.",
+      "businessLabel": "Contact pour la sécurité des enfants :",
+      "businessValue": "Busaki Media - info@global-muslims-connect.com",
       "websiteLabel": "Site web :",
       "websiteValue": "www.global-muslims-connect.com"
     }

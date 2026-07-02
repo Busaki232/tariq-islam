@@ -46,6 +46,8 @@
     "show_online": "Afficher en ligne",
     "hide_online": "Masquer en ligne",
     "stored_on_device": "Enregistré sur cet appareil.",
+    "online_visibility_saved": "La visibilité en ligne est enregistrée sur votre compte.",
+    "notification_preferences_saved": "Les préférences de notification sont enregistrées sur votre compte.",
     "notifications": "Notifications",
     "messages": "Messages",
     "calls": "Appels",

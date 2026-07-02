@@ -46,3 +46,4 @@ android/**/build/
 .vercel
 .env*.local
 
+.env*

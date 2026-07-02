@@ -164,28 +164,25 @@ const ChildSafetyPolicy = () => {
 
             <hr className="border-border/50" />
 
-            {/* 8 */}
-            <section>
-              <h2 className="text-2xl font-semibold text-foreground mb-4">
-                {t("sections.8.title")}
-              </h2>
-              <p className="leading-relaxed mb-3">{t("sections.8.lead")}</p>
-              <div className="ml-4 space-y-2">
-                <p>
-                  <strong>{t("sections.8.emailLabel")}</strong> {t("sections.8.emailValue")}
-                </p>
-                <p>
-                  <strong>{t("sections.8.businessLabel")}</strong> {t("sections.8.businessValue")}
-                </p>
-                <p>
-                  <strong>{t("sections.8.websiteLabel")}</strong> {t("sections.8.websiteValue")}
-                </p>
-              </div>
-            </section>
+{/* 8 */}
+<section>
+  <h2 className="text-2xl font-semibold text-foreground mb-4">
+    {t("sections.8.title")}
+  </h2>
+  <p className="leading-relaxed mb-3">{t("sections.8.lead")}</p>
+  <p className="leading-relaxed mb-3">{t("sections.8.emailLabel")}</p>
+  <p className="leading-relaxed mb-3">{t("sections.8.emailValue")}</p>
+  <p className="leading-relaxed">
+    <strong>{t("sections.8.businessLabel")}</strong> {t("sections.8.businessValue")}
+  </p>
+  <p className="leading-relaxed">
+    <strong>{t("sections.8.websiteLabel")}</strong> {t("sections.8.websiteValue")}
+  </p>
+</section>
+
           </div>
         </div>
       </main>
-
       {showWebsiteMenu ? <Footer /> : null}
     </div>
   );

@@ -46,6 +46,8 @@
     "show_online": "إظهار متصل",
     "hide_online": "إخفاء الحالة",
     "stored_on_device": "محفوظ على هذا الجهاز.",
+    "online_visibility_saved": "يتم حفظ حالة الظهور الخاصة بك في حسابك.",
+    "notification_preferences_saved": "يتم حفظ إعدادات الإشعارات في حسابك.",
     "notifications": "الإشعارات",
     "messages": "الرسائل",
     "calls": "المكالمات",

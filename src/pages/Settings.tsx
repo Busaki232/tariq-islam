@@ -473,7 +473,7 @@ const doSignOut = async () => {
       const res = await withTimeout(
         supabase
           .from("profiles")
-          .select("user_id, full_name, username, avatar_url")
+          .select("user_id, full_name, username, avatar_url, hide_online")
           .eq("user_id", user.id)
           .maybeSingle(),
         12000
@@ -490,6 +490,7 @@ const doSignOut = async () => {
       };
 
       setProfile(nextProfile);
+      setHideOnline(data?.hide_online ?? false);
 
       const currentDbUsername = (nextProfile.username || "").trim().toLowerCase();
       lastSavedUsernameRef.current = currentDbUsername;
@@ -504,6 +505,7 @@ const doSignOut = async () => {
         avatar_url: null,
       };
       setProfile(fallback);
+      setHideOnline(false);
       lastSavedUsernameRef.current = "";
       setUsernameDraft("");
       setUsernameSavedAt(null);
@@ -1030,9 +1032,11 @@ const doSignOut = async () => {
 
         </div>
 
-        <p className="mt-3 text-xs text-muted-foreground">
-          Notification preferences are saved to your account.
-        </p>
+<p className="mt-3 text-xs text-muted-foreground">
+  {t("settings.notification_preferences_saved", {
+    defaultValue: "Notification preferences are saved to your account.",
+  })}
+</p>
 
         {/* Appearance */}
         <div className="rounded-xl border p-4">
@@ -1055,14 +1059,26 @@ const doSignOut = async () => {
             <button
               type="button"
               className="inline-flex items-center justify-center rounded-md border px-3 py-2 text-sm hover:bg-muted"
-              onClick={() => setHideOnline((v) => !v)}
+             onClick={async () => {
+               const next = !hideOnline;
+               setHideOnline(next);
+
+               if (user?.id) {
+                 await supabase
+                   .from("profiles")
+                   .update({ hide_online: next })
+                   .eq("id", user.id);
+               }
+             }}
             >
               {hideOnline ? t("settings.show_online") : t("settings.hide_online")}
             </button>
           </div>
 
           <p className="mt-2 text-xs text-muted-foreground">
-            {t("settings.stored_on_device")}
+            {t("settings.online_visibility_saved", {
+              defaultValue: "Online visibility is saved to your account.",
+            })}
           </p>
         </div>
 
@@ -1182,7 +1198,7 @@ const doSignOut = async () => {
           </div>
 
       <p className="mt-3 text-xs text-muted-foreground">
-        Notification preferences are saved to your account.
+        {t("settings.notification_preferences_saved")}
       </p>
 
         {/* Account deletion */}

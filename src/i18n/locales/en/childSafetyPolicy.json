@@ -1,13 +1,13 @@
 {
   "title": "Child Safety Policy",
   "lastUpdatedLabel": "Last updated",
-  "lastUpdatedDate": "25 November 2025",
-  "intro": "At Global Muslims Connect, we are committed to protecting all users, including minors, and ensuring a safe, respectful, and secure online environment. Although our platform is not intended for children under 13, we recognize that minors may still access online content. This policy explains the safety measures we take to protect younger users and maintain a safe community.",
+  "lastUpdatedDate": "29 June 2026",
+  "intro": "At Tariq Islam, owned and operated by Busaki Media, we are committed to protecting all users, including minors, and ensuring a safe, respectful, and secure online environment. Although our platform is intended for adults, we maintain strict child safety standards and prohibit any content or behavior that endangers minors.",
   "sections": {
     "1": {
       "title": "1. App Intended for Adults",
       "bullets": {
-        "1": "Global Muslims Connect is developed for adults (18+).",
+        "1": "Tariq Islam is developed for adults (18+).",
         "2": "We do not target children, and we do not design features specifically for children."
       }
     },
@@ -23,32 +23,33 @@
       "lead": "To ensure a safe environment:",
       "bullets": {
         "1": "All users must follow our Community Guidelines.",
-        "2": "Hate speech, harassment, explicit content, scams, bullying, or threats are prohibited.",
-        "3": "Violations may result in account suspension or permanent removal."
+        "2": "Hate speech, harassment, explicit content, scams, bullying, threats, grooming, exploitation, and content that endangers minors are prohibited.",
+        "3": "Violations may result in account suspension, permanent removal, or reporting to appropriate authorities."
       }
     },
     "4": {
       "title": "4. Reporting & Moderation Tools",
       "lead": "Users can report:",
-      "bullets": {
+      "items": {
         "1": "Abusive messages",
         "2": "Inappropriate photos or videos",
         "3": "Suspicious accounts",
-        "4": "Violations of Islamic conduct and community rules"
+        "4": "Child safety concerns",
+        "5": "Violations of Islamic conduct and community rules"
       },
-      "note": "Our moderation team reviews all reports promptly and takes action when needed."
+      "note": "Our moderation team reviews reports and takes action when needed."
     },
     "5": {
       "title": "5. Age Restrictions",
       "bullets": {
         "1": "Children under 13 are not allowed to create an account.",
-        "2": "We encourage parents to monitor their children's device usage."
+        "2": "We encourage parents and guardians to monitor children’s device usage."
       }
     },
     "6": {
       "title": "6. Data Protection",
       "p1": "We do not knowingly collect personal information from children under 13.",
-      "p2": "If we discover that a minor has created an account, we remove it immediately."
+      "p2": "If we discover that a minor has created an account in violation of our policies, we may remove the account."
     },
     "7": {
       "title": "7. Safety Expectations for Users",
@@ -56,19 +57,19 @@
       "bullets": {
         "1": "Respect Islamic values",
         "2": "Maintain modest conduct online",
-        "3": "Avoid sharing sensitive or harmful content",
+        "3": "Avoid sharing sensitive, exploitative, illegal, or harmful content",
         "4": "Report unsafe behavior immediately"
       }
     },
     "8": {
-      "title": "8. Contact Information",
-      "lead": "For questions or safety concerns, contact us:",
-      "emailLabel": "Email",
-      "businessLabel": "Business Name",
-      "websiteLabel": "Website",
-      "email": "support@global-muslims-connect.com",
-      "business": "Busaki Investments LLC",
-      "website": "www.global-muslims-connect.com"
+      "title": "8. Child Sexual Abuse and Exploitation (CSAE) Policy",
+      "lead": "Tariq Islam, owned and operated by Busaki Media, has zero tolerance for Child Sexual Abuse and Exploitation (CSAE), Child Sexual Abuse Material (CSAM), grooming, exploitation, or any content that endangers minors.",
+      "emailLabel": "Users are strictly prohibited from posting, sharing, transmitting, or promoting any form of child sexual abuse material or exploitative behavior through Tariq Islam, including private messages, community posts, audio calls, video calls, and group chats.",
+      "emailValue": "Any user found violating this policy will be permanently banned, and offending content may be removed immediately. Tariq Islam reserves the right to report suspected illegal activity to law enforcement and child protection organizations.",
+      "businessLabel": "Child Safety Contact:",
+      "businessValue": "Busaki Media - info@global-muslims-connect.com",
+      "websiteLabel": "Website:",
+      "websiteValue": "www.global-muslims-connect.com"
     }
   }
 }

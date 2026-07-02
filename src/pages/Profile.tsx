@@ -3,20 +3,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate, useParams } from "react-router-dom";
 
-type ProfileRow = {
-  id?: string;
-  user_id: string;
-  full_name: string | null;
-  location: string | null;
-  avatar_url: string | null;
-  bio?: string | null;
-  updated_at?: string | null;
-};
-
 type FollowStatus = "none" | "pending" | "accepted" | "follow_back";
 
 export default function Profile() {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { userId } = useParams();
 
@@ -31,6 +21,7 @@ export default function Profile() {
   const [saving, setSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [editing, setEditing] = useState(false);
+
   const [fullName, setFullName] = useState("");
   const [location, setLocation] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -41,7 +32,6 @@ export default function Profile() {
   const [followingCount, setFollowingCount] = useState(0);
   const [mutualCount, setMutualCount] = useState(0);
   const [followStatus, setFollowStatus] = useState<FollowStatus>("none");
-
 
   useEffect(() => {
     let alive = true;
@@ -108,8 +98,7 @@ export default function Profile() {
         const acceptedConnection = rows.find(
           (c: any) =>
             ((c.requester_id === user.id && c.receiver_id === profileUserId) ||
-              (c.requester_id === profileUserId &&
-                c.receiver_id === user.id)) &&
+              (c.requester_id === profileUserId && c.receiver_id === user.id)) &&
             c.status === "accepted"
         );
 
@@ -132,11 +121,6 @@ export default function Profile() {
 
         const acceptedRows = rows.filter((c: any) => c.status === "accepted");
 
-        const profileAccepted = acceptedRows.filter(
-          (c: any) =>
-            c.requester_id === profileUserId || c.receiver_id === profileUserId
-        );
-
         const followers = acceptedRows.filter(
           (c: any) => c.receiver_id === profileUserId
         );
@@ -145,14 +129,17 @@ export default function Profile() {
           (c: any) => c.requester_id === profileUserId
         );
 
-        const profileConnections = profileAccepted.map((c: any) =>
-          c.requester_id === profileUserId ? c.receiver_id : c.requester_id
-        );
+        const profileConnections = acceptedRows
+          .filter(
+            (c: any) =>
+              c.requester_id === profileUserId || c.receiver_id === profileUserId
+          )
+          .map((c: any) =>
+            c.requester_id === profileUserId ? c.receiver_id : c.requester_id
+          );
 
         const myConnections = acceptedRows
-          .filter(
-            (c: any) => c.requester_id === user.id || c.receiver_id === user.id
-          )
+          .filter((c: any) => c.requester_id === user.id || c.receiver_id === user.id)
           .map((c: any) =>
             c.requester_id === user.id ? c.receiver_id : c.requester_id
           );
@@ -225,117 +212,115 @@ export default function Profile() {
       setUploadingAvatar(false);
     }
   };
-const handleConnect = async () => {
-  if (!user?.id || !profileUserId || user.id === profileUserId) return;
 
-  try {
-    // If they already follow me, accept it instead of creating duplicate pending
-    if (followStatus === "follow_back") {
+  const handleConnect = async () => {
+    if (!user?.id || !profileUserId || user.id === profileUserId) return;
+
+    try {
+      if (followStatus === "follow_back") {
+        const { error } = await supabase
+          .from("user_connections")
+          .update({ status: "accepted" })
+          .eq("requester_id", profileUserId)
+          .eq("receiver_id", user.id)
+          .eq("status", "pending");
+
+        if (error) throw error;
+
+        setFollowStatus("accepted");
+        setConnectionsCount((prev) => prev + 1);
+        setFollowersCount((prev) => prev + 1);
+        return;
+      }
+
+      const { error } = await supabase.from("user_connections").insert({
+        requester_id: user.id,
+        receiver_id: profileUserId,
+        status: "pending",
+      });
+
+      if (error) throw error;
+
+      const { error: notificationError } = await supabase
+        .from("notifications")
+        .insert({
+          user_id: profileUserId,
+          actor_id: user.id,
+          type: "follow_request",
+          title: `${fullName || "Someone"} sent you a follow request`,
+          body: "Tap to view pending requests.",
+        });
+
+      if (notificationError) {
+        console.error("Notification insert failed:", notificationError);
+      }
+
+      setFollowStatus("pending");
+      alert("Follow request sent");
+    } catch (error: any) {
+      console.error("Connection failed:", error);
+      alert(error?.message || "Failed to follow user.");
+    }
+  };
+
+  const handleUnfollow = async () => {
+    if (!user?.id || !profileUserId || user.id === profileUserId) return;
+
+    const ok = window.confirm("Unfollow this user?");
+    if (!ok) return;
+
+    try {
       const { error } = await supabase
         .from("user_connections")
-        .update({ status: "accepted" })
-        .eq("requester_id", profileUserId)
-        .eq("receiver_id", user.id)
+        .delete()
+        .or(
+          `and(requester_id.eq.${user.id},receiver_id.eq.${profileUserId}),and(requester_id.eq.${profileUserId},receiver_id.eq.${user.id})`
+        );
+
+      if (error) throw error;
+
+      setFollowStatus("none");
+      setConnectionsCount((prev) => Math.max(0, prev - 1));
+      setFollowingCount((prev) => Math.max(0, prev - 1));
+    } catch (error: any) {
+      console.error("Unfollow failed:", error);
+      alert(error?.message || "Failed to unfollow.");
+    }
+  };
+
+  const handleCancelRequest = async () => {
+    if (!user?.id || !profileUserId) return;
+
+    const ok = window.confirm("Cancel follow request?");
+    if (!ok) return;
+
+    try {
+      const { error } = await supabase
+        .from("user_connections")
+        .delete()
+        .eq("requester_id", user.id)
+        .eq("receiver_id", profileUserId)
         .eq("status", "pending");
 
       if (error) throw error;
 
-      setFollowStatus("accepted");
-      setIsConnected(true);
-      setConnectionsCount((prev) => prev + 1);
-      setFollowersCount((prev) => prev + 1);
+      setFollowStatus("none");
+    } catch (error: any) {
+      console.error("Cancel request failed:", error);
+      alert(error?.message || "Failed to cancel request.");
+    }
+  };
 
+  const handleSave = async () => {
+    if (!user?.id) {
+      alert("You must be signed in.");
       return;
     }
 
-    // Normal follow request
- const { error } = await supabase.from("user_connections").insert({
-   requester_id: user.id,
-   receiver_id: profileUserId,
-   status: "pending",
- });
+    setSaving(true);
 
- if (error) throw error;
-
-const { error: notificationError } = await supabase.from("notifications").insert({
-  user_id: profileUserId,
-  actor_id: user.id,
-  type: "follow_request",
-  title: `${fullName || "Someone"} sent you a follow request`,
-  body: "Tap to view pending requests.",
-});
-
-if (notificationError) {
-  console.error("Notification insert failed:", notificationError);
-  alert(notificationError.message);
-}
-
- setFollowStatus("pending");
- alert("Follow request sent");
-  } catch (error: any) {
-    console.error("Connection failed:", error);
-    alert(error?.message || "Failed to follow user.");
-  }
-};
-const handleUnfollow = async () => {
-  if (!user?.id || !profileUserId || user.id === profileUserId) return;
-
-  const ok = window.confirm("Unfollow this user?");
-  if (!ok) return;
-
-  try {
-    const { error } = await supabase
-      .from("user_connections")
-      .delete()
-      .or(
-        `and(requester_id.eq.${user.id},receiver_id.eq.${profileUserId}),and(requester_id.eq.${profileUserId},receiver_id.eq.${user.id})`
-      );
-
-    if (error) throw error;
-
-    setFollowStatus("none");
-    setConnectionsCount((prev) => Math.max(0, prev - 1));
-    setFollowingCount((prev) => Math.max(0, prev - 1));
-  } catch (error: any) {
-    console.error("Unfollow failed:", error);
-    alert(error?.message || "Failed to unfollow.");
-  }
-};
-const handleCancelRequest = async () => {
-  if (!user?.id || !profileUserId) return;
-
-  const ok = window.confirm("Cancel follow request?");
-  if (!ok) return;
-
-  try {
-    const { error } = await supabase
-      .from("user_connections")
-      .delete()
-      .eq("requester_id", user.id)
-      .eq("receiver_id", profileUserId)
-      .eq("status", "pending");
-
-    if (error) throw error;
-
-    setFollowStatus("none");
-  } catch (error: any) {
-    console.error("Cancel request failed:", error);
-    alert(error?.message || "Failed to cancel request.");
-  }
-};
-
-const handleSave = async () => {
-  if (!user?.id) {
-    alert("You must be signed in.");
-    return;
-  }
-
-  setSaving(true);
-
-  try {
-    const { error } = await supabase
-      .from("profiles")
-      .upsert(
+    try {
+      const { error } = await supabase.from("profiles").upsert(
         {
           id: user.id,
           user_id: user.id,
@@ -348,30 +333,29 @@ const handleSave = async () => {
         { onConflict: "user_id" }
       );
 
-    if (error) throw error;
+      if (error) throw error;
 
-    alert("Profile updated successfully.");
-  } catch (error: any) {
-    console.error("[Profile] Save failed:", error);
-    alert(error?.message || "Failed to save profile.");
-  } finally {
-    setSaving(false);
-  }
-};
+      setEditing(false);
+      alert("Profile updated successfully.");
+    } catch (error: any) {
+      console.error("[Profile] Save failed:", error);
+      alert(error?.message || "Failed to save profile.");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   if (!user) return null;
 
   return (
     <div className="p-4 pb-24">
-      {!isOwnProfile && (
-        <button
-          type="button"
-          onClick={() => navigate(-1)}
-          className="mb-3 text-sm text-muted-foreground hover:text-foreground"
-        >
-          ← Back
-        </button>
-      )}
+      <button
+        type="button"
+        onClick={() => navigate(-1)}
+        className="mb-3 text-sm text-muted-foreground hover:text-foreground"
+      >
+        ← Back
+      </button>
 
       <div className="mb-4">
         <h1 className="text-xl font-semibold truncate">
@@ -432,43 +416,41 @@ const handleSave = async () => {
             )}
           </div>
 
+          <div className="min-w-0 flex-1">
+            <div className="font-semibold text-lg truncate">
+              {fullName || "Unnamed User"}
+            </div>
 
-            <div className="min-w-0 flex-1">
-              <div className="font-semibold text-lg truncate">
-                {fullName || "Unnamed User"}
-              </div>
+            <div className="text-sm text-muted-foreground truncate">
+              {location || "Location not set"}
+            </div>
 
-              <div className="text-sm text-muted-foreground truncate">
-                {location || "Location not set"}
-              </div>
+            {bio && <div className="mt-2 text-sm break-words">{bio}</div>}
 
-              {bio && <div className="mt-2 text-sm break-words">{bio}</div>}
-
-              {isOwnProfile && !editing && (
-                <button
-                  type="button"
-                  onClick={() => setEditing(true)}
-                  className="w-full rounded-xl border py-2 mt-3"
-                >
-                  Edit Profile
-                </button>
-              )}
+            {isOwnProfile && !editing && (
+              <button
+                type="button"
+                onClick={() => setEditing(true)}
+                className="w-full rounded-xl border py-2 mt-3"
+              >
+                Edit Profile
+              </button>
+            )}
 
             {!isOwnProfile && (
               <div className="mt-3 flex flex-wrap gap-2">
                 <button
                   type="button"
-   onClick={() => {
-     if (followStatus === "accepted") {
-       void handleUnfollow();
-     } else if (followStatus === "pending") {
-       void handleCancelRequest();
-     } else {
-       void handleConnect();
-     }
-   }}
-        disabled={false}
-                  className="rounded-lg bg-green-600 text-white px-4 py-2 text-sm hover:bg-green-700 disabled:opacity-70"
+                  onClick={() => {
+                    if (followStatus === "accepted") {
+                      void handleUnfollow();
+                    } else if (followStatus === "pending") {
+                      void handleCancelRequest();
+                    } else {
+                      void handleConnect();
+                    }
+                  }}
+                  className="rounded-lg bg-green-600 text-white px-4 py-2 text-sm hover:bg-green-700"
                 >
                   {followStatus === "accepted"
                     ? "Following"
@@ -493,54 +475,52 @@ const handleSave = async () => {
           </div>
         </div>
 
-<div className="grid grid-cols-4 gap-2">
-  <div className="rounded-xl border p-3 text-center">
-    <div className="text-lg font-semibold">{connectionsCount}</div>
-    <div className="text-xs text-muted-foreground">Connections</div>
-  </div>
+        <div className="grid grid-cols-4 gap-2">
+          <div className="rounded-xl border p-3 text-center">
+            <div className="text-lg font-semibold">{connectionsCount}</div>
+            <div className="text-xs text-muted-foreground">Connections</div>
+          </div>
 
-{isOwnProfile && (
-  <button
-    type="button"
-    onClick={() => navigate("/requests")}
-    className="w-full mt-4 rounded-xl border px-4 py-3 text-sm hover:bg-muted"
-  >
-    Pending Requests
-  </button>
-)}
+          <button
+            type="button"
+            onClick={() => navigate(`/profile/${profileUserId}/followers`)}
+            className="rounded-xl border p-3 text-center hover:bg-muted/50"
+          >
+            <div className="text-lg font-semibold">{followersCount}</div>
+            <div className="text-xs text-muted-foreground">Followers</div>
+          </button>
 
-  <button
-    type="button"
-    onClick={() => navigate(`/profile/${profileUserId}/followers`)}
-    className="rounded-xl border p-3 text-center hover:bg-muted/50"
-  >
-    <div className="text-lg font-semibold">{followersCount}</div>
-    <div className="text-xs text-muted-foreground">Followers</div>
-  </button>
+          <button
+            type="button"
+            onClick={() => navigate(`/profile/${profileUserId}/following`)}
+            className="rounded-xl border p-3 text-center hover:bg-muted/50"
+          >
+            <div className="text-lg font-semibold">{followingCount}</div>
+            <div className="text-xs text-muted-foreground">Following</div>
+          </button>
 
-  <button
-    type="button"
-    onClick={() => navigate(`/profile/${profileUserId}/following`)}
-    className="rounded-xl border p-3 text-center hover:bg-muted/50"
-  >
-    <div className="text-lg font-semibold">{followingCount}</div>
-    <div className="text-xs text-muted-foreground">Following</div>
-  </button>
+          <div className="rounded-xl border p-3 text-center">
+            <div className="text-lg font-semibold">
+              {isOwnProfile ? "—" : mutualCount}
+            </div>
+            <div className="text-xs text-muted-foreground">Mutual</div>
+          </div>
+        </div>
 
-  <div className="rounded-xl border p-3 text-center">
-    <div className="text-lg font-semibold">
-      {isOwnProfile ? "—" : mutualCount}
-    </div>
-    <div className="text-xs text-muted-foreground">Mutual</div>
-  </div>
-</div>
+        {isOwnProfile && (
+          <button
+            type="button"
+            onClick={() => navigate("/requests")}
+            className="w-full rounded-xl border px-4 py-3 text-sm hover:bg-muted"
+          >
+            Pending Requests
+          </button>
+        )}
 
         {isOwnProfile && editing && (
           <>
             <div>
-              <div className="text-sm text-muted-foreground mb-1">
-                Full name
-              </div>
+              <div className="text-sm text-muted-foreground mb-1">Full name</div>
               <input
                 className="w-full rounded-lg border bg-background px-3 py-2 disabled:opacity-70"
                 value={fullName}
@@ -551,9 +531,7 @@ const handleSave = async () => {
             </div>
 
             <div>
-              <div className="text-sm text-muted-foreground mb-1">
-                Location
-              </div>
+              <div className="text-sm text-muted-foreground mb-1">Location</div>
               <input
                 className="w-full rounded-lg border bg-background px-3 py-2 disabled:opacity-70"
                 value={location}
@@ -585,19 +563,6 @@ const handleSave = async () => {
           </>
         )}
       </div>
-
-      {isOwnProfile && (
-        <div className="mt-4 rounded-xl border p-4">
-          <button
-            className="w-full rounded-xl bg-emerald-600 text-white py-2 disabled:opacity-60"
-            onClick={() => void signOut()}
-            type="button"
-            disabled={!user}
-          >
-            Sign out
-          </button>
-        </div>
-      )}
     </div>
   );
 }

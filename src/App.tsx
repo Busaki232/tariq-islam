@@ -35,6 +35,7 @@ import { useActiveCall } from "@/hooks/useActiveCall";
 
 import { VideoCallScreen } from "@/components/VideoCallScreen";
 import { AudioCallScreen } from "@/components/AudioCallScreen";
+import Calls from "@/pages/Calls";
 
 import PendingRequests from "@/pages/PendingRequests";
 import Notifications from "@/pages/Notifications";
@@ -575,7 +576,7 @@ export default function App() {
 
                 <Route path="/chat-room" element={<Chat />} />
                 <Route path="/community" element={<Community />} />
-
+<Route path="/calls" element={<Calls />} />
                 <Route
                   path="/groups/new"
                   element={

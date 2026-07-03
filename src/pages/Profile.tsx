@@ -427,15 +427,25 @@ export default function Profile() {
 
             {bio && <div className="mt-2 text-sm break-words">{bio}</div>}
 
-            {isOwnProfile && !editing && (
-              <button
-                type="button"
-                onClick={() => setEditing(true)}
-                className="w-full rounded-xl border py-2 mt-3"
-              >
-                Edit Profile
-              </button>
-            )}
+{isOwnProfile && !editing && (
+  <>
+    <button
+      type="button"
+      onClick={() => setEditing(true)}
+      className="w-full rounded-xl border py-2 mt-3"
+    >
+      Edit Profile
+    </button>
+
+    <button
+      type="button"
+      onClick={() => navigate("/calls")}
+      className="w-full rounded-xl border py-2 mt-3"
+    >
+      Call History
+    </button>
+  </>
+)}
 
             {!isOwnProfile && (
               <div className="mt-3 flex flex-wrap gap-2">

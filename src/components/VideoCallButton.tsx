@@ -294,11 +294,23 @@ export default function VideoCallButton({
               const status = next?.status as string | undefined;
               if (!status) return;
 
-              if (status === "accepted") {
-                disarmKill();
-                updateCallState({ callState: "connected" });
-                return;
-              }
+    if (status === "accepted") {
+      disarmKill();
+
+      updateCallState({
+        callState: "connected",
+        roomUrl: String(next.room_url || invite.room_url || "").trim(),
+      });
+
+      navigate(
+        `/call?callType=${invite.call_type}&roomUrl=${encodeURIComponent(
+          String(next.room_url || invite.room_url || "").trim()
+        )}&inviteId=${invite.id}`,
+        { replace: true }
+      );
+
+      return;
+    }
 
               if (status === "declined") {
                 disarmKill();

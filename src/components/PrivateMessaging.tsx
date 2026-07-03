@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useAuth } from "@/hooks/useAuth";
@@ -12,9 +12,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import { MessageCircle, Users, Plus, RefreshCw, Loader2, Inbox, Check, X } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 import { UserDirectory } from "@/components/UserDirectory";
 import { useTranslation } from "react-i18next";
+import Chat from "@/pages/Chat";
+
 
 
 type ConnectedUser = {
@@ -38,8 +41,10 @@ export default function PrivateMessaging() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const [tab, setTab] = useState<"direct" | "groups" | "requests">("direct");
+  const [tab, setTab] = useState<"direct" | "community" | "groups" | "requests">("direct");
+
   const [showDirectory, setShowDirectory] = useState(false);
+  const [messagePreview, setMessagePreview] = useState<Record<string, any>>({});
 
   const connections = useUserConnections();
   const {
@@ -132,6 +137,81 @@ const onPickUser = (otherUserId: string, otherUserName: string) => {
       });
     }
   }
+useEffect(() => {
+  if (!userId || directList.length === 0) return;
+
+  let alive = true;
+
+  const loadPreviews = async () => {
+    const previews: Record<string, any> = {};
+
+    await Promise.all(
+      directList.map(async (p) => {
+        const otherId = p.user_id;
+        if (!otherId) return;
+
+        const baseSelect =
+          "id, sender_id, recipient_id, content, created_at, is_deleted, read_by, hidden_after";
+
+        const sentQ = supabase
+          .from("messages")
+          .select(baseSelect)
+          .eq("sender_id", userId)
+          .eq("recipient_id", otherId)
+          .neq("is_deleted", true as any)
+          .order("created_at", { ascending: false })
+          .limit(50);
+
+        const recvQ = supabase
+          .from("messages")
+          .select(baseSelect)
+          .eq("sender_id", otherId)
+          .eq("recipient_id", userId)
+          .neq("is_deleted", true as any)
+          .order("created_at", { ascending: false })
+          .limit(50);
+
+        const [sentRes, recvRes] = await Promise.all([sentQ, recvQ]);
+
+        if (sentRes.error) console.error("[Preview sent error]", sentRes.error);
+        if (recvRes.error) console.error("[Preview recv error]", recvRes.error);
+
+        const rows = [...(sentRes.data || []), ...(recvRes.data || [])].sort(
+          (a: any, b: any) =>
+            new Date(b.created_at).getTime() -
+            new Date(a.created_at).getTime()
+        );
+
+        const last = rows[0];
+
+        const unread = rows.filter((m: any) => {
+          if (m.sender_id === userId) return false;
+
+          const readBy = m.read_by;
+          if (!readBy) return true;
+          if (Array.isArray(readBy)) return !readBy.includes(userId);
+          if (typeof readBy === "object") return !readBy[userId];
+
+          return true;
+        }).length;
+
+        previews[otherId] = {
+          lastMessage: last?.content?.trim() || p.location || "No messages yet",
+          lastMessageAt: last?.created_at || null,
+          unread,
+        };
+      })
+    );
+
+    if (alive) setMessagePreview(previews);
+  };
+
+  void loadPreviews();
+
+  return () => {
+    alive = false;
+  };
+}, [userId, directList]);
 
   return (
     <div className="flex flex-col h-full min-h-0 w-full">
@@ -169,13 +249,18 @@ const onPickUser = (otherUserId: string, otherUserName: string) => {
 
         <div className="mt-3 flex items-center justify-between gap-2">
           <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
-            <TabsList className="grid w-[360px] grid-cols-3">
+            <TabsList className="grid w-[460px] grid-cols-4">
               <TabsTrigger value="direct">
                 {t("tabs.direct", {
                   count: directList.length,
                   defaultValue: "Direct ({{count}})",
                 })}
               </TabsTrigger>
+
+              <TabsTrigger value="community">
+                Community
+              </TabsTrigger>
+
               <TabsTrigger value="groups">
                 {t("tabs.groups", { defaultValue: "Groups" })}
               </TabsTrigger>
@@ -263,18 +348,37 @@ const onPickUser = (otherUserId: string, otherUserName: string) => {
                         onClick={() => openChat(p.user_id)}
                         className="w-full text-left px-4 py-3 hover:bg-muted/50 transition-colors"
                       >
-                        <div className="flex items-center gap-3">
-                          <Avatar className="h-10 w-10">
-                            <AvatarImage src={p.avatar_url || ""} alt={name} />
-                            <AvatarFallback>{name.charAt(0).toUpperCase()}</AvatarFallback>
-                          </Avatar>
+                       <div className="flex items-center gap-3">
+                         <Avatar className="h-10 w-10">
+                           <AvatarImage src={p.avatar_url || ""} alt={name} />
+                           <AvatarFallback>{name.charAt(0).toUpperCase()}</AvatarFallback>
+                         </Avatar>
 
-                          <div className="flex-1 min-w-0">
-                            <div className="font-medium truncate">{name}</div>
-                            <div className="text-sm text-muted-foreground truncate">
-                              {p.location || " "}
-                            </div>
-                          </div>
+                         <div className="flex-1 min-w-0">
+                           <div className="font-medium truncate">{name}</div>
+                           <div className="text-sm text-muted-foreground truncate">
+                             {messagePreview[p.user_id]?.lastMessage || p.location || "No messages yet"}
+                           </div>
+                         </div>
+
+                         <div className="flex flex-col items-end gap-1">
+                           {messagePreview[p.user_id]?.lastMessageAt && (
+                             <div className="text-xs text-muted-foreground">
+                               {new Date(
+                                 messagePreview[p.user_id].lastMessageAt
+                               ).toLocaleTimeString([], {
+                                 hour: "numeric",
+                                 minute: "2-digit",
+                               })}
+                             </div>
+                           )}
+
+                           {messagePreview[p.user_id]?.unread > 0 && (
+                             <span className="min-w-[20px] h-[20px] rounded-full bg-green-600 text-white text-[11px] flex items-center justify-center px-1">
+                               {messagePreview[p.user_id].unread}
+                             </span>
+                           )}
+                         </div>
                         </div>
                       </button>
                     );
@@ -282,6 +386,13 @@ const onPickUser = (otherUserId: string, otherUserName: string) => {
                 </div>
               )}
             </ScrollArea>
+          </TabsContent>
+
+          {/* COMMUNITY */}
+          <TabsContent value="community" className="h-full m-0">
+            <div className="h-full overflow-y-auto">
+              <Chat />
+            </div>
           </TabsContent>
 
           {/* GROUPS */}

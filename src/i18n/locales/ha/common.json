@@ -170,6 +170,19 @@
       "dhuAlHijjah": "Dhu al-Hijjah"
     }
   },
+  "bottomNav": {
+    "home": "Gida",
+    "ibadan": "Ibadan",
+    "messages": "Saƙonni",
+    "calls": "Kira",
+    "profile": "Bayanin Kai"
+  },
+  "moreMenu": {
+    "quran": "Al-Qur'ani",
+    "qibla": "Alƙibla",
+    "tasbih": "Tasbihi"
+  },
+
   "footer": {
     "cta": {
       "title": "Ka shirya shiga al’ummarmu?",

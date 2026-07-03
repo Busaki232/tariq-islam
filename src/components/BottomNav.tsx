@@ -1,13 +1,14 @@
 // src/components/BottomNav.tsx
 import { useEffect, useMemo, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Home,
   BookOpen,
   Compass,
   MessageCircle,
-  Users,
-  Settings,
+  Phone,
+  User,
+  Grid3X3,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/useAuth";
@@ -23,11 +24,13 @@ type Item = {
 
 export default function BottomNav() {
   const location = useLocation();
-  const { t } = useTranslation("navigation");
+  const navigate = useNavigate();
+  const { t } = useTranslation("common");
   const { user } = useAuth();
+
+  const [showIbadah, setShowIbadah] = useState(false);
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [unreadConversationId, setUnreadConversationId] = useState<string | null>(null);
-  const [notificationCount, setNotificationCount] = useState(0);
 
   useEffect(() => {
     if (!user?.id) {
@@ -35,32 +38,32 @@ export default function BottomNav() {
       return;
     }
 
-const loadUnreadMessages = async () => {
-  const { data, error } = await supabase
-    .from("messages")
-    .select("id, sender_id, read_by, created_at")
-    .eq("recipient_id", user.id)
-    .eq("is_deleted", false)
-    .order("created_at", { ascending: false });
+    const loadUnreadMessages = async () => {
+      const { data, error } = await supabase
+        .from("messages")
+        .select("id, sender_id, read_by, created_at")
+        .eq("recipient_id", user.id)
+        .eq("is_deleted", false)
+        .order("created_at", { ascending: false });
 
-  if (error) {
-    console.error("Unread messages error:", JSON.stringify(error, null, 2));
-    return;
-  }
+      if (error) {
+        console.error("Unread messages error:", error);
+        return;
+      }
 
-const readByIncludes = (read_by: any, userId: string) => {
-  if (!read_by) return false;
-  if (Array.isArray(read_by)) return read_by.includes(userId);
-  if (typeof read_by === "object") return Boolean(read_by[userId]);
-  return false;
-};
+      const readByIncludes = (read_by: any, userId: string) => {
+        if (!read_by) return false;
+        if (Array.isArray(read_by)) return read_by.includes(userId);
+        if (typeof read_by === "object") return Boolean(read_by[userId]);
+        return false;
+      };
 
-const unreadRows = (data ?? []).filter(
-  (m) => !readByIncludes(m.read_by, user.id)
-);
+      const unreadRows = (data ?? []).filter(
+        (m) => !readByIncludes(m.read_by, user.id)
+      );
 
-setUnreadMessages(unreadRows.length);
-setUnreadConversationId(unreadRows[0]?.sender_id ?? null);
+      setUnreadMessages(unreadRows.length);
+      setUnreadConversationId(unreadRows[0]?.sender_id ?? null);
     };
 
     void loadUnreadMessages();
@@ -75,9 +78,7 @@ setUnreadConversationId(unreadRows[0]?.sender_id ?? null);
           table: "messages",
           filter: `recipient_id=eq.${user.id}`,
         },
-        () => {
-          void loadUnreadMessages();
-        }
+        () => void loadUnreadMessages()
       )
       .subscribe();
 
@@ -85,50 +86,6 @@ setUnreadConversationId(unreadRows[0]?.sender_id ?? null);
       void supabase.removeChannel(channel);
     };
   }, [user?.id]);
-
-useEffect(() => {
-  if (!user?.id) {
-    setNotificationCount(0);
-    return;
-  }
-
-  const loadNotifications = async () => {
-    const { count, error } = await supabase
-      .from("notifications")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", user.id)
-      .is("read_at", null);
-
-    if (error) {
-      console.error("Notification count error:", error);
-      return;
-    }
-
-    setNotificationCount(count ?? 0);
-  };
-
-  void loadNotifications();
-
-  const channel = supabase
-    .channel(`bottom-nav-notifications-${user.id}`)
-    .on(
-      "postgres_changes",
-      {
-        event: "*",
-        schema: "public",
-        table: "notifications",
-        filter: `user_id=eq.${user.id}`,
-      },
-      () => {
-        void loadNotifications();
-      }
-    )
-    .subscribe();
-
-  return () => {
-    void supabase.removeChannel(channel);
-  };
-}, [user?.id]);
 
   const items: Item[] = useMemo(
     () => [
@@ -138,39 +95,23 @@ useEffect(() => {
         icon: Home,
       },
       {
-        label: t("bottomNav.quran", { defaultValue: "Quran" }),
-        to: "/quran",
-        icon: BookOpen,
-      },
-      {
-        label: t("bottomNav.qibla", { defaultValue: "Qibla" }),
-        to: "/qibla",
-        icon: Compass,
-      },
-      {
-        label: t("bottomNav.tasbih", { defaultValue: "Tasbih" }),
-        to: "/tasbih",
-        emoji: "📿",
-      },
-      {
         label: t("bottomNav.messages", { defaultValue: "Messages" }),
         to: "/messages",
         icon: MessageCircle,
         badge: unreadMessages > 0 ? unreadMessages : undefined,
       },
       {
-        label: t("bottomNav.community", { defaultValue: "Community" }),
-        to: "/chat-room",
-        icon: Users,
+        label: t("bottomNav.calls", { defaultValue: "Calls" }),
+        to: "/calls",
+        icon: Phone,
       },
-    {
-      label: t("bottomNav.settings", { defaultValue: "settings" }),
-      to: "/settings",
-      icon: Settings,
-      badge: notificationCount > 0 ? notificationCount : undefined,
-    },
+      {
+        label: t("bottomNav.profile", { defaultValue: "Profile" }),
+        to: "/profile",
+        icon: User,
+      },
     ],
-    [t, unreadMessages, notificationCount]
+    [t, unreadMessages]
   );
 
   const normalizePath = (to: string) => to.split("#")[0];
@@ -181,11 +122,98 @@ useEffect(() => {
     return location.pathname === base;
   };
 
+  const goToIbadahPage = (to: string) => {
+    setShowIbadah(false);
+    navigate(to);
+  };
+
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t bg-background/95 backdrop-blur">
-      <div className="overflow-x-auto">
-        <div className="flex items-center gap-1 px-2 py-2 pb-safe min-w-max">
-          {items.map((it) => {
+    <>
+      {showIbadah && (
+        <div
+          className="md:hidden fixed inset-0 z-[60] bg-black/40"
+          onClick={() => setShowIbadah(false)}
+        >
+          <div
+            className="absolute bottom-20 left-4 right-4 rounded-2xl border bg-background p-4 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="text-lg font-semibold mb-3">
+              {t("bottomNav.ibadah", { defaultValue: "Ibadah" })}
+            </div>
+
+            <div className="grid grid-cols-3 gap-3">
+              <button
+                type="button"
+                onClick={() => goToIbadahPage("/quran")}
+                className="rounded-xl border p-4 flex flex-col items-center gap-2 hover:bg-muted"
+              >
+                <BookOpen size={22} />
+                <span className="text-sm">
+                  {t("moreMenu.quran", { defaultValue: "Quran" })}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => goToIbadahPage("/qibla")}
+                className="rounded-xl border p-4 flex flex-col items-center gap-2 hover:bg-muted"
+              >
+                <Compass size={22} />
+                <span className="text-sm">
+                  {t("moreMenu.qibla", { defaultValue: "Qibla" })}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => goToIbadahPage("/tasbih")}
+                className="rounded-xl border p-4 flex flex-col items-center gap-2 hover:bg-muted"
+              >
+                <span className="text-2xl">📿</span>
+                <span className="text-sm">
+                  {t("moreMenu.tasbih", { defaultValue: "Tasbih" })}
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t bg-background/95 backdrop-blur">
+        <div className="flex items-center justify-around px-2 py-2 pb-safe">
+          <Link
+            to="/"
+            className={[
+              "relative flex flex-col items-center justify-center min-w-[64px] px-2 py-2 rounded-xl transition",
+              isActive("/")
+                ? "text-foreground bg-secondary"
+                : "text-muted-foreground hover:text-foreground hover:bg-secondary/50",
+            ].join(" ")}
+          >
+            <Home size={20} />
+            <span className="text-[10px] mt-1">
+              {t("bottomNav.home", { defaultValue: "Home" })}
+            </span>
+          </Link>
+
+          <button
+            type="button"
+            onClick={() => setShowIbadah(true)}
+            className={[
+              "relative flex flex-col items-center justify-center min-w-[64px] px-2 py-2 rounded-xl transition",
+              ["/quran", "/qibla", "/tasbih"].includes(location.pathname)
+                ? "text-foreground bg-secondary"
+                : "text-muted-foreground hover:text-foreground hover:bg-secondary/50",
+            ].join(" ")}
+          >
+            <Grid3X3 size={20} />
+            <span className="text-[10px] mt-1">
+              {t("bottomNav.ibadah", { defaultValue: "Ibadah" })}
+            </span>
+          </button>
+
+          {items.slice(1).map((it) => {
             const active = isActive(it.to);
             const Icon = it.icon;
 
@@ -198,24 +226,16 @@ useEffect(() => {
                     : it.to
                 }
                 className={[
-                  "relative flex flex-col items-center justify-center",
-                  "min-w-[72px] px-3 py-2 rounded-xl",
-                  "transition",
+                  "relative flex flex-col items-center justify-center min-w-[64px] px-2 py-2 rounded-xl transition",
                   active
                     ? "text-foreground bg-secondary"
                     : "text-muted-foreground hover:text-foreground hover:bg-secondary/50",
                 ].join(" ")}
               >
                 <div className="relative">
-                  {it.emoji ? (
-                    <span style={{ fontSize: 20, lineHeight: "20px" }}>
-                      {it.emoji}
-                    </span>
-                  ) : (
-                    Icon && <Icon size={20} />
-                  )}
+                  {Icon && <Icon size={20} />}
 
-                 {typeof it.badge === "number" && it.badge > 0 && (
+                  {typeof it.badge === "number" && it.badge > 0 && (
                     <span className="absolute -top-2 -right-3 min-w-[18px] h-[18px] rounded-full bg-red-600 text-white text-[10px] leading-[18px] text-center px-1">
                       {it.badge > 99 ? "99+" : it.badge}
                     </span>
@@ -228,6 +248,6 @@ useEffect(() => {
           })}
         </div>
       </div>
-    </div>
+    </>
   );
 }

@@ -189,6 +189,20 @@
     }
   },
 
+  "bottomNav": {
+    "home": "Home",
+    "ibadah": "Ibadah",
+    "messages": "Messages",
+    "calls": "Calls",
+    "profile": "Profile"
+  },
+  "moreMenu": {
+    "quran": "Quran",
+    "qibla": "Qibla",
+    "tasbih": "Tasbih"
+  },
+
+
   "footer": {
     "cta": {
       "title": "Ready to Join Our Community?",

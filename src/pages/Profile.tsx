@@ -357,11 +357,22 @@ export default function Profile() {
         ← Back
       </button>
 
-      <div className="mb-4">
-        <h1 className="text-xl font-semibold truncate">
-          {isOwnProfile ? "Profile" : fullName || "User Profile"}
-        </h1>
-      </div>
+<div className="mb-4 flex items-center justify-between">
+  <h1 className="text-xl font-semibold truncate">
+    {isOwnProfile ? "Profile" : fullName || "User Profile"}
+  </h1>
+
+  {isOwnProfile && (
+    <button
+      type="button"
+      onClick={() => navigate("/settings")}
+      className="rounded-full border px-3 py-2 text-sm hover:bg-muted"
+      aria-label="Open settings"
+    >
+      ⚙️
+    </button>
+  )}
+</div>
 
       <div className="mt-4 rounded-xl border p-4">
         <div className="text-sm text-muted-foreground">

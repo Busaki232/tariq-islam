@@ -170,6 +170,19 @@
       "dhuAlHijjah": "ذو الحجة"
     }
   },
+    "bottomNav": {
+      "home": "الرئيسية",
+      "ibadan": "عبادة",
+      "messages": "الرسائل",
+      "calls": "المكالمات",
+      "profile": "الملف الشخصي"
+    },
+    "moreMenu": {
+      "quran": "القرآن",
+      "qibla": "القبلة",
+      "tasbih": "التسبيح"
+    },
+
   "footer": {
     "cta": {
       "title": "هل أنت جاهز للانضمام إلى مجتمعنا؟",

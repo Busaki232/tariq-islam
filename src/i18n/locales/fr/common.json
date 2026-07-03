@@ -146,12 +146,15 @@
     "privacy": "Vos données sont protégées."
   },
 
-  "howToListenTitle": "🎧 Comment écouter",
-  "getStartedSubtitle": "Sélectionnez un récitateur et une sourate ci-dessous pour commencer à écouter le Noble Coran.",
-  "howToListenSteps": {
-    "1": "Sélectionnez un récitateur.",
-    "2": "Sélectionnez une sourate.",
-    "3": "Appuyez sur Lecture pour écouter."
+  "quran": {
+    "playerTitle": "Lecteur audio du Coran",
+    "howToListenTitle": "🎧 Comment écouter",
+    "getStartedSubtitle": "Sélectionnez un récitateur et une sourate ci-dessous pour commencer à écouter le Noble Coran.",
+    "howToListenSteps": {
+      "1": "Sélectionnez un récitateur.",
+      "2": "Sélectionnez une sourate.",
+      "3": "Appuyez sur Lecture pour écouter."
+    }
   },
 
   "islamicCalendar": {
@@ -170,6 +173,20 @@
       "dhuAlHijjah": "Dhou al-Hijja"
     }
   },
+  "bottomNav": {
+    "home": "Accueil",
+    "ibadah": "Ibadah",
+    "messages": "Messages",
+    "calls": "Appels",
+    "profile": "Profil"
+  },
+  "moreMenu": {
+    "quran": "Coran",
+    "qibla": "Qibla",
+    "tasbih": "Tasbih"
+  },
+
+
   "footer": {
     "cta": {
       "title": "Prêt à rejoindre notre communauté ?",

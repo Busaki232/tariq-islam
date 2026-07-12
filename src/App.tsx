@@ -81,6 +81,9 @@ import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 import CreateGroupPage from "@/pages/CreateGroupPage";
 import GroupChatPage from "@/pages/GroupChatPage";
 import ProfileConnections from "@/pages/ProfileConnections";
+import UploadReflection from "@/pages/UploadReflection";
+import ReflectionsFeed from "@/pages/ReflectionsFeed";
+import CreatorProfile from "@/pages/CreatorProfile";
 
 if (import.meta.env.DEV) {
   (window as any).supabase = supabase;
@@ -559,194 +562,206 @@ export default function App() {
        }}
      >
               <Routes>
-                <Route path="/call" element={<CallRoute />} />
+                            <Route path="/call" element={<CallRoute />} />
 
-                <Route path="/" element={<Index />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/email-confirmed" element={<EmailConfirmed />} />
+                            <Route path="/" element={<Index />} />
+                            <Route path="/auth" element={<Auth />} />
+                            <Route path="/email-confirmed" element={<EmailConfirmed />} />
 
-                <Route path="/quran" element={<QuranPage />} />
-                <Route path="/qibla" element={<Qibla />} />
-                <Route path="/tasbih" element={<Tasbih />} />
-                <Route path="/mosques" element={<Mosques />} />
-                <Route path="/events" element={<Events />} />
-                <Route path="/islamic-calendar" element={<IslamicCalendar />} />
-                <Route path="/apply-leadership" element={<LeadershipApplication />} />
-                <Route path="/delete-account" element={<DeleteAccountPage />} />
+                            <Route path="/quran" element={<QuranPage />} />
+                            <Route path="/qibla" element={<Qibla />} />
+                            <Route path="/tasbih" element={<Tasbih />} />
+                            <Route path="/mosques" element={<Mosques />} />
+                            <Route path="/events" element={<Events />} />
+                            <Route path="/islamic-calendar" element={<IslamicCalendar />} />
+                            <Route path="/apply-leadership" element={<LeadershipApplication />} />
+                            <Route path="/delete-account" element={<DeleteAccountPage />} />
+                            <Route path="/creator/:userId" element={<CreatorProfile />} />
 
-                <Route path="/chat-room" element={<Chat />} />
-                <Route path="/community" element={<Community />} />
-<Route path="/calls" element={<Calls />} />
-                <Route
-                  path="/groups/new"
-                  element={
-                    <ProtectedRoute>
-                      <AppErrorBoundary>
-                        <CreateGroupPage />
-                      </AppErrorBoundary>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/groups/:groupId"
-                  element={
-                    <ProtectedRoute>
-                      <AppErrorBoundary>
-                        <GroupChatPage />
-                      </AppErrorBoundary>
-                    </ProtectedRoute>
-                  }
-                />
+                            <Route path="/chat-room" element={<Chat />} />
+                            <Route path="/community" element={<Community />} />
+                           <Route
+                             path="/reflections"
+                             element={<ReflectionsFeed />}
+                           />
+            <Route path="/calls" element={<Calls />} />
+                            <Route
+                              path="/groups/new"
+                              element={
+                                <ProtectedRoute>
+                                  <AppErrorBoundary>
+                                    <CreateGroupPage />
+                                  </AppErrorBoundary>
+                                </ProtectedRoute>
+                              }
+                            />
+                            <Route
+                              path="/groups/:groupId"
+                              element={
+                                <ProtectedRoute>
+                                  <AppErrorBoundary>
+                                    <GroupChatPage />
+                                  </AppErrorBoundary>
+                                </ProtectedRoute>
+                              }
+                            />
+            <Route
+              path="/profile/:userId/followers"
+              element={
+                <ProtectedRoute>
+                  <ProfileConnections type="followers" />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/profile/:userId/following"
+              element={
+                <ProtectedRoute>
+                  <ProfileConnections type="following" />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/notifications"
+              element={
+                <ProtectedRoute>
+                  <Notifications />
+                </ProtectedRoute>
+              }
+            />
+                            <Route path="/marketplace" element={<Advertisement />} />
+
+                            <Route
+                              path="/submit-ad"
+                              element={
+                                <ProtectedRoute>
+                                  <SubmitAd />
+                                </ProtectedRoute>
+                              }
+                            />
+                            <Route
+                              path="/my-ads"
+                              element={
+                                <ProtectedRoute>
+                                  <MyAds />
+                                </ProtectedRoute>
+                              }
+                            />
+                            <Route
+                              path="/submit-mosque"
+                              element={
+                                <ProtectedRoute>
+                                  <SubmitMosque />
+                                </ProtectedRoute>
+                              }
+                            />
 <Route
-  path="/profile/:userId/followers"
+  path="/upload-reflection"
   element={
     <ProtectedRoute>
-      <ProfileConnections type="followers" />
+      <UploadReflection />
     </ProtectedRoute>
   }
 />
-
-<Route
-  path="/profile/:userId/following"
-  element={
-    <ProtectedRoute>
-      <ProfileConnections type="following" />
-    </ProtectedRoute>
-  }
-/>
-<Route
-  path="/notifications"
-  element={
-    <ProtectedRoute>
-      <Notifications />
-    </ProtectedRoute>
-  }
-/>
-                <Route path="/marketplace" element={<Advertisement />} />
+                            <Route
+                              path="/dashboard"
+                              element={
+                                <ProtectedRoute>
+                                  <Dashboard />
+                                </ProtectedRoute>
+                              }
+                            />
+                            <Route
+                              path="/settings"
+                              element={
+                                <ProtectedRoute>
+                                  <Settings />
+                                </ProtectedRoute>
+                              }
+                            />
 
                 <Route
-                  path="/submit-ad"
+                  path="/profile"
                   element={
                     <ProtectedRoute>
-                      <SubmitAd />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/my-ads"
-                  element={
-                    <ProtectedRoute>
-                      <MyAds />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/submit-mosque"
-                  element={
-                    <ProtectedRoute>
-                      <SubmitMosque />
+                      <Profile />
                     </ProtectedRoute>
                   }
                 />
 
                 <Route
-                  path="/dashboard"
+                  path="/profile/:userId"
                   element={
                     <ProtectedRoute>
-                      <Dashboard />
+                      <Profile />
                     </ProtectedRoute>
                   }
                 />
-                <Route
-                  path="/settings"
-                  element={
-                    <ProtectedRoute>
-                      <Settings />
-                    </ProtectedRoute>
-                  }
-                />
+                            <Route
+                              path="/messages/:otherUserId"
+                              element={
+                                <ProtectedRoute>
+                                  <AppErrorBoundary>
+                                    <DirectMessagePage />
+                                  </AppErrorBoundary>
+                                </ProtectedRoute>
+                              }
+                            />
+                            <Route
+                              path="/messages"
+                              element={
+                                <ProtectedRoute>
+                                  <AppErrorBoundary>
+                                    <PrivateMessaging />
+                                  </AppErrorBoundary>
+                                </ProtectedRoute>
+                              }
+                            />
+                            <Route
+                              path="/requests"
+                              element={
+                                <ProtectedRoute>
+                                  <PendingRequests />
+                                </ProtectedRoute>
+                              }
+                            />
+                            <Route path="/connect" element={<Connect />} />
+                            <Route path="/community-guidelines" element={<CommunityGuidelines />} />
+                            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                              <Route path="/childSafetyPolicy" element={<ChildSafetyPolicy />} />
+                              <Route path="/child-safety-policy" element={<ChildSafetyPolicy />} />
+                            <Route path="/anti-extremism" element={<AntiExtremismEducation />} />
+                            <Route path="/advertise" element={<Partnerships />} />
+                            <Route path="/business-listings" element={<Advertisement />} />
+                            <Route path="/support" element={<Support />} />
+                            <Route path="/contact" element={<Contact />} />
 
-    <Route
-      path="/profile"
-      element={
-        <ProtectedRoute>
-          <Profile />
-        </ProtectedRoute>
-      }
-    />
+                            <Route
+                              path="/admin"
+                              element={
+                                <ProtectedRoute requireAdmin>
+                                  <Admin />
+                                </ProtectedRoute>
+                              }
+                            />
+                            <Route
+                              path="/moderation"
+                              element={
+                                <ProtectedRoute requireAdmin>
+                                  <ModerationDashboard />
+                                </ProtectedRoute>
+                              }
+                            />
 
-    <Route
-      path="/profile/:userId"
-      element={
-        <ProtectedRoute>
-          <Profile />
-        </ProtectedRoute>
-      }
-    />
-                <Route
-                  path="/messages/:otherUserId"
-                  element={
-                    <ProtectedRoute>
-                      <AppErrorBoundary>
-                        <DirectMessagePage />
-                      </AppErrorBoundary>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/messages"
-                  element={
-                    <ProtectedRoute>
-                      <AppErrorBoundary>
-                        <PrivateMessaging />
-                      </AppErrorBoundary>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/requests"
-                  element={
-                    <ProtectedRoute>
-                      <PendingRequests />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route path="/connect" element={<Connect />} />
-                <Route path="/community-guidelines" element={<CommunityGuidelines />} />
-                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                  <Route path="/childSafetyPolicy" element={<ChildSafetyPolicy />} />
-                  <Route path="/child-safety-policy" element={<ChildSafetyPolicy />} />
-                <Route path="/anti-extremism" element={<AntiExtremismEducation />} />
-                <Route path="/advertise" element={<Partnerships />} />
-                <Route path="/business-listings" element={<Advertisement />} />
-                <Route path="/support" element={<Support />} />
-                <Route path="/contact" element={<Contact />} />
+                            <Route path="*" element={<NotFound />} />
+                          </Routes>
+                        </div>
 
-                <Route
-                  path="/admin"
-                  element={
-                    <ProtectedRoute requireAdmin>
-                      <Admin />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/moderation"
-                  element={
-                    <ProtectedRoute requireAdmin>
-                      <ModerationDashboard />
-                    </ProtectedRoute>
-                  }
-                />
-
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </div>
-
-    <BottomNav />
-          </Router>
-        </TooltipProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
-  );
-}
+                <BottomNav />
+                      </Router>
+                    </TooltipProvider>
+                  </ThemeProvider>
+                </QueryClientProvider>
+              );
+            }

@@ -919,7 +919,7 @@ const doSignOut = async () => {
       onClick={() => navigate(-1)}
       className="mb-4 text-sm text-muted-foreground hover:text-foreground"
     >
-      ✕ Close
+      {t("common.close", { defaultValue: "Close" })}
     </button>
 
       <h1 className="text-xl font-semibold">{t("settings.title")}</h1>

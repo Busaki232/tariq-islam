@@ -17,11 +17,12 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.1.22</string>
-	<key>CFBundleVersion</key>
-	<string>22</string>
-	<key>LSRequiresIPhoneOS</key>
-	<true/>
+    <string>$(MARKETING_VERSION)</string>
+    <key>CFBundleVersion</key>
+    <string>$(CURRENT_PROJECT_VERSION)</string>
+
+
+
 	<key>NSCameraUsageDescription</key>
 	<string>Tariq Islam uses the camera for video calls and media uploads.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>

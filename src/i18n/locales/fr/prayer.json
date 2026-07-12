@@ -1,6 +1,7 @@
 {
   "prayerTimes": {
     "title": "Heures de prière",
+    "subtitle": "Restez connecté à vos prières grâce à des horaires précis adaptés à votre emplacement",
     "loading": "Chargement des heures de prière...",
     "enableLocationTitle": "Activer l’accès à la localisation",
     "enableLocationBody": "Autorisez l’accès à la localisation pour obtenir des horaires de prière précis pour votre zone",

@@ -3,11 +3,13 @@ import { Phone, Video, ArrowUpRight, ArrowDownLeft, PhoneMissed, Info } from "lu
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function Calls() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [calls, setCalls] = useState<any[]>([]);
+  const { t } = useTranslation("common");
 
   useEffect(() => {
     if (!user?.id) return;
@@ -40,15 +42,17 @@ export default function Calls() {
         onClick={() => navigate(-1)}
         className="mb-3 text-sm text-muted-foreground"
       >
-        ← Back
+        ← {t("callsPage.back")}
       </button>
 
-      <h1 className="text-3xl font-bold mb-4">Calls</h1>
+      <h1 className="mb-4 text-3xl font-bold">
+        {t("callsPage.title")}
+      </h1>
 
       <div className="space-y-1">
         {calls.length === 0 ? (
           <div className="rounded-xl border p-4 text-sm text-muted-foreground">
-            No call history yet.
+            {t("callsPage.noHistory")}
           </div>
         ) : (
           calls.map((call) => {
@@ -105,7 +109,7 @@ export default function Calls() {
                     className="mt-1 inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs"
                   >
                     <Info className="h-3 w-3" />
-                    Call Back
+                    {t("callsPage.callBack")}
                   </button>
                 </div>
               </div>

@@ -105,6 +105,118 @@
       "arabic": "Larabci"
     }
   },
+  "reflections": {
+    "featuredReflections": "Fitattun Tunatarwa",
+    "loadingReflections": "Ana loda tunatarwa...",
+    "noApprovedReflections": "Babu tunatarwar da aka amince da ita tukuna",
+    "uploadAfterApproval": "Loda tunatarwa kuma za ta bayyana a nan bayan an amince da ita.",
+    "uploadReflection": "Loda Tunatarwa",
+    "seeAllReflections": "Duba Duk Tunatarwa",
+    "strengthenConnection": "Ka Karfafa Alakarka da Allah",
+    "communityReminders": "Kalli gajerun tunatarwar Musulunci da al'ummar Tariq Islam suka wallafa.",
+    "closeVideo": "Rufe bidiyo",
+    "invalidFile": "Fayil mara inganci",
+    "selectVideoFile": "Da fatan za a zaɓi fayil ɗin bidiyo.",
+    "videoRequired": "Ana buƙatar bidiyo",
+    "chooseVideoFirst": "Da fatan za a zaɓi ko a ɗauki bidiyo da farko.",
+    "titleRequired": "Ana buƙatar take",
+    "addReflectionTitle": "Da fatan za a ƙara take ga tunatarwarka.",
+    "reflectionUploaded": "An loda tunatarwa",
+    "pendingReviewShort": "Bidiyonka yana jiran dubawa.",
+    "pendingReviewMessage": "Bidiyonka yana jiran dubawa. Zai bayyana ga jama'a bayan an amince da shi.",
+    "uploadFailed": "Lodawa ta gaza",
+    "couldNotUpload": "Ba a iya loda tunatarwar ba.",
+    "returnHome": "Koma Shafin Farko",
+    "chooseOrRecordVideo": "Zaɓi ko ɗauki bidiyo",
+    "supportedVideoFormats": "MP4, MOV, ko wasu nau'ikan bidiyon wayar hannu",
+    "coverThumbnailPosition": "Matsayin Hoton Murfin Bidiyo",
+    "recordVideo": "Ɗauki Bidiyo",
+    "chooseFromGallery": "Zaɓi Daga Hotuna",
+    "titleLabel": "Take",
+    "titlePlaceholder": "Misali: Muhimmancin Sallah",
+    "captionLabel": "Bayani",
+    "captionPlaceholder": "Raba gajeriyar tunatarwa, ayar Al-Qur'ani, Hadisi, ko saƙo...",
+    "categoryLabel": "Rukuni",
+    "languageLabel": "Harshe",
+    "uploading": "Ana lodawa...",
+    "uploadingProgress": "Ana lodawa... {{progress}}%",
+    "postReflection": "Wallafa Tunatarwa",
+    "reviewNotice": "Ana duba tunatarwar da aka loda kafin su bayyana ga jama'a.",
+    "back": "Baya",
+    "reflectionsTitle": "Tunatarwa",
+    "noApprovedAvailable": "Babu tunatarwar da aka amince da ita tukuna.",
+    "refreshingReflections": "Ana sabunta tunatarwa...",
+    "loadingMoreReflections": "Ana loda ƙarin tunatarwa...",
+    "videoLinkCopied": "An kwafi hanyar bidiyo",
+    "shareFailed": "Rabawa ta gaza:",
+    "share": "Raba",
+    "muted": "Ba sauti",
+    "sound": "Sauti",
+    "comments": "Sharhi",
+    "close": "Rufe",
+    "noCommentsYet": "Babu sharhi tukuna. Ka zama na farko.",
+    "tariqIslamUser": "Mai amfani da Tariq Islam",
+    "delete": "Goge",
+    "addComment": "Ƙara sharhi...",
+    "edit": "Gyara",
+    "save": "Ajiye",
+    "cancel": "Soke",
+    "send": "Aika",
+    "saveVideo": "Ajiye",
+    "saved": "An Ajiye",
+    "unsave": "Cire Ajiya",
+    "report": "Kai Rahoto",
+    "reportVideo": "Kai Rahoton Bidiyo",
+    "submitReport": "Aika Rahoto",
+    "viewCreator": "Duba mahalicci",
+    "notFound": "Ba a sami bayanin mahaliccin ba.",
+    "categories": {
+      "dailyreminder": "Tunatarwar Yau da Kullum",
+      "quran": "Al-Qur'ani",
+      "hadith": "Hadisi",
+      "prayer": "Sallah",
+      "family": "Iyali",
+      "ramadan": "Ramadan",
+      "dawah": "Da'awa"
+    }
+  },
+  "dailyCompanion": {
+    "blessYourDay": "Allah Ya albarkaci ranarka.",
+    "currentPrayer": "Sallar Yanzu",
+    "nextPrayer": "Sallah Ta Gaba",
+    "loading": "Ana lodawa...",
+    "loadingPrayerTime": "Ana loda lokacin sallah...",
+    "gettingLocation": "Ana gano wurinka...",
+    "findMosques": "Nemo Masallatai Kusa da Kai",
+    "todaysReminder": "Tunatarwar Yau",
+    "todaysHadith": "Hadisin Yau",
+    "community": "Al'umma",
+    "greeting": "Assalamu Alaikum",
+    "prayerIn": "{{prayer}} bayan {{time}}",
+    "openCommunityMessages": "Buɗe saƙonnin al'umma",
+    "description": "Kasance a haɗe da sallolinka tare da ingantattun lokutan sallah bisa ga wurinka.",
+    "reminders": {
+      "1": {
+        "text": "Lallai sallah tana hana alfasha da munanan ayyuka.",
+        "source": "Al-Qur'ani 29:45"
+      },
+      "2": {
+        "text": "Ku tuna Ni, Ni kuma Zan tuna ku.",
+        "source": "Al-Qur'ani 2:152"
+      },
+      "3": {
+        "text": "Lallai da ambaton Allah ne zukata suke samun natsuwa.",
+        "source": "Al-Qur'ani 13:28"
+      },
+      "4": {
+        "text": "Duk wanda ya dogara ga Allah, to Allah Ya ishe shi.",
+        "source": "Al-Qur'ani 65:3"
+      }
+    },
+    "hadith": {
+      "text": "Mafifitan ku su ne waɗanda suka koyi Al-Qur'ani kuma suka koyar da shi."
+    }
+  },
   "test_language": "Gwajin harshe",
   "home": {
     "hero": {
@@ -145,7 +257,6 @@
     },
     "privacy": "Ana kare bayananka."
   },
-
   "howToListenTitle": "🎧 Yadda ake sauraron Alkur’ani",
   "getStartedSubtitle": "Zaɓi mai karatu da sura a ƙasa don fara sauraron Alkur’ani mai girma.",
   "howToListenSteps": {
@@ -153,7 +264,6 @@
     "2": "Zaɓi sura.",
     "3": "Danna play don sauraro."
   },
-
   "islamicCalendar": {
     "months": {
       "muharram": "Muharram",
@@ -170,6 +280,27 @@
       "dhuAlHijjah": "Dhu al-Hijjah"
     }
   },
+  "callsPage": {
+    "back": "Komawa",
+    "title": "Kira",
+    "noHistory": "Babu tarihin kira tukuna.",
+    "callBack": "Kira Baya"
+  },
+  "profilePage": {
+    "title": "Bayanan Kai",
+    "userProfile": "Bayanan Mai Amfani",
+    "signedInAs": "An shiga a matsayin",
+    "viewingProfile": "Ana kallon bayanin mai amfani",
+    "editProfile": "Gyara Bayanan Kai",
+    "callHistory": "Tarihin Kira",
+    "connections": "Haɗin Kai",
+    "followers": "Mabiya",
+    "following": "Waɗanda Ake Bi",
+    "mutual": "Na Juna",
+    "pendingRequests": "Buƙatun da ke Jira",
+    "noFollowers": "Babu mabiya tukuna.",
+    "noFollowing": "Ba ka bin kowa tukuna."
+  },
   "bottomNav": {
     "home": "Gida",
     "ibadan": "Ibadan",
@@ -182,7 +313,6 @@
     "qibla": "Alƙibla",
     "tasbih": "Tasbihi"
   },
-
   "footer": {
     "cta": {
       "title": "Ka shirya shiga al’ummarmu?",
@@ -219,5 +349,18 @@
     "title": "Tuntuɓe mu",
     "subtitle": "Aika ra’ayinka.",
     "close": "Rufe"
+  },
+  "creatorProfile": {
+    "loading": "Ana loda bayanan mai ƙirƙira...",
+    "notFound": "Ba a sami bayanan mai ƙirƙira ba.",
+    "follow": "Bi",
+    "following": "Ana bi",
+    "requested": "An aika buƙata",
+    "unfollowConfirm": "Kana son daina bin wannan mai ƙirƙira?",
+    "followers": "Mabiya",
+    "followingCount": "Yana bi",
+    "likes": "So",
+    "reflections": "Tunani",
+    "noReflections": "Babu tunani tukuna."
   }
 }

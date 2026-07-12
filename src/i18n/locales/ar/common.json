@@ -1,18 +1,20 @@
 {
   "loading": "جارٍ التحميل...",
   "errors": {
-    "timeout": "انتهت مهلة الانتظار"
+    "timeout": "انتهت مهلة الطلب"
   },
   "presence": {
     "online": "متصل",
     "offline": "غير متصل",
-    "seenMinutes": "شوهد قبل {{count}} دقيقة",
-    "seenHours": "شوهد قبل {{count}} ساعة",
+    "seenMinutes": "شوهد منذ {{count}} دقيقة",
+    "seenHours": "شوهد منذ {{count}} ساعة",
     "seenDate": "شوهد في {{date}}"
   },
+  "back": "رجوع",
+  "close": "إغلاق",
   "privateChat": {
     "directory": {
-      "requestedOn": "تم الطلب بتاريخ {{date}}"
+      "requestedOn": "تم الطلب في {{date}}"
     }
   },
   "settings": {
@@ -24,7 +26,7 @@
     "uploading": "جارٍ الرفع...",
     "change_photo": "تغيير الصورة",
     "username_label": "اسم المستخدم",
-    "username_help": "يُستخدم لدعوات الدردشة الخاصة. بدون مسافات. يُسمح بالحروف والأرقام والنقطة والشرطة السفلية فقط.",
+    "username_help": "يُستخدم لدعوات الدردشة الخاصة. بدون مسافات. المسموح: الحروف والأرقام والنقطة والشرطة السفلية.",
     "username_placeholder": "مثال: @taofikbusari",
     "saving": "جارٍ الحفظ...",
     "save": "حفظ",
@@ -32,32 +34,30 @@
     "username_saved_hint": "تم الحفظ",
     "username_saved_title": "تم حفظ اسم المستخدم",
     "username_invalid_short": "غير صالح",
-    "username_invalid_title": "اسم المستخدم غير صالح",
-    "username_invalid_desc": "استخدم من 3 إلى 20 حرفاً. الحروف والأرقام والنقطة والشرطة السفلية فقط.",
+    "username_invalid_title": "اسم مستخدم غير صالح",
+    "username_invalid_desc": "استخدم من 3 إلى 20 حرفًا. يُسمح فقط بالحروف والأرقام والنقطة والشرطة السفلية. بدون مسافات.",
     "username_save_failed_title": "تعذر حفظ اسم المستخدم",
-    "username_taken": "اسم المستخدم هذا مستخدم بالفعل.",
+    "username_taken": "اسم المستخدم هذا مستخدم بالفعل. جرّب اسمًا آخر.",
     "username_preview": "معاينة",
     "none": "لا شيء",
     "appearance": "المظهر",
     "theme": "السمة",
-    "online_visibility": "ظهور الحالة",
-    "online_hidden": "مخفي (غير متصل)",
-    "online_visible": "ظاهر (متصل)",
-    "show_online": "إظهار متصل",
-    "hide_online": "إخفاء الحالة",
-    "stored_on_device": "محفوظ على هذا الجهاز.",
-    "online_visibility_saved": "يتم حفظ حالة الظهور الخاصة بك في حسابك.",
-    "notification_preferences_saved": "يتم حفظ إعدادات الإشعارات في حسابك.",
+    "online_visibility": "ظهور حالة الاتصال",
+    "online_hidden": "مخفي، ستظهر كغير متصل",
+    "online_visible": "ظاهر، ستظهر كمتصل",
+    "show_online": "إظهار الاتصال",
+    "hide_online": "إخفاء الاتصال",
+    "stored_on_device": "محفوظ على هذا الجهاز. يمكنك حفظه في قاعدة البيانات لاحقًا عندما تكون جاهزًا.",
     "notifications": "الإشعارات",
     "messages": "الرسائل",
     "calls": "المكالمات",
-    "local_toggles_note": "هذه الخيارات محلية على الجهاز حالياً.",
+    "local_toggles_note": "هذه الخيارات محفوظة محليًا في الوقت الحالي.",
     "adhan": "الأذان",
-    "adhan_enabled": "تم تفعيل الأذان",
-    "adhan_disabled": "تم إيقاف الأذان",
-    "adhan_note": "يمكنك تفعيله أو إيقافه في أي وقت.",
+    "adhan_enabled": "الأذان مفعّل",
+    "adhan_disabled": "الأذان متوقف",
+    "adhan_note": "يمكنك تشغيل هذا الخيار أو إيقافه في أي وقت.",
     "adhan_location_title": "موقع الأذان",
-    "adhan_location_subtitle": "استخدم موقع الجهاز أو أدخل الإحداثيات يدوياً.",
+    "adhan_location_subtitle": "استخدم موقع الجهاز أو أدخل الإحداثيات يدويًا.",
     "adhan_location_device": "استخدام الجهاز",
     "adhan_location_manual": "يدوي",
     "latitude": "خط العرض",
@@ -68,95 +68,246 @@
     "invalid_location": "موقع غير صالح",
     "invalid_location_desc": "يرجى إدخال خط عرض وخط طول صالحين.",
     "location_saved": "تم حفظ الموقع",
-    "location_up_to_date": "الموقع مُحدّث",
-    "device_location_captured": "تم التقاط الموقع",
+    "location_up_to_date": "الموقع محدّث",
+    "device_location_captured": "تم حفظ موقع الجهاز",
     "device_location_saved": "تم حفظ موقع الجهاز",
-    "device_location_not_saved": "لم يتم حفظ الموقع",
+    "device_location_not_saved": "لم يتم حفظ موقع الجهاز بعد",
     "could_not_get_location": "تعذر الحصول على الموقع",
     "location_unavailable": "الموقع غير متاح",
-    "location_unavailable_desc": "خدمة تحديد الموقع غير مدعومة.",
-    "permission_needed": "مطلوب إذن",
-    "permission_needed_desc": "يرجى السماح بالوصول إلى الموقع.",
+    "location_unavailable_desc": "تحديد الموقع الجغرافي غير مدعوم على هذا الجهاز أو المتصفح.",
+    "permission_needed": "الإذن مطلوب",
+    "permission_needed_desc": "يرجى السماح بالوصول إلى الموقع لاستخدام موقع الجهاز.",
     "account_deletion": "حذف الحساب",
-    "deletion_intro": "يمكنك طلب حذف حسابك.",
-    "deletion_note": "تتم معالجة الطلبات خلال 30 يوماً.",
+    "deletion_intro": "يمكنك طلب حذف حسابك والبيانات المرتبطة به.",
+    "deletion_note": "نعالج طلبات الحذف خلال 30 يومًا. إذا تعذر عليك الوصول إلى التطبيق، يمكنك طلب الحذف باستخدام الرابط أدناه.",
     "request_deletion": "طلب حذف الحساب",
-    "email_support_instead": "إرسال بريد للدعم",
+    "email_support_instead": "مراسلة الدعم عبر البريد",
     "deletion_email_subject": "طلب حذف الحساب",
-    "deletion_email_hello": "مرحباً فريق الدعم،",
-    "deletion_email_line1": "أرغب في حذف حسابي.",
-    "deletion_email_account": "بريد الحساب",
+    "deletion_email_hello": "مرحبًا فريق الدعم،",
+    "deletion_email_line1": "أرغب في حذف حسابي والبيانات المرتبطة به.",
+    "deletion_email_account": "البريد الإلكتروني للحساب",
     "deletion_email_user_id": "معرّف المستخدم",
-    "deletion_email_thanks": "شكراً.",
+    "deletion_email_thanks": "شكرًا لكم.",
     "blocked_users": "المستخدمون المحظورون",
-    "no_blocked_users": "لا يوجد مستخدمون محظورون.",
+    "no_blocked_users": "لم تحظر أي شخص حتى الآن.",
     "blocked_fallback_name": "مستخدم محظور",
     "unblock": "إلغاء الحظر",
     "signout": "تسجيل الخروج",
-    "not_signed_in": "غير مسجل الدخول.",
+    "not_signed_in": "لم يتم تسجيل الدخول.",
     "language": {
       "title": "اللغة",
       "subtitle": "لغة التطبيق",
-      "placeholder": "اختر لغة",
+      "placeholder": "اختر اللغة",
       "current": "الحالية",
-      "english": "الإنجليزية",
-      "french": "الفرنسية",
-      "hausa": "الهوسا",
+      "english": "English",
+      "french": "Français",
+      "hausa": "Hausa",
       "arabic": "العربية"
+    }
+  },
+  "reflections": {
+    "featuredReflections": "تأملات مميزة",
+    "loadingReflections": "جارٍ تحميل التأملات...",
+    "noApprovedReflections": "لا توجد تأملات معتمدة بعد",
+    "uploadAfterApproval": "ارفع تأملًا وسيظهر هنا بعد اعتماده.",
+    "uploadReflection": "رفع تأمل",
+    "seeAllReflections": "عرض جميع التأملات",
+    "strengthenConnection": "قوِّ صلتك بالله",
+    "communityReminders": "شاهد تذكيرات إسلامية قصيرة يشاركها مجتمع طريق الإسلام.",
+    "closeVideo": "إغلاق الفيديو",
+    "invalidFile": "ملف غير صالح",
+    "selectVideoFile": "يرجى اختيار ملف فيديو.",
+    "videoRequired": "الفيديو مطلوب",
+    "chooseVideoFirst": "يرجى اختيار فيديو أو تسجيله أولًا.",
+    "titleRequired": "العنوان مطلوب",
+    "addReflectionTitle": "يرجى إضافة عنوان للتأمل.",
+    "reflectionUploaded": "تم رفع التأمل",
+    "pendingReviewShort": "الفيديو الآن بانتظار المراجعة.",
+    "pendingReviewMessage": "الفيديو بانتظار المراجعة وسيظهر للعامة بعد اعتماده.",
+    "uploadFailed": "فشل الرفع",
+    "couldNotUpload": "تعذر رفع التأمل.",
+    "returnHome": "العودة إلى الرئيسية",
+    "chooseOrRecordVideo": "اختر فيديو أو سجّله",
+    "supportedVideoFormats": "MP4 أو MOV أو صيغ فيديو الهواتف الأخرى",
+    "coverThumbnailPosition": "موضع صورة الغلاف المصغرة",
+    "recordVideo": "تسجيل فيديو",
+    "chooseFromGallery": "اختيار من المعرض",
+    "titleLabel": "العنوان",
+    "titlePlaceholder": "مثال: أهمية الصلاة",
+    "captionLabel": "الوصف",
+    "captionPlaceholder": "شارك تذكيرًا قصيرًا أو آية قرآنية أو حديثًا أو رسالة...",
+    "categoryLabel": "الفئة",
+    "languageLabel": "اللغة",
+    "uploading": "جارٍ الرفع...",
+    "uploadingProgress": "جارٍ الرفع... {{progress}}%",
+    "postReflection": "نشر التأمل",
+    "reviewNotice": "تُراجع التأملات المرفوعة قبل ظهورها للعامة.",
+    "back": "رجوع",
+    "reflectionsTitle": "التأملات",
+    "noApprovedAvailable": "لا توجد تأملات معتمدة متاحة بعد.",
+    "refreshingReflections": "جارٍ تحديث التأملات...",
+    "loadingMoreReflections": "جارٍ تحميل المزيد من التأملات...",
+    "videoLinkCopied": "تم نسخ رابط الفيديو",
+    "shareFailed": "فشلت المشاركة:",
+    "share": "مشاركة",
+    "muted": "صامت",
+    "sound": "الصوت",
+    "comments": "التعليقات",
+    "close": "إغلاق",
+    "noCommentsYet": "لا توجد تعليقات بعد. كن أول من يعلّق.",
+    "tariqIslamUser": "مستخدم طريق الإسلام",
+    "delete": "حذف",
+    "addComment": "أضف تعليقًا...",
+    "edit": "تعديل",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "send": "إرسال",
+    "saveVideo": "حفظ",
+    "saved": "تم الحفظ",
+    "unsave": "إلغاء الحفظ",
+    "report": "إبلاغ",
+    "reportVideo": "الإبلاغ عن الفيديو",
+    "reportComment": "الإبلاغ عن التعليق",
+    "submitReport": "إرسال البلاغ",
+    "submittingReport": "جارٍ إرسال البلاغ...",
+    "selectReason": "اختر سببًا",
+    "hateSpeech": "خطاب كراهية",
+    "extremism": "تطرف",
+    "harassment": "مضايقة",
+    "spam": "محتوى مزعج",
+    "violence": "عنف",
+    "inappropriateContent": "محتوى غير لائق",
+    "other": "أخرى",
+    "describeReport": "صف المشكلة",
+    "reportDescriptionMinimum": "يرجى إدخال 10 أحرف على الأقل.",
+    "cannotReportOwnVideo": "لا يمكنك الإبلاغ عن الفيديو الخاص بك.",
+    "cannotReportOwnComment": "لا يمكنك الإبلاغ عن تعليقك.",
+    "videoAlreadyReported": "لقد أبلغت عن هذا الفيديو من قبل.",
+    "reportFailed": "تعذر إرسال البلاغ.",
+    "reportSubmitted": "تم إرسال البلاغ.",
+    "commentCannotBeEmpty": "لا يمكن أن يكون التعليق فارغًا.",
+    "editCommentFailed": "تعذر تحديث التعليق.",
+    "viewCreator": "عرض المنشئ",
+    "categories": {
+      "dailyreminder": "تذكير يومي",
+      "quran": "القرآن",
+      "hadith": "الحديث",
+      "prayer": "الصلاة",
+      "family": "الأسرة",
+      "ramadan": "رمضان",
+      "dawah": "الدعوة"
+    }
+  },
+  "creatorProfile": {
+    "loading": "جارٍ تحميل ملف المنشئ...",
+    "notFound": "تعذر العثور على ملف المنشئ.",
+    "follow": "متابعة",
+    "following": "تتم المتابعة",
+    "requested": "تم إرسال الطلب",
+    "unfollowConfirm": "هل تريد إلغاء متابعة هذا المنشئ؟",
+    "followers": "المتابعون",
+    "followingCount": "يتابع",
+    "likes": "الإعجابات",
+    "reflections": "التأملات",
+    "noReflections": "لا توجد تأملات حتى الآن."
+  },
+  "dailyCompanion": {
+    "blessYourDay": "بارك الله في يومك.",
+    "currentPrayer": "الصلاة الحالية",
+    "nextPrayer": "الصلاة القادمة",
+    "loading": "جارٍ التحميل...",
+    "loadingPrayerTime": "جارٍ تحميل وقت الصلاة...",
+    "gettingLocation": "جارٍ تحديد موقعك...",
+    "findMosques": "العثور على مساجد قريبة منك",
+    "todaysReminder": "تذكير اليوم",
+    "todaysHadith": "حديث اليوم",
+    "community": "المجتمع",
+    "greeting": "السلام عليكم",
+    "prayerIn": "{{prayer}} بعد {{time}}",
+    "openCommunityMessages": "فتح رسائل المجتمع",
+    "description": "ابقَ على اتصال بصلواتك من خلال مواقيت دقيقة حسب موقعك.",
+    "reminders": {
+      "1": {
+        "text": "إن الصلاة تنهى عن الفحشاء والمنكر.",
+        "source": "القرآن 29:45"
+      },
+      "2": {
+        "text": "فاذكروني أذكركم.",
+        "source": "القرآن 2:152"
+      },
+      "3": {
+        "text": "ألا بذكر الله تطمئن القلوب.",
+        "source": "القرآن 13:28"
+      },
+      "4": {
+        "text": "ومن يتوكل على الله فهو حسبه.",
+        "source": "القرآن 65:3"
+      }
+    },
+    "hadith": {
+      "text": "خيركم من تعلم القرآن وعلمه."
     }
   },
   "test_language": "اختبار اللغة",
   "home": {
     "hero": {
-      "bgAlt": "نمط هندسي إسلامي",
+      "bgAlt": "خلفية بزخارف هندسية إسلامية لمجتمع المسلمين العالمي",
       "greetingTranslation": "السلام عليكم ورحمة الله وبركاته",
-      "title": "ابقَ على تواصل مع دينك ومجتمعك",
-      "subtitle": "اعثر على أوقات الصلاة والمساجد."
+      "title": "ابقَ متصلًا بدينك ومجتمعك في جميع أنحاء العالم",
+      "subtitle": "اعثر على مواقيت الصلاة والمساجد وتواصل مع المسلمين حول العالم."
     },
     "cta": {
-      "joinChat": "انضم إلى الدردشة",
-      "joinChatAria": "انضم إلى دردشة المجتمع",
-      "findMosques": "ابحث عن مساجد",
-      "findMosquesAria": "ابحث عن مساجد قريبة",
+      "joinChat": "الانضمام إلى غرفة الدردشة",
+      "joinChatAria": "الانضمام إلى دردشة المجتمع",
+      "findMosques": "العثور على مساجد قريبة",
+      "findMosquesAria": "العثور على المساجد القريبة",
       "gettingLocation": "جارٍ تحديد الموقع...",
       "qibla": "تحديد القبلة",
       "qiblaAria": "فتح القبلة",
-      "qiblaDirectionAria": "تحديد الاتجاه",
-      "joinNow": "انضم الآن",
-      "joinNowAria": "إنشاء حساب",
+      "qiblaDirectionAria": "تحديد اتجاه القبلة",
+      "joinNow": "انضم الآن مجانًا",
+      "joinNowAria": "إنشاء حساب والانضمام إلى المجتمع",
       "islamicCalendar": "التقويم الإسلامي",
-      "islamicCalendarAria": "فتح التقويم"
+      "islamicCalendarAria": "فتح التقويم الإسلامي"
     },
     "location": {
       "obtained": {
-        "title": "تم الحصول على الموقع",
-        "desc": "تم عرض المساجد القريبة"
+        "title": "تم تحديد الموقع",
+        "desc": "عرض المساجد القريبة من موقعك"
       },
       "unavailable": {
         "title": "الموقع غير متاح",
-        "desc": "تم عرض جميع المساجد"
+        "desc": "عرض جميع المساجد في منطقتك"
       }
     },
     "why": {
-      "title": "لماذا تنضم إلى Tariq Islam؟",
-      "bullet1": "تواصل مع المسلمين في الوقت الحقيقي",
-      "bullet2": "اعثر على المساجد والفعاليات",
-      "bullet3": "الوصول إلى القرآن وأوقات الصلاة"
+      "title": "لماذا تنضم إلى طريق الإسلام؟",
+      "bullet1": "تعرّف على مسلمين حول العالم في الوقت الفعلي",
+      "bullet2": "اعثر على المساجد والفعاليات القريبة",
+      "bullet3": "استخدم القرآن ومواقيت الصلاة والمزيد"
     },
-    "privacy": "بياناتك محمية."
+    "privacy": "خصوصيتك وبياناتك محميتان. نحن لا نشارك معلوماتك أبدًا."
   },
-
-  "howToListenTitle": "🎧 كيفية الاستماع إلى القرآن",
-  "getStartedSubtitle": "اختر قارئاً وسورة أدناه لبدء الاستماع إلى القرآن الكريم.",
-  "howToListenSteps": {
-    "1": "اختر القارئ.",
-    "2": "اختر السورة.",
-    "3": "اضغط تشغيل للاستماع."
+  "quran": {
+    "playerTitle": "مشغل صوت القرآن",
+    "getStartedTitle": "ابدأ",
+    "getStartedSubtitle": "اختر القارئ والسورة أدناه لبدء الاستماع إلى القرآن الكريم.",
+    "howToListenTitle": "🎧 كيفية الاستماع",
+    "howToListenSteps": {
+      "1": "اختر القارئ المفضل لديك أدناه",
+      "2": "اختر سورة من القائمة أو اضغط على بطاقة سورة شائعة",
+      "3": "انتظر تحميل الصوت، ثم اضغط على تشغيل"
+    },
+    "recitedBy": "بصوت",
+    "versesCount": "{{count}} آيات",
+    "revelation": {
+      "meccan": "مكية",
+      "medinan": "مدنية"
+    }
   },
-
   "islamicCalendar": {
     "months": {
-      "muharram": "محرّم",
+      "muharram": "محرم",
       "safar": "صفر",
       "rabiAlAwwal": "ربيع الأول",
       "rabiAlThani": "ربيع الآخر",
@@ -165,59 +316,79 @@
       "rajab": "رجب",
       "shaban": "شعبان",
       "ramadan": "رمضان",
-      "shawwal": "شوّال",
+      "shawwal": "شوال",
       "dhuAlQidah": "ذو القعدة",
       "dhuAlHijjah": "ذو الحجة"
     }
   },
-    "bottomNav": {
-      "home": "الرئيسية",
-      "ibadan": "عبادة",
-      "messages": "الرسائل",
-      "calls": "المكالمات",
-      "profile": "الملف الشخصي"
-    },
-    "moreMenu": {
-      "quran": "القرآن",
-      "qibla": "القبلة",
-      "tasbih": "التسبيح"
-    },
-
+  "callsPage": {
+    "back": "رجوع",
+    "title": "المكالمات",
+    "noHistory": "لا يوجد سجل مكالمات بعد.",
+    "callBack": "إعادة الاتصال"
+  },
+  "profilePage": {
+    "title": "الملف الشخصي",
+    "userProfile": "ملف المستخدم",
+    "signedInAs": "تم تسجيل الدخول باسم",
+    "viewingProfile": "عرض الملف الشخصي",
+    "editProfile": "تعديل الملف الشخصي",
+    "callHistory": "سجل المكالمات",
+    "connections": "الاتصالات",
+    "followers": "المتابعون",
+    "following": "يتابع",
+    "mutual": "مشتركون",
+    "pendingRequests": "الطلبات المعلقة",
+    "noFollowers": "لا يوجد متابعون بعد.",
+    "noFollowing": "لا تتابع أي شخص بعد."
+  },
+  "bottomNav": {
+    "home": "الرئيسية",
+    "ibadah": "العبادة",
+    "messages": "الرسائل",
+    "calls": "المكالمات",
+    "profile": "الملف الشخصي"
+  },
+  "moreMenu": {
+    "quran": "القرآن",
+    "qibla": "القبلة",
+    "tasbih": "التسبيح"
+  },
   "footer": {
     "cta": {
-      "title": "هل أنت جاهز للانضمام إلى مجتمعنا؟",
-      "subtitle": "انضم إلى آلاف المسلمين حول العالم.",
-      "join": "انضم الآن",
-      "explore": "استكشف",
-      "guidelines": "الإرشادات"
+      "title": "هل أنت مستعد للانضمام إلى مجتمعنا؟",
+      "subtitle": "ابدأ رحلتك مع آلاف المسلمين حول العالم الذين وجدوا موطنهم الروحي من خلال منصتنا.",
+      "join": "انضم إلى المجتمع الآن",
+      "explore": "استكشف الميزات",
+      "guidelines": "إرشادات المجتمع"
     },
     "brand": {
-      "name": "Tariq Islam",
-      "alt": "شعار Tariq Islam",
+      "name": "طريق الإسلام",
+      "alt": "شعار طريق الإسلام",
       "note": "يرجى احترام مجتمعنا"
     },
     "columns": {
       "community": "المجتمع",
-      "business": "الأعمال",
+      "business": "للأعمال",
       "support": "الدعم"
     },
     "links": {
       "mosques": "المساجد",
       "events": "الفعاليات",
-      "chatRoom": "الدردشة",
-      "communityGuidelines": "الإرشادات",
-      "privacyPolicy": "الخصوصية",
-      "childSafetyPolicy": "سلامة الأطفال",
-      "advertise": "إعلان",
-      "businessListings": "الأعمال",
-      "supportPlatform": "الدعم",
+      "chatRoom": "غرفة الدردشة",
+      "communityGuidelines": "إرشادات المجتمع",
+      "privacyPolicy": "سياسة الخصوصية",
+      "childSafetyPolicy": "سياسة سلامة الأطفال",
+      "advertise": "أعلن معنا",
+      "businessListings": "قوائم الأعمال",
+      "supportPlatform": "دعم المنصة",
       "contactUs": "اتصل بنا"
     },
     "copyright": "جميع الحقوق محفوظة."
   },
   "contact": {
     "title": "اتصل بنا",
-    "subtitle": "أرسل ملاحظاتك.",
+    "subtitle": "شارك ملاحظاتك أو أبلغ عن خطأ أو اطلب ميزة. نقدر رأيك وسنرد في أقرب وقت ممكن.",
     "close": "إغلاق"
   }
 }

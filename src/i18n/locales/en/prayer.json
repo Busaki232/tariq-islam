@@ -1,6 +1,7 @@
 {
   "prayerTimes": {
     "title": "Prayer Times",
+    "subtitle": "Stay connected to your prayers with accurate timing for your location",
     "loading": "Loading prayer times...",
     "enableLocationTitle": "Enable Location Access",
     "enableLocationBody": "Allow location access to get accurate prayer times for your area",

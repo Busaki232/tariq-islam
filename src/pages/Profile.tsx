@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { ArrowLeft } from "lucide-react";
 
 type FollowStatus = "none" | "pending" | "accepted" | "follow_back";
 
@@ -9,6 +11,7 @@ export default function Profile() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { userId } = useParams();
+  const { t } = useTranslation("common");
 
   const profileUserId = useMemo(
     () => userId || user?.id || "",
@@ -349,17 +352,27 @@ export default function Profile() {
 
   return (
     <div className="p-4 pb-24">
-      <button
-        type="button"
-        onClick={() => navigate(-1)}
-        className="mb-3 text-sm text-muted-foreground hover:text-foreground"
-      >
-        ← Back
-      </button>
+<button
+  type="button"
+  onClick={() => {
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate("/");
+    }
+  }}
+  className="mb-3 inline-flex items-center gap-2 rounded-lg px-2 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+  aria-label={t("callsPage.back")}
+>
+  <ArrowLeft className="h-5 w-5" />
+  <span>{t("callsPage.back")}</span>
+</button>
 
 <div className="mb-4 flex items-center justify-between">
   <h1 className="text-xl font-semibold truncate">
-    {isOwnProfile ? "Profile" : fullName || "User Profile"}
+    {isOwnProfile
+      ? t("profilePage.title")
+      : fullName || t("profilePage.userProfile")}
   </h1>
 
   {isOwnProfile && (
@@ -376,7 +389,9 @@ export default function Profile() {
 
       <div className="mt-4 rounded-xl border p-4">
         <div className="text-sm text-muted-foreground">
-          {isOwnProfile ? "Signed in as" : "Viewing profile"}
+          {isOwnProfile
+            ? t("profilePage.signedInAs")
+            : t("profilePage.viewingProfile")}
         </div>
         <div className="font-medium">
           {isOwnProfile ? user.email ?? user.id : fullName || profileUserId}
@@ -389,7 +404,7 @@ export default function Profile() {
             {avatarUrl ? (
               <img
                 src={avatarUrl}
-                alt={fullName || "Profile"}
+                alt={fullName || t("profilePage.title")}
                 className="h-16 w-16 rounded-full object-cover border"
               />
             ) : (
@@ -445,19 +460,20 @@ export default function Profile() {
       onClick={() => setEditing(true)}
       className="w-full rounded-xl border py-2 mt-3"
     >
-      Edit Profile
+      {t("profilePage.editProfile")}
     </button>
 
     <button
       type="button"
-      onClick={() => navigate("/calls")}
+      onClick={() => navigate("/call-history")}
       className="w-full rounded-xl border py-2 mt-3"
     >
-      Call History
+      {t("profilePage.callHistory", {
+        defaultValue: "Call History",
+      })}
     </button>
   </>
 )}
-
             {!isOwnProfile && (
               <div className="mt-3 flex flex-wrap gap-2">
                 <button
@@ -474,7 +490,7 @@ export default function Profile() {
                   className="rounded-lg bg-green-600 text-white px-4 py-2 text-sm hover:bg-green-700"
                 >
                   {followStatus === "accepted"
-                    ? "Following"
+                        ? t("profilePage.following")
                     : followStatus === "pending"
                     ? "Requested"
                     : followStatus === "follow_back"
@@ -499,7 +515,9 @@ export default function Profile() {
         <div className="grid grid-cols-4 gap-2">
           <div className="rounded-xl border p-3 text-center">
             <div className="text-lg font-semibold">{connectionsCount}</div>
-            <div className="text-xs text-muted-foreground">Connections</div>
+            <div className="text-xs text-muted-foreground">
+              {t("profilePage.connections")}
+            </div>
           </div>
 
           <button
@@ -508,7 +526,9 @@ export default function Profile() {
             className="rounded-xl border p-3 text-center hover:bg-muted/50"
           >
             <div className="text-lg font-semibold">{followersCount}</div>
-            <div className="text-xs text-muted-foreground">Followers</div>
+            <div className="text-xs text-muted-foreground">
+              {t("profilePage.followers")}
+            </div>
           </button>
 
           <button
@@ -517,7 +537,9 @@ export default function Profile() {
             className="rounded-xl border p-3 text-center hover:bg-muted/50"
           >
             <div className="text-lg font-semibold">{followingCount}</div>
-            <div className="text-xs text-muted-foreground">Following</div>
+            <div className="text-xs text-muted-foreground">
+              {t("profilePage.following")}
+            </div>
           </button>
 
           <div className="rounded-xl border p-3 text-center">
@@ -534,7 +556,7 @@ export default function Profile() {
             onClick={() => navigate("/requests")}
             className="w-full rounded-xl border px-4 py-3 text-sm hover:bg-muted"
           >
-            Pending Requests
+            {t("profilePage.pendingRequests")}
           </button>
         )}
 

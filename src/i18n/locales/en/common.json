@@ -10,6 +10,8 @@
     "seenHours": "Seen {{count}}h ago",
     "seenDate": "Seen {{date}}"
   },
+  "back": "Back",
+  "close": "Close",
   "privateChat": {
     "directory": {
       "requestedOn": "Requested on {{date}}"
@@ -23,7 +25,6 @@
     "no_photo": "No photo",
     "uploading": "Uploading...",
     "change_photo": "Change photo",
-
     "username_label": "Username",
     "username_help": "Used for Private Chat invites. No spaces. Allowed: letters, numbers, dot, underscore.",
     "username_placeholder": "Example: @taofikbusari",
@@ -39,7 +40,6 @@
     "username_taken": "That username is already taken. Try a different one.",
     "username_preview": "Preview",
     "none": "None",
-
     "appearance": "Appearance",
     "theme": "Theme",
     "online_visibility": "Online visibility",
@@ -48,33 +48,27 @@
     "show_online": "Show Online",
     "hide_online": "Hide Online",
     "stored_on_device": "Stored on this device. (You can later persist to the database when ready.)",
-
     "notifications": "Notifications",
     "messages": "Messages",
     "calls": "Calls",
     "local_toggles_note": "These toggles are local for now.",
-
     "adhan": "Adhan",
     "adhan_enabled": "Adhan enabled",
     "adhan_disabled": "Adhan disabled",
     "adhan_note": "You can turn this on or off anytime.",
-
     "adhan_location_title": "Adhan location",
     "adhan_location_subtitle": "Use device location or enter coordinates manually.",
     "adhan_location_device": "Use device",
     "adhan_location_manual": "Manual",
-
     "latitude": "Latitude",
     "longitude": "Longitude",
     "latitude_placeholder": "41.8781",
     "longitude_placeholder": "-87.6298",
     "save_location": "Save location",
-
     "invalid_location": "Invalid location",
     "invalid_location_desc": "Please enter a valid latitude and longitude.",
     "location_saved": "Location saved",
     "location_up_to_date": "Location is up to date",
-
     "device_location_captured": "Device location saved",
     "device_location_saved": "Device location saved",
     "device_location_not_saved": "Device location is not saved yet",
@@ -83,7 +77,6 @@
     "location_unavailable_desc": "Geolocation is not supported on this device/browser.",
     "permission_needed": "Permission needed",
     "permission_needed_desc": "Please allow location access to use device location.",
-
     "account_deletion": "Account deletion",
     "deletion_intro": "You can request deletion of your account and associated data.",
     "deletion_note": "We process deletion requests within 30 days. If you cannot access the app, you can request deletion using the link below.",
@@ -95,15 +88,12 @@
     "deletion_email_account": "Account email",
     "deletion_email_user_id": "User ID",
     "deletion_email_thanks": "Thank you.",
-
     "blocked_users": "Blocked users",
     "no_blocked_users": "You have not blocked anyone yet.",
     "blocked_fallback_name": "Blocked user",
     "unblock": "Unblock",
-
     "signout": "Sign out",
     "not_signed_in": "Not signed in.",
-
     "language": {
       "title": "Language",
       "subtitle": "App language",
@@ -113,6 +103,117 @@
       "french": "Français",
       "hausa": "Hausa",
       "arabic": "العربية"
+    }
+  },
+  "reflections": {
+    "featuredReflections": "Featured Reflections",
+    "loadingReflections": "Loading reflections...",
+    "noApprovedReflections": "No approved reflections yet",
+    "uploadAfterApproval": "Upload a reflection and it will appear here after approval.",
+    "uploadReflection": "Upload Reflection",
+    "seeAllReflections": "See All Reflections",
+    "strengthenConnection": "Strengthen Your Connection with Allah",
+    "communityReminders": "Watch short Islamic reminders shared by the Tariq Islam community.",
+    "closeVideo": "Close video",
+    "invalidFile": "Invalid file",
+    "selectVideoFile": "Please select a video file.",
+    "videoRequired": "Video required",
+    "chooseVideoFirst": "Please choose or record a video first.",
+    "titleRequired": "Title required",
+    "addReflectionTitle": "Please add a title for your reflection.",
+    "reflectionUploaded": "Reflection uploaded",
+    "pendingReviewShort": "Your video is now pending review.",
+    "pendingReviewMessage": "Your video is pending review. It will appear publicly after approval.",
+    "uploadFailed": "Upload failed",
+    "couldNotUpload": "Could not upload reflection.",
+    "returnHome": "Return Home",
+    "chooseOrRecordVideo": "Choose or record a video",
+    "supportedVideoFormats": "MP4, MOV, or other mobile video formats",
+    "coverThumbnailPosition": "Cover Thumbnail Position",
+    "recordVideo": "Record Video",
+    "chooseFromGallery": "Choose From Gallery",
+    "titleLabel": "Title",
+    "titlePlaceholder": "Example: The Importance of Salah",
+    "captionLabel": "Caption",
+    "captionPlaceholder": "Share a short reminder, Quran verse, Hadith, or message...",
+    "categoryLabel": "Category",
+    "languageLabel": "Language",
+    "uploading": "Uploading...",
+    "uploadingProgress": "Uploading... {{progress}}%",
+    "postReflection": "Post Reflection",
+    "reviewNotice": "Uploaded reflections are reviewed before appearing publicly.",
+    "back": "Back",
+    "reflectionsTitle": "Reflections",
+    "noApprovedAvailable": "No approved reflections available yet.",
+    "refreshingReflections": "Refreshing reflections...",
+    "loadingMoreReflections": "Loading more reflections...",
+    "videoLinkCopied": "Video link copied",
+    "shareFailed": "Share failed:",
+    "share": "Share",
+    "muted": "Muted",
+    "sound": "Sound",
+    "comments": "Comments",
+    "close": "Close",
+    "noCommentsYet": "No comments yet. Be the first to comment.",
+    "tariqIslamUser": "Tariq Islam User",
+    "delete": "Delete",
+    "addComment": "Add a comment...",
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "send": "Send",
+    "saveVideo": "Save",
+    "saved": "Saved",
+    "unsave": "Unsave",
+    "report": "Report",
+    "reportVideo": "Report Video",
+    "submitReport": "Submit Report",
+    "viewCreator": "View creator",
+    "categories": {
+      "dailyreminder": "Daily Reminder",
+      "quran": "Quran",
+      "hadith": "Hadith",
+      "prayer": "Prayer",
+      "family": "Family",
+      "ramadan": "Ramadan",
+      "dawah": "Dawah"
+    }
+  },
+  "dailyCompanion": {
+    "blessYourDay": "May Allah bless your day.",
+    "currentPrayer": "Current Prayer",
+    "nextPrayer": "Next Prayer",
+    "loading": "Loading...",
+    "loadingPrayerTime": "Loading prayer time...",
+    "gettingLocation": "Getting location...",
+    "findMosques": "Find Mosques Near You",
+    "todaysReminder": "Today's Reminder",
+    "todaysHadith": "Today's Hadith",
+    "community": "Community",
+    "greeting": "Assalamu Alaikum",
+    "prayerIn": "{{prayer}} in {{time}}",
+    "openCommunityMessages": "Open community messages",
+    "description": "Stay connected to your prayers with accurate timing for your location.",
+    "reminders": {
+      "1": {
+        "text": "Indeed, prayer prohibits immorality and wrongdoing.",
+        "source": "Quran 29:45"
+      },
+      "2": {
+        "text": "So remember Me; I will remember you.",
+        "source": "Quran 2:152"
+      },
+      "3": {
+        "text": "Surely, in the remembrance of Allah do hearts find comfort.",
+        "source": "Quran 13:28"
+      },
+      "4": {
+        "text": "And whoever puts their trust in Allah, He is sufficient for them.",
+        "source": "Quran 65:3"
+      }
+    },
+    "hadith": {
+      "text": "The best among you are those who learn the Quran and teach it."
     }
   },
   "test_language": "Language test",
@@ -188,7 +289,27 @@
       "dhuAlHijjah": "Dhu al-Hijjah"
     }
   },
-
+  "callsPage": {
+    "back": "Back",
+    "title": "Calls",
+    "noHistory": "No call history yet.",
+    "callBack": "Call Back"
+  },
+  "profilePage": {
+    "title": "Profile",
+    "userProfile": "User Profile",
+    "signedInAs": "Signed in as",
+    "viewingProfile": "Viewing profile",
+    "editProfile": "Edit Profile",
+    "callHistory": "Call History",
+    "connections": "Connections",
+    "followers": "Followers",
+    "following": "Following",
+    "mutual": "Mutual",
+    "pendingRequests": "Pending Requests",
+    "noFollowers": "No followers yet.",
+    "noFollowing": "Not following anyone yet."
+  },
   "bottomNav": {
     "home": "Home",
     "ibadah": "Ibadah",
@@ -201,8 +322,6 @@
     "qibla": "Qibla",
     "tasbih": "Tasbih"
   },
-
-
   "footer": {
     "cta": {
       "title": "Ready to Join Our Community?",
@@ -239,5 +358,18 @@
     "title": "Contact Us",
     "subtitle": "Share your feedback, report a bug, or request a feature. We value your input and will respond as soon as possible.",
     "close": "Close"
+  },
+  "creatorProfile": {
+    "loading": "Loading creator profile...",
+    "notFound": "Creator profile not found.",
+    "follow": "Follow",
+    "following": "Following",
+    "requested": "Requested",
+    "unfollowConfirm": "Unfollow this creator?",
+    "followers": "Followers",
+    "followingCount": "Following",
+    "likes": "Likes",
+    "reflections": "Reflections",
+    "noReflections": "No reflections yet."
   }
 }

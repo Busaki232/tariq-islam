@@ -31,12 +31,32 @@ interface Report {
   severity_score: number | null;
   created_at: string;
 }
+interface PendingReflection {
+  id: string;
+  user_id: string;
+  title: string;
+  caption: string | null;
+  category: string;
+  language: string;
+  video_url: string;
+  status: string;
+  created_at: string;
+}
 
 const ModerationDashboard = () => {
   const { user } = useAuth();
   const { isAdmin, isModerator, loading: rolesLoading } = useUserRoles();
   const navigate = useNavigate();
-  const [reports, setReports] = useState<Report[]>([]);
+  const [reports, setReports] = useState<Report[]>([])
+
+  const [pendingReflections, setPendingReflections] = useState<
+    PendingReflection[]
+  >([]);
+  const [reflectionsLoading, setReflectionsLoading] = useState(true);
+  const [updatingReflectionId, setUpdatingReflectionId] = useState<
+    string | null
+  >(null);
+
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     pending: 0,
@@ -52,6 +72,7 @@ const ModerationDashboard = () => {
     } else if (!rolesLoading && (isAdmin || isModerator)) {
       fetchReports();
       fetchStats();
+      fetchPendingReflections();
     }
   }, [isAdmin, isModerator, rolesLoading, navigate]);
 
@@ -98,6 +119,63 @@ const ModerationDashboard = () => {
       console.error('Error fetching stats:', error);
     }
   };
+
+const  handleReflectionAction = async (
+        reflectionId: string,
+        status: "approved" | "rejected"
+      ) => {
+        if (!user?.id) return;
+
+        setUpdatingReflectionId(reflectionId);
+
+        try {
+          const { error } = await supabase
+            .from("reflection_videos")
+            .update({
+              status,
+            })
+            .eq("id", reflectionId);
+
+          if (error) throw error;
+
+          setPendingReflections((current) =>
+            current.filter((reflection) => reflection.id !== reflectionId)
+          );
+
+          toast.success(
+            status === "approved"
+              ? "Reflection approved"
+              : "Reflection rejected"
+          );
+        } catch (error) {
+          console.error("Error updating reflection:", error);
+          toast.error("Failed to update reflection");
+        } finally {
+          setUpdatingReflectionId(null);
+        }
+      };
+  const fetchPendingReflections = async () => {
+  setReflectionsLoading(true);
+
+  try {
+    const { data, error } = await supabase
+      .from("reflection_videos")
+      .select(
+        "id,user_id,title,caption,category,language,video_url,status,created_at"
+      )
+      .eq("status", "pending")
+      .order("created_at", { ascending: true });
+
+    if (error) throw error;
+
+    setPendingReflections(data || []);
+  } catch (error) {
+    console.error("Error fetching pending reflections:", error);
+    toast.error("Failed to load pending reflections");
+  } finally {
+    setReflectionsLoading(false);
+  }
+};
 
   const handleReportAction = async (
     reportId: string,
@@ -280,37 +358,137 @@ const ModerationDashboard = () => {
 
         {/* Reports Tabs */}
         <Tabs defaultValue="pending" className="space-y-4">
-          <TabsList>
+          <TabsList className="flex h-auto w-full justify-start gap-1 overflow-x-auto whitespace-nowrap">
             <TabsTrigger value="pending">Pending ({stats.pending})</TabsTrigger>
+
             <TabsTrigger value="under_review">Under Review ({stats.underReview})</TabsTrigger>
+
             <TabsTrigger value="resolved">Resolved</TabsTrigger>
+
             <TabsTrigger value="all">All Reports</TabsTrigger>
+
+            <TabsTrigger value="reflections">
+              Reflections ({pendingReflections.length})
+            </TabsTrigger>
           </TabsList>
 
-          {['pending', 'under_review', 'resolved', 'all'].map((status) => (
-            <TabsContent key={status} value={status} className="space-y-4">
-              {loading ? (
-                <Card>
-                  <CardContent className="py-8 text-center text-muted-foreground">
-                    Loading reports...
-                  </CardContent>
-                </Card>
-              ) : (
-                reports
-                  .filter(r => status === 'all' || r.status === status)
-                  .map((report) => (
-                    <ReportCard
-                      key={report.id}
-                      report={report}
-                      getStatusBadge={getStatusBadge}
-                      getSeverityColor={getSeverityColor}
-                      handleReportAction={handleReportAction}
-                      takeModerationAction={takeModerationAction}
-                    />
-                  ))
+  {['pending', 'under_review', 'resolved', 'all'].map((status) => (
+    <TabsContent key={status} value={status} className="space-y-4">
+      {loading ? (
+        <Card>
+          <CardContent className="py-8 text-center text-muted-foreground">
+            Loading reports...
+          </CardContent>
+        </Card>
+      ) : (
+        reports
+          .filter((r) => status === 'all' || r.status === status)
+          .map((report) => (
+            <ReportCard
+              key={report.id}
+              report={report}
+              getStatusBadge={getStatusBadge}
+              getSeverityColor={getSeverityColor}
+              handleReportAction={handleReportAction}
+              takeModerationAction={takeModerationAction}
+            />
+          ))
+      )}
+    </TabsContent>
+  ))}
+
+  <TabsContent value="reflections" className="space-y-4">
+    {reflectionsLoading ? (
+      <Card>
+        <CardContent className="py-8 text-center text-muted-foreground">
+          Loading pending reflections...
+        </CardContent>
+      </Card>
+    ) : pendingReflections.length === 0 ? (
+      <Card>
+        <CardContent className="py-8 text-center text-muted-foreground">
+          No reflections are waiting for approval.
+        </CardContent>
+      </Card>
+    ) : (
+      pendingReflections.map((reflection) => (
+        <Card key={reflection.id}>
+          <CardHeader>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <CardTitle>{reflection.title}</CardTitle>
+                <CardDescription>
+                  Submitted {new Date(reflection.created_at).toLocaleString()}
+                </CardDescription>
+              </div>
+
+              <Badge variant="outline">Pending</Badge>
+            </div>
+          </CardHeader>
+
+          <CardContent className="space-y-4">
+            <video
+              src={reflection.video_url}
+              controls
+              playsInline
+              preload="metadata"
+              className="max-h-[55vh] w-full rounded-xl bg-black object-contain"
+            />
+
+            <div className="space-y-2">
+              {reflection.caption && (
+                <p className="text-sm">{reflection.caption}</p>
               )}
-            </TabsContent>
-          ))}
+
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="secondary">{reflection.category}</Badge>
+                <Badge variant="secondary">{reflection.language}</Badge>
+              </div>
+
+              <p className="text-xs text-muted-foreground">
+                Creator ID: {reflection.user_id}
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <Button
+                type="button"
+                onClick={() =>
+                  void handleReflectionAction(reflection.id, "approved")
+                }
+                disabled={updatingReflectionId === reflection.id}
+              >
+                <CheckCircle className="mr-2 h-4 w-4" />
+                Approve
+              </Button>
+
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={() => {
+                  const confirmed = window.confirm(
+                    "Reject this reflection?"
+                  );
+
+                  if (confirmed) {
+                    void handleReflectionAction(
+                      reflection.id,
+                      "rejected"
+                    );
+                  }
+                }}
+                disabled={updatingReflectionId === reflection.id}
+              >
+                <XCircle className="mr-2 h-4 w-4" />
+                Reject
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      ))
+    )}
+  </TabsContent>
+
         </Tabs>
       </div>
     </div>
@@ -318,10 +496,12 @@ const ModerationDashboard = () => {
 };
 
 // Report Card Component
-const ReportCard = ({ report, getStatusBadge, getSeverityColor, handleReportAction, takeModerationAction }: any) => {
+const ReportCard = ({
+    report, getStatusBadge, getSeverityColor, handleReportAction, takeModerationAction }: any) => {
   const [notes, setNotes] = useState('');
   const [action, setAction] = useState('');
   const [showActions, setShowActions] = useState(false);
+
 
   return (
     <Card>

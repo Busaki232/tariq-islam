@@ -105,6 +105,117 @@
       "arabic": "Arabe"
     }
   },
+  "reflections": {
+    "featuredReflections": "Réflexions à la une",
+    "loadingReflections": "Chargement des réflexions...",
+    "noApprovedReflections": "Aucune réflexion approuvée pour le moment",
+    "uploadAfterApproval": "Publiez une réflexion et elle apparaîtra ici après approbation.",
+    "uploadReflection": "Publier une réflexion",
+    "seeAllReflections": "Voir toutes les réflexions",
+    "strengthenConnection": "Renforcez votre lien avec Allah",
+    "communityReminders": "Regardez de courts rappels islamiques partagés par la communauté Tariq Islam.",
+    "closeVideo": "Fermer la vidéo",
+    "invalidFile": "Fichier non valide",
+    "selectVideoFile": "Veuillez sélectionner un fichier vidéo.",
+    "videoRequired": "Vidéo requise",
+    "chooseVideoFirst": "Veuillez d'abord choisir ou enregistrer une vidéo.",
+    "titleRequired": "Titre requis",
+    "addReflectionTitle": "Veuillez ajouter un titre à votre réflexion.",
+    "reflectionUploaded": "Réflexion publiée",
+    "pendingReviewShort": "Votre vidéo est maintenant en attente de validation.",
+    "pendingReviewMessage": "Votre vidéo est en attente de validation. Elle apparaîtra publiquement après approbation.",
+    "uploadFailed": "Échec de la publication",
+    "couldNotUpload": "Impossible de publier la réflexion.",
+    "returnHome": "Retour à l'accueil",
+    "chooseOrRecordVideo": "Choisir ou enregistrer une vidéo",
+    "supportedVideoFormats": "MP4, MOV ou autres formats vidéo mobiles",
+    "coverThumbnailPosition": "Position de la miniature de couverture",
+    "recordVideo": "Enregistrer une vidéo",
+    "chooseFromGallery": "Choisir dans la galerie",
+    "titleLabel": "Titre",
+    "titlePlaceholder": "Exemple : L'importance de la prière",
+    "captionLabel": "Légende",
+    "captionPlaceholder": "Partagez un court rappel, un verset du Coran, un Hadith ou un message...",
+    "categoryLabel": "Catégorie",
+    "languageLabel": "Langue",
+    "uploading": "Publication en cours...",
+    "uploadingProgress": "Publication en cours... {{progress}} %",
+    "postReflection": "Publier la réflexion",
+    "reviewNotice": "Les réflexions publiées sont vérifiées avant d'apparaître publiquement.",
+    "back": "Retour",
+    "reflectionsTitle": "Réflexions",
+    "noApprovedAvailable": "Aucune réflexion approuvée n'est disponible pour le moment.",
+    "refreshingReflections": "Actualisation des réflexions...",
+    "loadingMoreReflections": "Chargement de réflexions supplémentaires...",
+    "videoLinkCopied": "Lien de la vidéo copié",
+    "shareFailed": "Échec du partage :",
+    "share": "Partager",
+    "muted": "Muet",
+    "sound": "Son",
+    "comments": "Commentaires",
+    "close": "Fermer",
+    "noCommentsYet": "Aucun commentaire pour le moment. Soyez le premier à commenter.",
+    "tariqIslamUser": "Utilisateur de Tariq Islam",
+    "delete": "Supprimer",
+    "addComment": "Ajouter un commentaire...",
+    "edit": "Modifier",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "send": "Envoyer",
+    "saveVideo": "Enregistrer",
+    "saved": "Enregistré",
+    "unsave": "Retirer",
+    "report": "Signaler",
+    "reportVideo": "Signaler la vidéo",
+    "submitReport": "Envoyer le signalement",
+    "viewCreator": "Voir le créateur",
+    "categories": {
+      "dailyreminder": "Rappel quotidien",
+      "quran": "Coran",
+      "hadith": "Hadith",
+      "prayer": "Prière",
+      "family": "Famille",
+      "ramadan": "Ramadan",
+      "dawah": "Da'wa"
+    }
+  },
+  "dailyCompanion": {
+    "blessYourDay": "Qu’Allah bénisse votre journée.",
+    "currentPrayer": "Prière actuelle",
+    "nextPrayer": "Prochaine prière",
+    "loading": "Chargement...",
+    "loadingPrayerTime": "Chargement de l’heure de prière...",
+    "gettingLocation": "Localisation en cours...",
+    "findMosques": "Trouver des mosquées près de vous",
+    "todaysReminder": "Rappel du jour",
+    "todaysHadith": "Hadith du jour",
+    "community": "Communauté",
+    "greeting": "Assalamou Alaïkoum",
+    "prayerIn": "{{prayer}} dans {{time}}",
+    "openCommunityMessages": "Ouvrir les messages de la communauté",
+    "description": "Restez connecté à vos prières grâce à des horaires précis adaptés à votre emplacement.",
+    "reminders": {
+      "1": {
+        "text": "En vérité, la prière préserve de la turpitude et du blâmable.",
+        "source": "Coran 29:45"
+      },
+      "2": {
+        "text": "Souvenez-vous de Moi, Je Me souviendrai de vous.",
+        "source": "Coran 2:152"
+      },
+      "3": {
+        "text": "Certes, c'est par l'évocation d'Allah que les cœurs se tranquillisent.",
+        "source": "Coran 13:28"
+      },
+      "4": {
+        "text": "Et quiconque place sa confiance en Allah, Il lui suffit.",
+        "source": "Coran 65:3"
+      }
+    },
+    "hadith": {
+      "text": "Les meilleurs d'entre vous sont ceux qui apprennent le Coran et l'enseignent."
+    }
+  },
   "test_language": "Test de langue",
   "home": {
     "hero": {
@@ -145,7 +256,6 @@
     },
     "privacy": "Vos données sont protégées."
   },
-
   "quran": {
     "playerTitle": "Lecteur audio du Coran",
     "howToListenTitle": "🎧 Comment écouter",
@@ -156,7 +266,6 @@
       "3": "Appuyez sur Lecture pour écouter."
     }
   },
-
   "islamicCalendar": {
     "months": {
       "muharram": "Mouharram",
@@ -173,6 +282,27 @@
       "dhuAlHijjah": "Dhou al-Hijja"
     }
   },
+  "callsPage": {
+    "back": "Retour",
+    "title": "Appels",
+    "noHistory": "Aucun historique d'appel pour le moment.",
+    "callBack": "Rappeler"
+  },
+  "profilePage": {
+    "title": "Profil",
+    "userProfile": "Profil de l’utilisateur",
+    "signedInAs": "Connecté en tant que",
+    "viewingProfile": "Consultation du profil",
+    "editProfile": "Modifier le profil",
+    "callHistory": "Historique des appels",
+    "connections": "Connexions",
+    "followers": "Abonnés",
+    "following": "Abonnements",
+    "mutual": "En commun",
+    "pendingRequests": "Demandes en attente",
+    "noFollowers": "Aucun abonné pour le moment.",
+    "noFollowing": "Vous ne suivez encore personne."
+  },
   "bottomNav": {
     "home": "Accueil",
     "ibadah": "Ibadah",
@@ -185,8 +315,6 @@
     "qibla": "Qibla",
     "tasbih": "Tasbih"
   },
-
-
   "footer": {
     "cta": {
       "title": "Prêt à rejoindre notre communauté ?",
@@ -223,5 +351,18 @@
     "title": "Nous contacter",
     "subtitle": "Envoyez vos commentaires.",
     "close": "Fermer"
+  },
+  "creatorProfile": {
+    "loading": "Chargement du profil du créateur...",
+    "notFound": "Profil du créateur introuvable.",
+    "follow": "Suivre",
+    "following": "Suivi",
+    "requested": "Demande envoyée",
+    "unfollowConfirm": "Ne plus suivre ce créateur ?",
+    "followers": "Abonnés",
+    "followingCount": "Abonnements",
+    "likes": "Mentions J'aime",
+    "reflections": "Réflexions",
+    "noReflections": "Aucune réflexion pour le moment."
   }
 }

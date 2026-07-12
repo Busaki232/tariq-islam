@@ -2,16 +2,20 @@
 import { useMemo, lazy, Suspense } from "react";
 import { Capacitor } from "@capacitor/core";
 
+import HomeHeroBackground from "@/components/HomeHeroBackground";
 import Navigation from "@/components/Navigation";
 import HeroSection from "@/components/HeroSection";
+import DailyCompanion from "@/components/DailyCompanion";
 import PrayerTimes from "@/components/PrayerTimes";
 import CommunitySection from "@/components/CommunitySection";
+import FeaturedReflection from "@/components/FeaturedReflection";
 import CallToActionSection from "@/components/CallToActionSection";
 import SupportBanner from "@/components/SupportBanner";
 import FeaturesSection from "@/components/FeaturesSection";
 import Footer from "@/components/Footer";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useTranslation } from "react-i18next";
+
 
 const QuranSection = lazy(() => import("@/components/QuranSection"));
 const GlobalLocations = lazy(() => import("@/components/GlobalLocations"));
@@ -40,7 +44,11 @@ const Index = () => {
       </div>
 
      <main className="pb-20 md:pb-0">
-        <HeroSection />
+        <HomeHeroBackground>
+          <HeroSection />
+          <FeaturedReflection />
+          <DailyCompanion />
+        </HomeHeroBackground>
         <PrayerTimes />
         <CommunitySection />
 

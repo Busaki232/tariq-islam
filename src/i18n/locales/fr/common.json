@@ -363,6 +363,16 @@
     "followingCount": "Abonnements",
     "likes": "Mentions J'aime",
     "reflections": "Réflexions",
-    "noReflections": "Aucune réflexion pour le moment."
+    "noReflections": "Aucune réflexion pour le moment.",
+    "editReflection": "Modifier la réflexion",
+    "edit": "Modifier",
+    "title": "Titre",
+    "caption": "Légende",
+    "category": "Catégorie",
+    "language": "Langue",
+    "save": "Enregistrer",
+    "saving": "Enregistrement...",
+    "cancel": "Annuler",
+    "verifiedCreator": "Créateur vérifié"
   }
 }

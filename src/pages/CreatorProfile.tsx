@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Heart, Play } from "lucide-react";
+import { ArrowLeft, BadgeCheck, Heart, Play } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -14,6 +14,7 @@ type CreatorProfileRow = {
   avatar_url: string | null;
   bio: string | null;
   location: string | null;
+  is_creator_verified: boolean;
 };
 
 type CreatorVideo = {
@@ -78,9 +79,9 @@ export default function CreatorProfile() {
       try {
         let profileQuery = supabase
           .from("profiles")
-          .select(
-            "user_id,full_name,username,avatar_url,bio,location"
-          );
+     .select(
+       "user_id,full_name,username,avatar_url,bio,location,is_creator_verified"
+     );
 
         profileQuery = UUID_PATTERN.test(creatorRouteValue)
           ? profileQuery.eq("user_id", creatorRouteValue)
@@ -384,11 +385,22 @@ const handleSaveEdit = async () => {
             </div>
           )}
 
-          <h1 className="mt-4 text-2xl font-bold">
-            {profile.full_name ||
-              profile.username ||
-              t("reflections.tariqIslamUser")}
-          </h1>
+     <div className="mt-4 flex items-center justify-center gap-1.5">
+       <h1 className="text-2xl font-bold">
+         {profile.full_name ||
+           profile.username ||
+           t("reflections.tariqIslamUser")}
+       </h1>
+
+       {profile.is_creator_verified && (
+         <BadgeCheck
+           className="h-5 w-5 text-blue-500"
+           aria-label={t("creatorProfile.verifiedCreator", {
+             defaultValue: "Verified creator",
+           })}
+         />
+       )}
+     </div>
 
           {profile.username && (
             <p className="text-sm text-muted-foreground">
@@ -513,7 +525,9 @@ const handleSaveEdit = async () => {
                }}
                className="absolute right-2 top-2 rounded-full bg-black/70 px-3 py-1 text-xs font-semibold text-white"
              >
-               Edit
+               {t("creatorProfile.edit", {
+                 defaultValue: "Edit",
+               })}
              </button>
            )}
          </div>
@@ -525,12 +539,18 @@ const handleSaveEdit = async () => {
  {editingVideo && (
    <div className="fixed inset-0 z-[9999] flex items-end bg-black/70 sm:items-center sm:justify-center">
      <div className="max-h-[90vh] w-full overflow-y-auto rounded-t-3xl bg-background p-5 sm:max-w-lg sm:rounded-3xl">
-       <h2 className="mb-4 text-xl font-bold">Edit Reflection</h2>
+       <h2 className="mb-4 text-xl font-bold">
+         {t("creatorProfile.editReflection", {
+           defaultValue: "Edit Reflection",
+         })}
+       </h2>
 
        <div className="space-y-4">
          <div>
            <label className="mb-1 block text-sm font-medium">
-             Title
+             {t("creatorProfile.title", {
+               defaultValue: "Title",
+             })}
            </label>
 
            <input
@@ -542,7 +562,9 @@ const handleSaveEdit = async () => {
 
          <div>
            <label className="mb-1 block text-sm font-medium">
-             Caption
+             {t("creatorProfile.caption", {
+               defaultValue: "Caption",
+             })}
            </label>
 
            <textarea
@@ -554,7 +576,9 @@ const handleSaveEdit = async () => {
 
          <div>
            <label className="mb-1 block text-sm font-medium">
-             Category
+             {t("creatorProfile.category", {
+               defaultValue: "Category",
+             })}
            </label>
 
            <input
@@ -566,7 +590,9 @@ const handleSaveEdit = async () => {
 
          <div>
            <label className="mb-1 block text-sm font-medium">
-             Language
+             {t("creatorProfile.language", {
+               defaultValue: "Language",
+             })}
            </label>
 
            <input
@@ -583,7 +609,13 @@ const handleSaveEdit = async () => {
              disabled={savingEdit || !editTitle.trim()}
              className="flex-1"
            >
-             {savingEdit ? "Saving..." : "Save"}
+          {savingEdit
+            ? t("creatorProfile.saving", {
+                defaultValue: "Saving...",
+              })
+            : t("creatorProfile.save", {
+                defaultValue: "Save",
+              })}
            </Button>
 
            <Button
@@ -593,7 +625,9 @@ const handleSaveEdit = async () => {
              disabled={savingEdit}
              className="flex-1"
            >
-             Cancel
+             {t("creatorProfile.cancel", {
+               defaultValue: "Cancel",
+             })}
            </Button>
          </div>
        </div>

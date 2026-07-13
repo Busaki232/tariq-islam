@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "13.0.5"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       admin_audit_log: {
@@ -287,6 +312,45 @@ export type Database = {
           status?: string
           to_user_id?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      call_logs: {
+        Row: {
+          call_invite_id: string | null
+          call_type: string
+          caller_id: string
+          conversation_id: string | null
+          duration_seconds: number | null
+          ended_at: string | null
+          id: string
+          receiver_id: string
+          started_at: string | null
+          status: string
+        }
+        Insert: {
+          call_invite_id?: string | null
+          call_type: string
+          caller_id: string
+          conversation_id?: string | null
+          duration_seconds?: number | null
+          ended_at?: string | null
+          id?: string
+          receiver_id: string
+          started_at?: string | null
+          status: string
+        }
+        Update: {
+          call_invite_id?: string | null
+          call_type?: string
+          caller_id?: string
+          conversation_id?: string | null
+          duration_seconds?: number | null
+          ended_at?: string | null
+          id?: string
+          receiver_id?: string
+          started_at?: string | null
+          status?: string
         }
         Relationships: []
       }
@@ -698,6 +762,33 @@ export type Database = {
           user_agent?: string | null
           user_id?: string
           version?: string
+        }
+        Relationships: []
+      }
+      community_posts: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          id: string
+          media_type: string | null
+          media_url: string | null
+          user_id: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          media_type?: string | null
+          media_url?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          media_type?: string | null
+          media_url?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -1536,11 +1627,14 @@ export type Database = {
           edited_at: string | null
           forwarded_from: string | null
           group_id: string | null
+          hidden_after: string | null
           id: string
           inserted_at: string
           is_deleted: boolean
           is_pinned: boolean | null
           location: string | null
+          media_type: string | null
+          media_url: string | null
           message_type: string
           metadata: Json | null
           reactions: Json | null
@@ -1556,11 +1650,14 @@ export type Database = {
           edited_at?: string | null
           forwarded_from?: string | null
           group_id?: string | null
+          hidden_after?: string | null
           id?: string
           inserted_at?: string
           is_deleted?: boolean
           is_pinned?: boolean | null
           location?: string | null
+          media_type?: string | null
+          media_url?: string | null
           message_type?: string
           metadata?: Json | null
           reactions?: Json | null
@@ -1576,11 +1673,14 @@ export type Database = {
           edited_at?: string | null
           forwarded_from?: string | null
           group_id?: string | null
+          hidden_after?: string | null
           id?: string
           inserted_at?: string
           is_deleted?: boolean
           is_pinned?: boolean | null
           location?: string | null
+          media_type?: string | null
+          media_url?: string | null
           message_type?: string
           metadata?: Json | null
           reactions?: Json | null
@@ -1981,6 +2081,33 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_preferences: {
+        Row: {
+          adhan: boolean | null
+          adhan_location: Json | null
+          calls: boolean | null
+          messages: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          adhan?: boolean | null
+          adhan_location?: Json | null
+          calls?: boolean | null
+          messages?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          adhan?: boolean | null
+          adhan_location?: Json | null
+          calls?: boolean | null
+          messages?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       notification_queue: {
         Row: {
           body: string
@@ -2025,6 +2152,39 @@ export type Database = {
           scheduled_at?: string | null
           sent_at?: string | null
           title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          actor_id: string | null
+          body: string | null
+          created_at: string | null
+          id: string
+          read_at: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          body?: string | null
+          created_at?: string | null
+          id?: string
+          read_at?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          actor_id?: string | null
+          body?: string | null
+          created_at?: string | null
+          id?: string
+          read_at?: string | null
+          title?: string
+          type?: string
           user_id?: string
         }
         Relationships: []
@@ -2290,9 +2450,14 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          bio: string | null
           created_at: string
+          creator_verified_at: string | null
+          creator_verified_by: string | null
           full_name: string | null
+          hide_online: boolean | null
           id: string
+          is_creator_verified: boolean
           location: string | null
           phone_number: string | null
           show_online_status: boolean
@@ -2302,9 +2467,14 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
+          creator_verified_at?: string | null
+          creator_verified_by?: string | null
           full_name?: string | null
+          hide_online?: boolean | null
           id: string
+          is_creator_verified?: boolean
           location?: string | null
           phone_number?: string | null
           show_online_status?: boolean
@@ -2314,9 +2484,14 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
+          creator_verified_at?: string | null
+          creator_verified_by?: string | null
           full_name?: string | null
+          hide_online?: boolean | null
           id?: string
+          is_creator_verified?: boolean
           location?: string | null
           phone_number?: string | null
           show_online_status?: boolean
@@ -2391,6 +2566,164 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      reflection_comments: {
+        Row: {
+          comment: string
+          created_at: string
+          id: string
+          reflection_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          comment: string
+          created_at?: string
+          id?: string
+          reflection_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          comment?: string
+          created_at?: string
+          id?: string
+          reflection_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reflection_comments_reflection_id_fkey"
+            columns: ["reflection_id"]
+            isOneToOne: false
+            referencedRelation: "reflection_videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reflection_likes: {
+        Row: {
+          created_at: string
+          id: string
+          reflection_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          reflection_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          reflection_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reflection_likes_reflection_id_fkey"
+            columns: ["reflection_id"]
+            isOneToOne: false
+            referencedRelation: "reflection_videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reflection_saves: {
+        Row: {
+          created_at: string
+          id: string
+          reflection_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          reflection_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          reflection_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reflection_saves_reflection_id_fkey"
+            columns: ["reflection_id"]
+            isOneToOne: false
+            referencedRelation: "reflection_videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reflection_videos: {
+        Row: {
+          caption: string | null
+          category: string
+          created_at: string
+          id: string
+          language: string
+          status: string
+          title: string
+          user_id: string
+          video_url: string
+        }
+        Insert: {
+          caption?: string | null
+          category: string
+          created_at?: string
+          id?: string
+          language?: string
+          status?: string
+          title: string
+          user_id: string
+          video_url: string
+        }
+        Update: {
+          caption?: string | null
+          category?: string
+          created_at?: string
+          id?: string
+          language?: string
+          status?: string
+          title?: string
+          user_id?: string
+          video_url?: string
+        }
+        Relationships: []
+      }
+      reflection_views: {
+        Row: {
+          created_at: string
+          id: string
+          reflection_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          reflection_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          reflection_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reflection_views_reflection_id_fkey"
+            columns: ["reflection_id"]
+            isOneToOne: false
+            referencedRelation: "reflection_videos"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reports: {
         Row: {
@@ -3501,6 +3834,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],

@@ -361,6 +361,16 @@
     "followingCount": "Yana bi",
     "likes": "So",
     "reflections": "Tunani",
-    "noReflections": "Babu tunani tukuna."
+    "noReflections": "Babu tunani tukuna.",
+    "editReflection": "Gyara Tunani",
+    "edit": "Gyara",
+    "title": "Take",
+    "caption": "Bayani",
+    "category": "Rukuni",
+    "language": "Harshe",
+    "save": "Ajiye",
+    "saving": "Ana ajiyewa...",
+    "cancel": "Soke",
+    "verifiedCreator": "Tabbataccen mai ƙirƙira"
   }
 }

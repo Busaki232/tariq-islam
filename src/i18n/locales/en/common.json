@@ -370,6 +370,16 @@
     "followingCount": "Following",
     "likes": "Likes",
     "reflections": "Reflections",
-    "noReflections": "No reflections yet."
+    "noReflections": "No reflections yet.",
+    "editReflection": "Edit Reflection",
+    "edit": "Edit",
+    "title": "Title",
+    "caption": "Caption",
+    "category": "Category",
+    "language": "Language",
+    "save": "Save",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "verifiedCreator": "Verified creator"
   }
 }

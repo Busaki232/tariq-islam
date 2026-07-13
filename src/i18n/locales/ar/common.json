@@ -209,7 +209,17 @@
     "followingCount": "يتابع",
     "likes": "الإعجابات",
     "reflections": "التأملات",
-    "noReflections": "لا توجد تأملات حتى الآن."
+    "noReflections": "لا توجد تأملات حتى الآن.",
+    "editReflection": "تعديل التأمل",
+    "edit": "تعديل",
+    "title": "العنوان",
+    "caption": "الوصف",
+    "category": "الفئة",
+    "language": "اللغة",
+    "save": "حفظ",
+    "saving": "جارٍ الحفظ...",
+    "cancel": "إلغاء",
+    "verifiedCreator": "منشئ موثّق"
   },
   "dailyCompanion": {
     "blessYourDay": "بارك الله في يومك.",

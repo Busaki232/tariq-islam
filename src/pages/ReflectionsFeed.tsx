@@ -7,6 +7,7 @@ import {
   Flag,
   Heart,
   MessageCircle,
+  MoreVertical,
   Share2,
   Volume2,
   VolumeX,
@@ -112,6 +113,7 @@ export default function ReflectionsFeed() {
   const [reportDescription, setReportDescription] = useState("");
   const [submittingReport, setSubmittingReport] = useState(false);
   const [reportComment, setReportComment] = useState<any | null>(null);
+  const [moreMenuVideoId, setMoreMenuVideoId] = useState<string | null>(null);
 
 
 
@@ -1018,120 +1020,147 @@ useEffect(() => {
                   )}
                 </div>
 
-                <div className="absolute bottom-10 right-4 flex flex-col items-center gap-6">
-                  <button
-                    type="button"
-                    onClick={() => handleLike(video.id)}
-                    className="flex flex-col items-center text-white"
-                  >
-                    <Heart
-                      className={`h-8 w-8 ${
-                        likedIds.includes(video.id)
-                          ? "fill-red-500 text-red-500"
-                          : ""
-                      }`}
-                    />
-                    <span className="text-xs">
-                      {likeCounts[video.id] ?? 0}
-                    </span>
-                  </button>
+           <div className="absolute bottom-16 right-4 flex flex-col items-center gap-5">
+             <button
+               type="button"
+               onClick={() => handleLike(video.id)}
+               className="flex flex-col items-center text-white"
+             >
+               <Heart
+                 className={`h-8 w-8 ${
+                   likedIds.includes(video.id)
+                     ? "fill-red-500 text-red-500"
+                     : ""
+                 }`}
+               />
+               <span className="text-xs">
+                 {likeCounts[video.id] ?? 0}
+               </span>
+             </button>
 
-                  <button
-                    type="button"
-                    onClick={() => loadComments(video)}
-                    className="flex flex-col items-center text-white"
-                  >
-                    <MessageCircle className="h-8 w-8" />
-                    <span className="text-xs">
-                      {commentCounts[video.id] ?? 0}
-                    </span>
-                  </button>
+             <button
+               type="button"
+               onClick={() => loadComments(video)}
+               className="flex flex-col items-center text-white"
+             >
+               <MessageCircle className="h-8 w-8" />
+               <span className="text-xs">
+                 {commentCounts[video.id] ?? 0}
+               </span>
+             </button>
 
-                  <button
-                    type="button"
-                    className="flex flex-col items-center text-white"
-                  >
-                    <Eye className="h-8 w-8" />
-                    <span className="text-xs">
-                      {viewCounts[video.id] ?? 0}
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => void handleSaveVideo(video.id)}
-                    className="flex flex-col items-center text-white"
-                    aria-label={
-                      savedIds.includes(video.id)
-                        ? t("reflections.unsave", { defaultValue: "Unsave" })
-                        : t("reflections.saveVideo", { defaultValue: "Save" })
-                    }
-                  >
-                    {savedIds.includes(video.id) ? (
-                      <BookmarkCheck className="h-8 w-8 fill-yellow-400 text-yellow-400" />
-                    ) : (
-                      <Bookmark className="h-8 w-8" />
-                    )}
+             <div className="relative">
+               <button
+                 type="button"
+                 onClick={() =>
+                   setMoreMenuVideoId((current) =>
+                     current === video.id ? null : video.id
+                   )
+                 }
+                 className="flex h-12 w-12 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-sm"
+                 aria-label={t("reflections.more", {
+                   defaultValue: "More options",
+                 })}
+               >
+                 <MoreVertical className="h-7 w-7" />
+               </button>
 
-                    <span className="text-xs">
-                      {savedIds.includes(video.id)
-                        ? t("reflections.saved", { defaultValue: "Saved" })
-                        : t("reflections.saveVideo", { defaultValue: "Save" })}
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (!user?.id) {
-                        navigate("/auth");
-                        return;
-                      }
+               {moreMenuVideoId === video.id && (
+                 <div className="absolute bottom-0 right-14 z-50 w-48 overflow-hidden rounded-xl border border-white/15 bg-black/90 text-white shadow-xl backdrop-blur-md">
+                   <div className="flex items-center gap-3 px-4 py-3 text-sm">
+                     <Eye className="h-5 w-5" />
+                     <span>
+                       {viewCounts[video.id] ?? 0}{" "}
+                       {t("reflections.views", {
+                         defaultValue: "Views",
+                       })}
+                     </span>
+                   </div>
 
-                      setReportVideo(video);
-                      setReportReason("");
-                      setReportDescription("");
-                    }}
-                    className="flex flex-col items-center text-white"
-                    aria-label={t("reflections.report", {
-                      defaultValue: "Report",
-                    })}
-                  >
-                   <Flag className="h-8 w-8 text-amber-500" />
-                    <span className="text-xs">
-                      {t("reflections.report", {
-                        defaultValue: "Report",
-                      })}
-                    </span>
-                  </button>
+                   <button
+                     type="button"
+                     onClick={() => {
+                       void handleSaveVideo(video.id);
+                       setMoreMenuVideoId(null);
+                     }}
+                     className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm hover:bg-white/10"
+                   >
+                     {savedIds.includes(video.id) ? (
+                       <BookmarkCheck className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                     ) : (
+                       <Bookmark className="h-5 w-5" />
+                     )}
 
-                  <button
-                    type="button"
-                    onClick={() => handleShare(video)}
-                    className="flex flex-col items-center text-white"
-                  >
-                    <Share2 className="h-8 w-8" />
-                    <span className="text-xs">{t("reflections.share")}</span>
-                  </button>
+                     <span>
+                       {savedIds.includes(video.id)
+                         ? t("reflections.unsave", {
+                             defaultValue: "Unsave",
+                           })
+                         : t("reflections.saveVideo", {
+                             defaultValue: "Save",
+                           })}
+                     </span>
+                   </button>
 
-                  <button
-                    type="button"
-                    onClick={() => setMuted((value) => !value)}
-                    className="flex flex-col items-center text-white"
-                  >
-                    {muted ? (
-                      <VolumeX className="h-8 w-8" />
-                    ) : (
-                      <Volume2 className="h-8 w-8" />
-                    )}
-                <span className="text-xs">
-                  {muted
-                    ? t("reflections.muted")
-                    : t("reflections.sound")}
-                </span>
-                  </button>
-                </div>
-              </div>
-            </section>
-          ))}
+                   <button
+                     type="button"
+                     onClick={() => {
+                       setMoreMenuVideoId(null);
+
+                       if (!user?.id) {
+                         navigate("/auth");
+                         return;
+                       }
+
+                       setReportVideo(video);
+                       setReportReason("");
+                       setReportDescription("");
+                     }}
+                     className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-amber-400 hover:bg-white/10"
+                   >
+                     <Flag className="h-5 w-5" />
+                     <span>
+                       {t("reflections.report", {
+                         defaultValue: "Report",
+                       })}
+                     </span>
+                   </button>
+                 </div>
+               )}
+             </div>
+
+             <button
+               type="button"
+               onClick={() => handleShare(video)}
+               className="flex flex-col items-center text-white"
+             >
+               <Share2 className="h-8 w-8" />
+               <span className="text-xs">
+                 {t("reflections.share")}
+               </span>
+             </button>
+
+             <button
+               type="button"
+               onClick={() => setMuted((value) => !value)}
+               className="flex flex-col items-center text-white"
+             >
+               {muted ? (
+                 <VolumeX className="h-8 w-8" />
+               ) : (
+                 <Volume2 className="h-8 w-8" />
+               )}
+
+               <span className="text-xs">
+                 {muted
+                   ? t("reflections.muted")
+                   : t("reflections.sound")}
+               </span>
+             </button>
+           </div>
+           </div>
+           </section>
+           ))}
 
           {loadingMore && (
             <div className="flex justify-center py-8 text-white/70">

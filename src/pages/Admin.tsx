@@ -35,10 +35,7 @@ const Admin = () => {
   const { isAdmin, loading: rolesLoading } = useUserRoles();
   const { toast } = useToast();
 
-  console.log("Admin page role state:", {
-    isAdmin,
-    rolesLoading,
-  });
+
   
   const [advertisements, setAdvertisements] = useState<PendingItem[]>([]);
   const [mosques, setMosques] = useState<PendingItem[]>([]);

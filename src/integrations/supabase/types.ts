@@ -3679,6 +3679,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      set_creator_verification: {
+        Args: { target_user_id: string; verified: boolean }
+        Returns: undefined
+      }
       submit_contact_request_secure: {
         Args: {
           _advertisement_id: string

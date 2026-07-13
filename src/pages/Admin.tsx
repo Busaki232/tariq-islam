@@ -1,3 +1,4 @@
+import Navigation from "@/components/Navigation";
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,7 +9,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Store, Building2, UserCog, Clock, CheckCircle, XCircle, Handshake, Users } from 'lucide-react';
+import {
+  Loader2,
+  Store,
+  Building2,
+  UserCog,
+  Clock,
+  CheckCircle,
+  XCircle,
+  Handshake,
+  Users,
+  Shield
+} from 'lucide-react';
 import { UserManagementTab } from '@/components/admin/UserManagementTab';
 
 interface PendingItem {
@@ -22,6 +34,11 @@ const Admin = () => {
   const navigate = useNavigate();
   const { isAdmin, loading: rolesLoading } = useUserRoles();
   const { toast } = useToast();
+
+  console.log("Admin page role state:", {
+    isAdmin,
+    rolesLoading,
+  });
   
   const [advertisements, setAdvertisements] = useState<PendingItem[]>([]);
   const [mosques, setMosques] = useState<PendingItem[]>([]);
@@ -153,13 +170,32 @@ const Admin = () => {
     { label: 'Pending Partnerships', count: partnerships.length, icon: Handshake }
   ];
 
-  return (
+return (
+  <>
+    <Navigation />
+
     <div className="min-h-screen bg-gradient-to-br from-background to-secondary/30 py-8">
       <div className="container mx-auto px-4 max-w-7xl">
-        <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Admin Dashboard</h1>
-          <p className="text-muted-foreground">Manage pending submissions and applications</p>
-        </div>
+    <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <h1 className="mb-2 text-3xl font-bold text-foreground md:text-4xl">
+          Admin Dashboard
+        </h1>
+
+        <p className="text-muted-foreground">
+          Manage pending submissions and applications
+        </p>
+      </div>
+
+      <Button
+        type="button"
+        onClick={() => navigate("/moderation")}
+        className="w-full sm:w-auto"
+      >
+        <Shield className="mr-2 h-4 w-4" />
+        Content Moderation
+      </Button>
+    </div>
 
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
           {stats.map((stat) => {
@@ -600,6 +636,7 @@ const Admin = () => {
         </Tabs>
       </div>
     </div>
+    </>
   );
 };
 

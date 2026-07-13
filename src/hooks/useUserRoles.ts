@@ -1,5 +1,5 @@
 // src/hooks/useUserRoles.ts
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -49,7 +49,7 @@ export function useUserRoles() {
   const isAdmin = useMemo(() => roles.includes("admin"), [roles]);
 
   // Prevent rapid re-fetch loops if something higher re-mounts frequently
-  const lastUserIdRef = useRef<string | null>(null);
+
 
   useEffect(() => {
     let cancelled = false;
@@ -70,11 +70,7 @@ export function useUserRoles() {
       }
 
       // If we already fetched for this user in this mount cycle, don’t spam
-      if (lastUserIdRef.current === uid) {
-        if (!cancelled) setLoading(false);
-        return;
-      }
-      lastUserIdRef.current = uid;
+
 
       try {
         const res = await selectRolesWithAbort(uid, 12000);

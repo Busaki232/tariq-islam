@@ -42,12 +42,23 @@ interface PendingReflection {
   status: string;
   created_at: string;
 }
+interface CreatorProfile {
+  user_id: string;
+  full_name: string | null;
+  username: string | null;
+  avatar_url: string | null;
+  is_creator_verified: boolean;
+}
 
 const ModerationDashboard = () => {
   const { user } = useAuth();
   const { isAdmin, isModerator, loading: rolesLoading } = useUserRoles();
   const navigate = useNavigate();
   const [reports, setReports] = useState<Report[]>([])
+
+  const [creators, setCreators] = useState<CreatorProfile[]>([]);
+  const [creatorsLoading, setCreatorsLoading] = useState(true);
+  const [updatingCreatorId, setUpdatingCreatorId] = useState<string | null>(null);
 
   const [pendingReflections, setPendingReflections] = useState<
     PendingReflection[]
@@ -73,6 +84,7 @@ const ModerationDashboard = () => {
       fetchReports();
       fetchStats();
       fetchPendingReflections();
+      fetchCreators();
     }
   }, [isAdmin, isModerator, rolesLoading, navigate]);
 
@@ -174,6 +186,69 @@ const  handleReflectionAction = async (
     toast.error("Failed to load pending reflections");
   } finally {
     setReflectionsLoading(false);
+  }
+};
+
+const fetchCreators = async () => {
+  setCreatorsLoading(true);
+
+  try {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select(
+        "user_id,full_name,username,avatar_url,is_creator_verified"
+      )
+      .order("full_name", { ascending: true });
+
+    if (error) throw error;
+
+    setCreators(data || []);
+  } catch (error) {
+    console.error("Error fetching creators:", error);
+    toast.error("Failed to load creators");
+  } finally {
+    setCreatorsLoading(false);
+  }
+};
+
+const handleCreatorVerification = async (
+  creatorId: string,
+  verified: boolean
+) => {
+  setUpdatingCreatorId(creatorId);
+
+  try {
+    const { error } = await supabase.rpc(
+      "set_creator_verification",
+      {
+        target_user_id: creatorId,
+        verified,
+      }
+    );
+
+    if (error) throw error;
+
+    setCreators((current) =>
+      current.map((creator) =>
+        creator.user_id === creatorId
+          ? {
+              ...creator,
+              is_creator_verified: verified,
+            }
+          : creator
+      )
+    );
+
+    toast.success(
+      verified
+        ? "Creator verified"
+        : "Creator verification removed"
+    );
+  } catch (error) {
+    console.error("Error changing creator verification:", error);
+    toast.error("Failed to update creator verification");
+  } finally {
+    setUpdatingCreatorId(null);
   }
 };
 
@@ -367,10 +442,14 @@ const  handleReflectionAction = async (
 
             <TabsTrigger value="all">All Reports</TabsTrigger>
 
-            <TabsTrigger value="reflections">
-              Reflections ({pendingReflections.length})
-            </TabsTrigger>
-          </TabsList>
+                     <TabsTrigger value="reflections">
+                       Reflections ({pendingReflections.length})
+                     </TabsTrigger>
+
+                     <TabsTrigger value="creators">
+                       Creators ({creators.length})
+                     </TabsTrigger>
+                   </TabsList>
 
   {['pending', 'under_review', 'resolved', 'all'].map((status) => (
     <TabsContent key={status} value={status} className="space-y-4">
@@ -488,6 +567,94 @@ const  handleReflectionAction = async (
       ))
     )}
   </TabsContent>
+
+<TabsContent value="creators" className="space-y-4">
+  {creatorsLoading ? (
+    <Card>
+      <CardContent className="py-8 text-center text-muted-foreground">
+        Loading creators...
+      </CardContent>
+    </Card>
+  ) : creators.length === 0 ? (
+    <Card>
+      <CardContent className="py-8 text-center text-muted-foreground">
+        No creator profiles found.
+      </CardContent>
+    </Card>
+  ) : (
+    creators.map((creator) => (
+      <Card key={creator.user_id}>
+        <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 items-center gap-3">
+            {creator.avatar_url ? (
+              <img
+                src={creator.avatar_url}
+                alt={creator.full_name || creator.username || ""}
+                className="h-12 w-12 rounded-full object-cover"
+              />
+            ) : (
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-islamic-green font-bold text-white">
+                {(creator.full_name || creator.username || "U")
+                  .charAt(0)
+                  .toUpperCase()}
+              </div>
+            )}
+
+            <div className="min-w-0">
+              <p className="truncate font-semibold">
+                {creator.full_name ||
+                  creator.username ||
+                  "Tariq Islam User"}
+              </p>
+
+              {creator.username && (
+                <p className="truncate text-sm text-muted-foreground">
+                  @{creator.username}
+                </p>
+              )}
+
+              <Badge
+                variant={
+                  creator.is_creator_verified
+                    ? "default"
+                    : "outline"
+                }
+                className="mt-2"
+              >
+                {creator.is_creator_verified
+                  ? "Verified"
+                  : "Not verified"}
+              </Badge>
+            </div>
+          </div>
+
+          <Button
+            type="button"
+            variant={
+              creator.is_creator_verified
+                ? "destructive"
+                : "default"
+            }
+            disabled={updatingCreatorId === creator.user_id}
+            onClick={() =>
+              void handleCreatorVerification(
+                creator.user_id,
+                !creator.is_creator_verified
+              )
+            }
+            className="w-full sm:w-auto"
+          >
+            {updatingCreatorId === creator.user_id
+              ? "Updating..."
+              : creator.is_creator_verified
+                ? "Remove Verification"
+                : "Verify Creator"}
+          </Button>
+        </CardContent>
+      </Card>
+    ))
+  )}
+</TabsContent>
 
         </Tabs>
       </div>

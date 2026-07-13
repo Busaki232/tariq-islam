@@ -32,6 +32,11 @@ const Navigation = () => {
   const location = useLocation();
   const { user } = useAuth();
   const { isAdmin } = useUserRoles();
+  console.log("Navigation admin state:", {
+    userId: user?.id,
+    email: user?.email,
+    isAdmin,
+  });
   const { t } = useTranslation(["navigation", "common"]);
   const [unreadMessages, setUnreadMessages] = useState(0);
 
@@ -87,6 +92,20 @@ const Navigation = () => {
   const navItems = useMemo(() => {
     return [
       { name: t("navigation:home", { defaultValue: "Home" }), href: "/", icon: Home },
+      ...(user
+        ? []
+        : [
+            {
+              name: t("navigation:signIn", { defaultValue: "Sign In" }),
+              href: "/auth",
+              icon: LogIn,
+            },
+            {
+              name: t("navigation:signUp", { defaultValue: "Sign Up" }),
+              href: "/auth?mode=signup",
+              icon: UserPlus,
+            },
+          ]),
 
       ...(user
         ? [
@@ -224,7 +243,21 @@ const Navigation = () => {
               </>
             )}
 
+        {isAdmin && (
+          <Link
+            to="/admin"
+            className="inline-flex items-center gap-2 rounded-lg bg-islamic-green px-3 py-2 text-white transition-all hover:opacity-90"
+            title="Admin Dashboard"
+          >
+            <Shield size={18} />
+            <span className="hidden sm:inline font-medium">
+              {t("navigation:admin", { defaultValue: "Admin" })}
+            </span>
+          </Link>
+        )}
+
             <ThemeToggle />
+
           </div>
         </div>
       </div>

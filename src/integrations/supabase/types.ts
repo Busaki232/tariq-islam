@@ -12,31 +12,6 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "13.0.5"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       admin_audit_log: {
@@ -1064,6 +1039,7 @@ export type Database = {
           image_url: string | null
           location: string
           max_attendees: number | null
+          mosque_id: string | null
           organizer_id: string
           start_at: string
           status: string
@@ -1083,6 +1059,7 @@ export type Database = {
           image_url?: string | null
           location: string
           max_attendees?: number | null
+          mosque_id?: string | null
           organizer_id: string
           start_at: string
           status?: string
@@ -1102,13 +1079,22 @@ export type Database = {
           image_url?: string | null
           location?: string
           max_attendees?: number | null
+          mosque_id?: string | null
           organizer_id?: string
           start_at?: string
           status?: string
           title?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "events_mosque_id_fkey"
+            columns: ["mosque_id"]
+            isOneToOne: false
+            referencedRelation: "mosques"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       flagged_keywords: {
         Row: {
@@ -1780,6 +1766,109 @@ export type Database = {
           },
         ]
       }
+      mosque_announcements: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          is_pinned: boolean
+          message: string
+          mosque_id: string
+          published_at: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          is_pinned?: boolean
+          message: string
+          mosque_id: string
+          published_at?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          is_pinned?: boolean
+          message?: string
+          mosque_id?: string
+          published_at?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mosque_announcements_mosque_id_fkey"
+            columns: ["mosque_id"]
+            isOneToOne: false
+            referencedRelation: "mosques"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mosque_claim_requests: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          mosque_id: string
+          phone: string | null
+          proof_details: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          role_at_mosque: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          mosque_id: string
+          phone?: string | null
+          proof_details: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          role_at_mosque: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          mosque_id?: string
+          phone?: string | null
+          proof_details?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          role_at_mosque?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mosque_claim_requests_mosque_id_fkey"
+            columns: ["mosque_id"]
+            isOneToOne: false
+            referencedRelation: "mosques"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mosque_followers: {
         Row: {
           auto_join_groups: boolean | null
@@ -1853,6 +1942,53 @@ export type Database = {
           },
           {
             foreignKeyName: "mosque_groups_mosque_id_fkey"
+            columns: ["mosque_id"]
+            isOneToOne: false
+            referencedRelation: "mosques"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mosque_livestreams: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          mosque_id: string
+          scheduled_for: string | null
+          status: string
+          stream_url: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          mosque_id: string
+          scheduled_for?: string | null
+          status?: string
+          stream_url: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          mosque_id?: string
+          scheduled_for?: string | null
+          status?: string
+          stream_url?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mosque_livestreams_mosque_id_fkey"
             columns: ["mosque_id"]
             isOneToOne: false
             referencedRelation: "mosques"
@@ -2009,6 +2145,106 @@ export type Database = {
         }
         Relationships: []
       }
+      mosque_volunteer_opportunities: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          end_time: string | null
+          id: string
+          location: string | null
+          mosque_id: string
+          start_time: string | null
+          status: string
+          title: string
+          updated_at: string
+          volunteer_date: string
+          volunteers_needed: number | null
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          end_time?: string | null
+          id?: string
+          location?: string | null
+          mosque_id: string
+          start_time?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          volunteer_date: string
+          volunteers_needed?: number | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          end_time?: string | null
+          id?: string
+          location?: string | null
+          mosque_id?: string
+          start_time?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          volunteer_date?: string
+          volunteers_needed?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mosque_volunteer_opportunities_mosque_id_fkey"
+            columns: ["mosque_id"]
+            isOneToOne: false
+            referencedRelation: "mosques"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mosque_volunteer_signups: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          notes: string | null
+          opportunity_id: string
+          phone: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          notes?: string | null
+          opportunity_id: string
+          phone?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          notes?: string | null
+          opportunity_id?: string
+          phone?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mosque_volunteer_signups_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "mosque_volunteer_opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mosques: {
         Row: {
           address: string
@@ -2027,6 +2263,7 @@ export type Database = {
           rating_average: number | null
           review_count: number | null
           services: string[] | null
+          source_submission_id: string | null
           state: string
           updated_at: string | null
           verified: boolean | null
@@ -2050,6 +2287,7 @@ export type Database = {
           rating_average?: number | null
           review_count?: number | null
           services?: string[] | null
+          source_submission_id?: string | null
           state: string
           updated_at?: string | null
           verified?: boolean | null
@@ -2073,13 +2311,22 @@ export type Database = {
           rating_average?: number | null
           review_count?: number | null
           services?: string[] | null
+          source_submission_id?: string | null
           state?: string
           updated_at?: string | null
           verified?: boolean | null
           website?: string | null
           zip_code?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "mosques_source_submission_id_fkey"
+            columns: ["source_submission_id"]
+            isOneToOne: true
+            referencedRelation: "mosque_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notification_preferences: {
         Row: {
@@ -2162,6 +2409,7 @@ export type Database = {
           body: string | null
           created_at: string | null
           id: string
+          link_path: string | null
           read_at: string | null
           title: string
           type: string
@@ -2172,6 +2420,7 @@ export type Database = {
           body?: string | null
           created_at?: string | null
           id?: string
+          link_path?: string | null
           read_at?: string | null
           title: string
           type: string
@@ -2182,6 +2431,7 @@ export type Database = {
           body?: string | null
           created_at?: string | null
           id?: string
+          link_path?: string | null
           read_at?: string | null
           title?: string
           type?: string
@@ -2567,6 +2817,50 @@ export type Database = {
         }
         Relationships: []
       }
+      reflection_caption_translations: {
+        Row: {
+          created_at: string
+          id: string
+          language_code: string
+          language_name: string
+          reflection_id: string
+          translated_segments: Json
+          translated_text: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          language_code: string
+          language_name: string
+          reflection_id: string
+          translated_segments?: Json
+          translated_text: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          language_code?: string
+          language_name?: string
+          reflection_id?: string
+          translated_segments?: Json
+          translated_text?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reflection_caption_translations_reflection_id_fkey"
+            columns: ["reflection_id"]
+            isOneToOne: false
+            referencedRelation: "reflection_videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reflection_comments: {
         Row: {
           comment: string
@@ -2663,34 +2957,82 @@ export type Database = {
       reflection_videos: {
         Row: {
           caption: string | null
+          captions_enabled: boolean
+          captions_language: string | null
+          captions_segments: Json | null
+          captions_text: string | null
           category: string
           created_at: string
+          hadith_collection: string | null
+          hadith_number: string | null
           id: string
           language: string
+          published_at: string | null
+          quran_ayah_end: number | null
+          quran_ayah_start: number | null
+          quran_surah_number: number | null
+          reference_note: string | null
+          reference_type: string | null
+          scheduled_at: string | null
           status: string
+          thumbnail_url: string | null
           title: string
+          trim_end_seconds: number | null
+          trim_start_seconds: number
           user_id: string
           video_url: string
         }
         Insert: {
           caption?: string | null
+          captions_enabled?: boolean
+          captions_language?: string | null
+          captions_segments?: Json | null
+          captions_text?: string | null
           category: string
           created_at?: string
+          hadith_collection?: string | null
+          hadith_number?: string | null
           id?: string
           language?: string
+          published_at?: string | null
+          quran_ayah_end?: number | null
+          quran_ayah_start?: number | null
+          quran_surah_number?: number | null
+          reference_note?: string | null
+          reference_type?: string | null
+          scheduled_at?: string | null
           status?: string
+          thumbnail_url?: string | null
           title: string
+          trim_end_seconds?: number | null
+          trim_start_seconds?: number
           user_id: string
           video_url: string
         }
         Update: {
           caption?: string | null
+          captions_enabled?: boolean
+          captions_language?: string | null
+          captions_segments?: Json | null
+          captions_text?: string | null
           category?: string
           created_at?: string
+          hadith_collection?: string | null
+          hadith_number?: string | null
           id?: string
           language?: string
+          published_at?: string | null
+          quran_ayah_end?: number | null
+          quran_ayah_start?: number | null
+          quran_surah_number?: number | null
+          reference_note?: string | null
+          reference_type?: string | null
+          scheduled_at?: string | null
           status?: string
+          thumbnail_url?: string | null
           title?: string
+          trim_end_seconds?: number | null
+          trim_start_seconds?: number
           user_id?: string
           video_url?: string
         }
@@ -2955,6 +3297,75 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      scholar_profiles: {
+        Row: {
+          biography: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          display_name: string
+          facebook_url: string | null
+          id: string
+          instagram_url: string | null
+          is_active: boolean
+          is_featured: boolean
+          languages: string[]
+          specialties: string[]
+          updated_at: string
+          user_id: string
+          verification_notes: string | null
+          verification_status: string
+          verified_at: string | null
+          verified_by: string | null
+          website_url: string | null
+          youtube_url: string | null
+        }
+        Insert: {
+          biography?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          display_name: string
+          facebook_url?: string | null
+          id?: string
+          instagram_url?: string | null
+          is_active?: boolean
+          is_featured?: boolean
+          languages?: string[]
+          specialties?: string[]
+          updated_at?: string
+          user_id: string
+          verification_notes?: string | null
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
+          website_url?: string | null
+          youtube_url?: string | null
+        }
+        Update: {
+          biography?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          display_name?: string
+          facebook_url?: string | null
+          id?: string
+          instagram_url?: string | null
+          is_active?: boolean
+          is_featured?: boolean
+          languages?: string[]
+          specialties?: string[]
+          updated_at?: string
+          user_id?: string
+          verification_notes?: string | null
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
+          website_url?: string | null
+          youtube_url?: string | null
+        }
+        Relationships: []
       }
       security_logs: {
         Row: {
@@ -3621,6 +4032,7 @@ export type Database = {
         Args: { _recipient_id: string; _sender_id: string }
         Returns: undefined
       }
+      process_scheduled_reflections: { Args: never; Returns: number }
       remove_friendship: { Args: { friendship_id: string }; Returns: undefined }
       search_profiles: {
         Args: { q: string }
@@ -3838,9 +4250,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],

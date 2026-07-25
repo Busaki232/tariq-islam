@@ -255,7 +255,10 @@ const startRingtone = useCallback((inviteId: string) => {
 
         const { data, error } = await supabase
           .from("call_invites")
-          .update({ status: "accepted" })
+          .update({
+            status: "accepted",
+            accepted_at: new Date().toISOString(),
+          })
           .eq("id", inviteId)
           .eq("callee_id", myId)
           .eq("status", "ringing")

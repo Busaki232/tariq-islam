@@ -947,7 +947,11 @@ const handleSendMessage = async () => {
 
                           {!message.is_deleted && (
                             <div className="mt-2">
-                              <MessageReactions messageId={message.id} reactions={message.reactions || {}} />
+                              <MessageReactions
+                                messageId={message.id}
+                                reactions={message.reactions || {}}
+                                showPicker={false}
+                              />
                             </div>
                           )}
                         </div>

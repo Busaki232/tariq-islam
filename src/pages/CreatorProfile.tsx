@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, BadgeCheck, Heart, Play } from "lucide-react";
+import { ArrowLeft, Eye, Heart, Play, Share } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import TariqBadge from "@/components/tariq/TariqBadge";
+
 
 type CreatorProfileRow = {
   user_id: string;
@@ -52,12 +54,19 @@ export default function CreatorProfile() {
   const [followersCount, setFollowersCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
   const [totalLikes, setTotalLikes] = useState(0);
+  const [totalViews, setTotalViews] = useState(0);
+  const [videoLikeCounts, setVideoLikeCounts] =
+    useState<Record<string, number>>({});
+
+  const [videoViewCounts, setVideoViewCounts] =
+    useState<Record<string, number>>({});
   const [editingVideo, setEditingVideo] = useState<CreatorVideo | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editCaption, setEditCaption] = useState("");
   const [editCategory, setEditCategory] = useState("");
   const [editLanguage, setEditLanguage] = useState("");
  const [savingEdit, setSavingEdit] = useState(false);
+
 
 
   const isOwnProfile = !!user?.id && user.id === creatorId;
@@ -92,18 +101,21 @@ export default function CreatorProfile() {
 
         if (profileError) throw profileError;
 
-        if (!profileRow) {
-          if (alive) {
-            setProfile(null);
-            setVideos([]);
-            setCreatorId("");
-            setFollowersCount(0);
-            setFollowingCount(0);
-            setTotalLikes(0);
-            setFollowStatus("none");
-          }
-          return;
-        }
+     if (!profileRow) {
+       if (alive) {
+         setProfile(null);
+         setVideos([]);
+         setCreatorId("");
+         setFollowersCount(0);
+         setFollowingCount(0);
+         setTotalLikes(0);
+         setTotalViews(0);
+         setVideoLikeCounts({});
+         setVideoViewCounts({});
+         setFollowStatus("none");
+       }
+       return;
+     }
 
         const resolvedCreatorId = profileRow.user_id;
 
@@ -175,18 +187,51 @@ export default function CreatorProfile() {
 
         const videoIds = loadedVideos.map((video) => video.id);
 
-        if (videoIds.length === 0) {
-          setTotalLikes(0);
-          return;
-        }
+   if (videoIds.length === 0) {
+     setTotalLikes(0);
+     setTotalViews(0);
+     setVideoLikeCounts({});
+     setVideoViewCounts({});
+     return;
+   }
 
-        const { count, error: likesError } = await supabase
-          .from("reflection_likes")
-          .select("*", { count: "exact", head: true })
-          .in("reflection_id", videoIds);
+ const [
+   { data: likeRows, error: likesError },
+   { data: viewRows, error: viewsError },
+ ] = await Promise.all([
+   supabase
+     .from("reflection_likes")
+     .select("reflection_id")
+     .in("reflection_id", videoIds),
 
-        if (likesError) throw likesError;
-        if (alive) setTotalLikes(count ?? 0);
+   supabase
+     .from("reflection_views")
+     .select("reflection_id")
+     .in("reflection_id", videoIds),
+ ]);
+
+ if (likesError) throw likesError;
+ if (viewsError) throw viewsError;
+
+ const nextVideoLikeCounts: Record<string, number> = {};
+ const nextVideoViewCounts: Record<string, number> = {};
+
+ for (const row of likeRows ?? []) {
+   nextVideoLikeCounts[row.reflection_id] =
+     (nextVideoLikeCounts[row.reflection_id] ?? 0) + 1;
+ }
+
+ for (const row of viewRows ?? []) {
+   nextVideoViewCounts[row.reflection_id] =
+     (nextVideoViewCounts[row.reflection_id] ?? 0) + 1;
+ }
+
+ if (alive) {
+   setTotalLikes((likeRows ?? []).length);
+   setTotalViews((viewRows ?? []).length);
+   setVideoLikeCounts(nextVideoLikeCounts);
+   setVideoViewCounts(nextVideoViewCounts);
+ }
       } catch (error) {
         console.error("Failed to load creator profile:", error);
 
@@ -263,6 +308,39 @@ export default function CreatorProfile() {
 
     setFollowStatus("pending");
   };
+const handleShareProfile = async () => {
+  const creatorName =
+    profile?.full_name ||
+    profile?.username ||
+    t("reflections.tariqIslamUser", {
+      defaultValue: "Tariq Islam Creator",
+    });
+
+  const profileUrl = window.location.href;
+
+  const shareData = {
+    title: `${creatorName} on Tariq Islam`,
+    text: `Follow ${creatorName} on Tariq Islam.`,
+    url: profileUrl,
+  };
+
+  try {
+    if (navigator.share) {
+      await navigator.share(shareData);
+      return;
+    }
+
+    await navigator.clipboard.writeText(profileUrl);
+
+    alert("Creator profile link copied.");
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      return;
+    }
+
+    console.error("Unable to share creator profile:", error);
+  }
+};
 const handleStartEdit = (video: CreatorVideo) => {
   setEditingVideo(video);
   setEditTitle(video.title);
@@ -369,21 +447,21 @@ const handleSaveEdit = async () => {
         </button>
       </div>
 
-      <section className="px-4 py-6">
-        <div className="flex flex-col items-center text-center">
+    <section className="pb-6">
+   <div className="flex flex-col items-center px-4 pt-6 text-center">
           {profile.avatar_url ? (
             <img
               src={profile.avatar_url}
               alt={profile.full_name || profile.username || ""}
-              className="h-24 w-24 rounded-full border object-cover"
+              className="h-24 w-24 rounded-full border-4 border-background bg-background object-cover shadow-lg"
             />
-          ) : (
-            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-islamic-green text-3xl font-bold text-white">
-              {(profile.full_name || profile.username || "U")
-                .charAt(0)
-                .toUpperCase()}
-            </div>
-          )}
+ ) : (
+   <div className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-background bg-islamic-green text-3xl font-bold text-white shadow-lg">
+     {(profile.full_name || profile.username || "U")
+       .charAt(0)
+       .toUpperCase()}
+   </div>
+ )}
 
      <div className="mt-4 flex items-center justify-center gap-1.5">
        <h1 className="text-2xl font-bold">
@@ -392,14 +470,14 @@ const handleSaveEdit = async () => {
            t("reflections.tariqIslamUser")}
        </h1>
 
-       {profile.is_creator_verified && (
-         <BadgeCheck
-           className="h-5 w-5 text-blue-500"
-           aria-label={t("creatorProfile.verifiedCreator", {
-             defaultValue: "Verified creator",
-           })}
-         />
-       )}
+<TariqBadge
+  variant={
+    profile.is_creator_verified
+      ? "verified-creator"
+      : "creator"
+  }
+  showLabel={false}
+/>
      </div>
 
           {profile.username && (
@@ -418,11 +496,32 @@ const handleSaveEdit = async () => {
             <p className="mt-3 max-w-md text-sm">{profile.bio}</p>
           )}
 
-          {!isOwnProfile && (
+{isOwnProfile && (
+  <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+    <Button
+      type="button"
+      onClick={() => navigate("/creator-studio")}
+    >
+      Creator Studio
+    </Button>
+
+    <Button
+      type="button"
+      variant="outline"
+      onClick={() => void handleShareProfile()}
+    >
+      <Share className="mr-2 h-4 w-4" />
+      Share
+    </Button>
+  </div>
+)}
+
+        {!isOwnProfile && (
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
             <Button
               type="button"
               onClick={() => void handleFollow()}
-              className="mt-4 min-w-36"
+              className="min-w-36"
               variant={
                 followStatus === "following" ? "outline" : "default"
               }
@@ -439,10 +538,20 @@ const handleSaveEdit = async () => {
                       defaultValue: "Follow",
                     })}
             </Button>
-          )}
+
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => void handleShareProfile()}
+            >
+              <Share className="mr-2 h-4 w-4" />
+              Share
+            </Button>
+          </div>
+        )}
         </div>
 
-        <div className="mt-6 grid grid-cols-4 gap-2">
+        <div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-5">
           <div className="rounded-xl border p-3 text-center">
             <div className="text-lg font-bold">{videos.length}</div>
             <div className="text-xs text-muted-foreground">
@@ -451,6 +560,7 @@ const handleSaveEdit = async () => {
               })}
             </div>
           </div>
+
 
           <div className="rounded-xl border p-3 text-center">
             <div className="text-lg font-bold">{followersCount}</div>
@@ -478,6 +588,18 @@ const handleSaveEdit = async () => {
             <div className="text-xs text-muted-foreground">
               {t("creatorProfile.likes", {
                 defaultValue: "Likes",
+              })}
+            </div>
+          </div>
+          <div className="rounded-xl border p-3 text-center">
+            <div className="flex items-center justify-center gap-1 text-lg font-bold">
+              <Eye className="h-4 w-4" />
+              {totalViews}
+            </div>
+
+            <div className="text-xs text-muted-foreground">
+              {t("creatorProfile.views", {
+                defaultValue: "Views",
               })}
             </div>
           </div>
@@ -514,15 +636,32 @@ const handleSaveEdit = async () => {
             <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 transition group-hover:opacity-100">
               <Play className="h-8 w-8 fill-white text-white" />
             </div>
+            <div className="pointer-events-none absolute bottom-2 left-2 flex items-center gap-3 rounded-full bg-black/65 px-2 py-1 text-xs font-semibold text-white">
+              <span className="flex items-center gap-1">
+                <Heart className="h-3.5 w-3.5" />
+                {videoLikeCounts[video.id] ?? 0}
+              </span>
+
+              <span className="flex items-center gap-1">
+                <Eye className="h-3.5 w-3.5" />
+                {videoViewCounts[video.id] ?? 0}
+              </span>
+            </div>
           </button>
 
            {isOwnProfile && (
              <button
                type="button"
-               onClick={(event) => {
-                 event.stopPropagation();
-                 handleStartEdit(video);
-               }}
+    onClick={(event) => {
+      event.stopPropagation();
+
+      if (video.status === "draft" || video.status === "rejected") {
+        navigate(`/upload-reflection?edit=${video.id}`);
+        return;
+      }
+
+      handleStartEdit(video);
+    }}
                className="absolute right-2 top-2 rounded-full bg-black/70 px-3 py-1 text-xs font-semibold text-white"
              >
                {t("creatorProfile.edit", {

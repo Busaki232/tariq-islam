@@ -12,6 +12,7 @@ import {
   CheckCircle,
   XCircle,
   Settings,
+  BookOpen,
 } from "lucide-react";
 import {
   Card,
@@ -425,39 +426,67 @@ const Dashboard = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Button
-                type="button"
-                onClick={() => navigate("/submit-ad")}
-                className="h-auto p-4 flex flex-col items-center gap-2"
-              >
-                <ShoppingBag className="w-6 h-6" />
-                <span>{t("dashboard:actions.listBusiness", { defaultValue: "List Business" })}</span>
-              </Button>
-              <Button
-                type="button"
-                onClick={() => navigate("/events")}
-                className="h-auto p-4 flex flex-col items-center gap-2"
-              >
-                <Calendar className="w-6 h-6" />
-                <span>{t("dashboard:actions.createEvent", { defaultValue: "Create Event" })}</span>
-              </Button>
-              <Button
-                type="button"
-                onClick={() => navigate("/submit-mosque")}
-                className="h-auto p-4 flex flex-col items-center gap-2"
-              >
-                <Building className="w-6 h-6" />
-                <span>{t("dashboard:actions.submitMosque", { defaultValue: "Submit Mosque" })}</span>
-              </Button>
-              <Button
-                type="button"
-                onClick={() => navigate("/apply-leadership")}
-                className="h-auto p-4 flex flex-col items-center gap-2"
-              >
-                <Users className="w-6 h-6" />
-                <span>{t("dashboard:actions.applyLeadership", { defaultValue: "Apply Leadership" })}</span>
-              </Button>
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+  <Button
+    type="button"
+    onClick={() => navigate("/submit-ad")}
+    className="h-auto p-4 flex flex-col items-center gap-2"
+  >
+    <ShoppingBag className="w-6 h-6" />
+    <span>
+      {t("dashboard:actions.listBusiness", {
+        defaultValue: "List Business",
+      })}
+    </span>
+  </Button>
+
+  <Button
+    type="button"
+    onClick={() => navigate("/events")}
+    className="h-auto p-4 flex flex-col items-center gap-2"
+  >
+    <Calendar className="w-6 h-6" />
+    <span>
+      {t("dashboard:actions.createEvent", {
+        defaultValue: "Create Event",
+      })}
+    </span>
+  </Button>
+
+  <Button
+    type="button"
+    onClick={() => navigate("/submit-mosque")}
+    className="h-auto p-4 flex flex-col items-center gap-2"
+  >
+    <Building className="w-6 h-6" />
+    <span>
+      {t("dashboard:actions.submitMosque", {
+        defaultValue: "Submit Mosque",
+      })}
+    </span>
+  </Button>
+
+  <Button
+    type="button"
+    onClick={() => navigate("/apply-leadership")}
+    className="h-auto p-4 flex flex-col items-center gap-2"
+  >
+    <Users className="w-6 h-6" />
+    <span>
+      {t("dashboard:actions.applyLeadership", {
+        defaultValue: "Apply Leadership",
+      })}
+    </span>
+  </Button>
+
+  <Button
+    type="button"
+    onClick={() => navigate("/scholars")}
+    className="h-auto p-4 flex flex-col items-center gap-2"
+  >
+    <BookOpen className="w-6 h-6" />
+    <span>Scholars</span>
+  </Button>
             </div>
           </CardContent>
         </Card>

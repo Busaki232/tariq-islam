@@ -1,14 +1,34 @@
 // src/components/PrivateChatWindow.tsx
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { MoreVertical, Pencil, Trash2, Flag, Ban, Smile, ImagePlus, Mic } from "lucide-react";
+
+import {
+  ArrowLeft,
+  Ban,
+  Copy,
+  Flag,
+  ImagePlus,
+  Info,
+  Mic,
+  MoreVertical,
+  Pencil,
+  Trash2,
+  X,
+} from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+
 import { Button } from "./ui/button";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "./ui/avatar";
 import VideoCallButton from "./VideoCallButton";
 import MessageAttachment from "./MessageAttachment";
+import { MessageReactions } from "./MessageReactions";
 import { VoiceMessageRecorder } from "./VoiceMessageRecorder";
 import { uploadVoiceMessage, recordVoiceAttachment } from "@/utils/voiceMessageUpload";
 
@@ -18,6 +38,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+
 
 type Conversation = {
   id: string;
@@ -37,6 +58,7 @@ type MsgRow = {
   created_at: string;
   is_deleted: boolean | null;
   read_by: any;
+  reactions: Record<string, string[]> | null;
 };
 
 const UUID_RE =
@@ -133,6 +155,9 @@ export default function PrivateChatWindow(props: {
   const [blocking, setBlocking] = useState(false);
   const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
 
+  const [selectedMessage, setSelectedMessage] =
+    useState<MsgRow | null>(null);
+
   const listRef = useRef<HTMLDivElement | null>(null);
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const typingTimeoutRef = useRef<number | null>(null);
@@ -178,8 +203,8 @@ const load = useCallback(
       }
 
       try {
-     const baseSelect =
-       "id, sender_id, recipient_id, content, created_at, is_deleted, read_by, hidden_after";
+  const baseSelect =
+    "id, sender_id, recipient_id, content, created_at, is_deleted, read_by, reactions, hidden_after";
 
         const sentQ = maybeAbortSignal(
           supabase
@@ -582,34 +607,170 @@ const load = useCallback(
     }
   };
 
-  const deleteMessage = async (msg: MsgRow) => {
-    const ok = window.confirm("Delete this message?");
+ const deleteMessage = async (msg: MsgRow) => {
+   const ok = window.confirm("Delete this message?");
 
-    if (!ok) return;
+   if (!ok) return;
 
-    try {
-      const { error } = await withTimeout(
-        supabase
-          .from("messages")
-          .update({ is_deleted: true })
-          .eq("id", msg.id)
-          .eq("sender_id", userId),
-        15000,
-        "delete timeout"
-      );
+   try {
+     const { error } = await withTimeout(
+       supabase
+         .from("messages")
+         .update({ is_deleted: true })
+         .eq("id", msg.id)
+         .eq("sender_id", userId),
+       15000,
+       "delete timeout"
+     );
 
-      if (error) throw error;
+     if (error) throw error;
 
-      setMessages((prev) => {
-        const nextRows = prev.filter((m) => m.id !== msg.id);
-        updateConversationFromMessages(nextRows);
-        return nextRows;
-      });
-    } catch (e) {
-      console.error("[PrivateChatWindow] delete failed:", e);
-      setErrorText("Failed to delete message");
+     setMessages((prev) => {
+       const nextRows = prev.filter((m) => m.id !== msg.id);
+       updateConversationFromMessages(nextRows);
+       return nextRows;
+     });
+   } catch (e) {
+     console.error("[PrivateChatWindow] delete failed:", e);
+     setErrorText("Failed to delete message");
+   }
+ };
+
+const refreshMessageReactions = async (messageId: string) => {
+  try {
+    const { data, error } = await supabase
+      .from("messages")
+      .select("reactions")
+      .eq("id", messageId)
+      .single();
+
+    if (error) throw error;
+
+    const reactions =
+      data?.reactions && typeof data.reactions === "object"
+        ? (data.reactions as Record<string, string[]>)
+        : {};
+
+    setMessages((prev) =>
+      prev.map((message) =>
+        message.id === messageId
+          ? { ...message, reactions }
+          : message
+      )
+    );
+  } catch (error) {
+    console.error(
+      "[PrivateChatWindow] failed to refresh reactions:",
+      error
+    );
+  }
+};
+
+const handleQuickReaction = async (
+  message: MsgRow,
+  emoji: string
+) => {
+  if (!userId) return;
+
+  try {
+    const currentReactions: Record<string, string[]> = {
+      ...(message.reactions || {}),
+    };
+
+    // Remove this user's existing reaction from every emoji.
+    Object.keys(currentReactions).forEach((reactionEmoji) => {
+      currentReactions[reactionEmoji] =
+        currentReactions[reactionEmoji].filter(
+          (reactionUserId) => reactionUserId !== userId
+        );
+
+      if (currentReactions[reactionEmoji].length === 0) {
+        delete currentReactions[reactionEmoji];
+      }
+    });
+
+    const selectedUsers = message.reactions?.[emoji] || [];
+    const wasAlreadySelected = selectedUsers.includes(userId);
+
+    // Tapping the currently selected reaction removes it.
+    // Tapping another emoji changes the user's reaction.
+    if (!wasAlreadySelected) {
+      currentReactions[emoji] = [
+        ...(currentReactions[emoji] || []),
+        userId,
+      ];
     }
-  };
+
+    const { error } = await supabase
+      .from("messages")
+      .update({ reactions: currentReactions })
+      .eq("id", message.id);
+
+    if (error) throw error;
+
+    setMessages((prev) =>
+      prev.map((item) =>
+        item.id === message.id
+          ? {
+              ...item,
+              reactions: currentReactions,
+            }
+          : item
+      )
+    );
+
+    setSelectedMessage(null);
+  } catch (error) {
+    console.error(
+      "[PrivateChatWindow] quick reaction failed:",
+      error
+    );
+
+    toast({
+      title: "Reaction failed",
+      description: "The reaction could not be saved.",
+      variant: "destructive",
+    });
+  }
+};
+
+ const copyMessage = async (msg: MsgRow) => {
+  const content = normalizeContent(msg.content);
+
+  if (!content) return;
+
+  try {
+    await navigator.clipboard.writeText(content);
+
+    toast({
+      title: "Message copied",
+      description: "The message was copied to your clipboard.",
+    });
+
+    setSelectedMessage(null);
+  } catch (error) {
+    console.error("[PrivateChatWindow] copy failed:", error);
+
+    toast({
+      title: "Unable to copy",
+      description: "The message could not be copied.",
+      variant: "destructive",
+    });
+  }
+};
+
+const showMessageInfo = (msg: MsgRow) => {
+  const sentAt = new Date(msg.created_at).toLocaleString();
+
+  const status =
+    msg.sender_id === userId
+      ? readByIncludes(msg.read_by, otherId)
+        ? "Read"
+        : "Sent"
+      : "Received";
+
+  window.alert(`Message information\n\nSent: ${sentAt}\nStatus: ${status}`);
+};
 
   const send = async () => {
     const body = text.trim();
@@ -765,7 +926,9 @@ const load = useCallback(
      message_type: "voice",
      hidden_after: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
    })
-        .select("id, sender_id, recipient_id, content, created_at, is_deleted, read_by")
+        .select(
+          "id, sender_id, recipient_id, content, created_at, is_deleted, read_by, reactions"
+        )
         .single();
 
       if (msgError) throw msgError;
@@ -833,71 +996,103 @@ return (
     }}
   >
 
-      <div className="flex items-center justify-between px-3 py-2 border-b bg-background z-30 min-h-[50px] shrink-0">
-        <div className="flex items-center gap-2 min-w-0 flex-1">
-          <button
-            type="button"
-            onClick={() => navigate("/messages")}
-            className="shrink-0 text-xl leading-none text-foreground !bg-transparent !border-0 !shadow-none !outline-none p-0 m-0"
-            aria-label="Back to messages"
-          >
-            ←
-          </button>
+ <div className="z-30 flex min-h-[68px] shrink-0 items-center justify-between border-b bg-background/95 px-3 py-2 shadow-sm backdrop-blur">
+   <div className="flex min-w-0 flex-1 items-center gap-2">
+     <button
+       type="button"
+       onClick={() => navigate("/messages")}
+       className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-muted"
+       aria-label="Back to messages"
+     >
+       <ArrowLeft className="h-5 w-5" />
+     </button>
 
-          <button
-            type="button"
-            onClick={() => {
-              if (!otherId) return;
-              navigate(`/profile/${otherId}`);
-            }}
-            className="text-sm font-semibold truncate text-left hover:underline min-w-0"
-          >
-            {title}
-          </button>
-        </div>
+     <button
+       type="button"
+       onClick={() => {
+         if (!otherId) return;
+         navigate(`/profile/${otherId}`);
+       }}
+       className="flex min-w-0 flex-1 items-center gap-3 rounded-xl text-left"
+     >
+       <Avatar className="h-11 w-11 shrink-0 border">
+         <AvatarImage
+           src={conversation.otherUserAvatar || ""}
+           alt={title}
+         />
 
-        <div className="flex items-center gap-1 shrink-0">
-          <VideoCallButton
-            calleeId={otherId}
-            calleeName={conversation.otherUserName}
-            conversationId={conversation.id}
-          />
+         <AvatarFallback className="bg-primary/10 font-semibold text-primary">
+           {title.charAt(0).toUpperCase()}
+         </AvatarFallback>
+       </Avatar>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                type="button"
-                className="inline-flex h-8 w-8 items-center justify-center rounded-full border bg-background/90 hover:bg-muted"
-              >
-                <MoreVertical className="h-4 w-4" />
-              </button>
-            </DropdownMenuTrigger>
+       <div className="min-w-0 flex-1">
+         <div className="truncate text-sm font-semibold text-foreground">
+           {title}
+         </div>
 
-            <DropdownMenuContent align="end">
-        <DropdownMenuItem
-          onClick={() => void reportUser()}
-          disabled={reporting}
-        >
-          <Flag className="h-4 w-4 mr-2" />
-          {reporting ? "Reporting..." : "Report user"}
-        </DropdownMenuItem>
+         <div className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+           {otherTyping ? (
+             <>
+               <span className="h-2 w-2 animate-pulse rounded-full bg-primary" />
+               <span className="font-medium text-primary">
+                 Typing...
+               </span>
+             </>
+           ) : (
+             <>
+               <span className="h-2 w-2 rounded-full bg-muted-foreground/50" />
+               <span>Private conversation</span>
+             </>
+           )}
+         </div>
+       </div>
+     </button>
+   </div>
 
-        <DropdownMenuItem
-          onClick={() => void blockUser()}
-          disabled={blocking}
-          className="text-destructive"
-        >
-          <Ban className="h-4 w-4 mr-2" />
-          {blocking ? "Blocking..." : "Block user"}
-        </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </div>
+   <div className="ml-2 flex shrink-0 items-center gap-1">
+     <VideoCallButton
+       calleeId={otherId}
+       calleeName={conversation.otherUserName}
+       conversationId={conversation.id}
+     />
+
+     <DropdownMenu>
+       <DropdownMenuTrigger asChild>
+         <button
+           type="button"
+           className="inline-flex h-10 w-10 items-center justify-center rounded-full border bg-background transition-colors hover:bg-muted"
+           aria-label="Conversation options"
+         >
+           <MoreVertical className="h-4 w-4" />
+         </button>
+       </DropdownMenuTrigger>
+
+       <DropdownMenuContent align="end">
+         <DropdownMenuItem
+           onClick={() => void reportUser()}
+           disabled={reporting}
+         >
+           <Flag className="mr-2 h-4 w-4" />
+           {reporting ? "Reporting..." : "Report user"}
+         </DropdownMenuItem>
+
+         <DropdownMenuItem
+           onClick={() => void blockUser()}
+           disabled={blocking}
+           className="text-destructive"
+         >
+           <Ban className="mr-2 h-4 w-4" />
+           {blocking ? "Blocking..." : "Block user"}
+         </DropdownMenuItem>
+       </DropdownMenuContent>
+     </DropdownMenu>
+   </div>
+ </div>
 
       <div
         ref={listRef}
-  className="flex-1 min-h-0 overflow-y-auto px-2 pt-1 pb-28"
+ className="flex-1 min-h-0 overflow-y-auto bg-muted/20 px-3 py-4 pb-28"
         style={{ WebkitOverflowScrolling: "touch" }}
       >
         {userBlocked ? (
@@ -937,85 +1132,202 @@ return (
               ? "max-w-[82%] rounded-2xl px-3 py-2 bg-green-600 text-white rounded-br-md"
               : "max-w-[82%] rounded-2xl px-3 py-2 bg-card border rounded-bl-md";
 
-            return (
-              <div
-                key={m.id}
-                className={`flex ${mine ? "justify-end" : "justify-start"}`}
+return (
+  <div
+    key={m.id}
+    className={`flex ${mine ? "justify-end" : "justify-start"}`}
+  >
+    <div className={bubbleClass}>
+      <div className="flex items-start gap-2">
+        <div className="flex-1">
+          {!isOnlyMedia && (
+            <div className="whitespace-pre-wrap break-words">{txt}</div>
+          )}
+
+          {attachments.map((attachment) => (
+            <MessageAttachment
+              key={attachment.id}
+              attachment={attachment}
+            />
+          ))}
+
+          <div
+            className={`mt-1 flex items-center gap-1 text-[11px] ${
+              mine
+                ? "text-primary-foreground/70"
+                : "text-muted-foreground"
+            }`}
+          >
+            <span>{fmtTime(m.created_at)}</span>
+
+            {mine && (
+              <span
+                title={
+                  readByIncludes(m.read_by, otherId)
+                    ? "Read"
+                    : "Sent"
+                }
               >
-                <div className={bubbleClass}>
-                  <div className="flex items-start gap-2">
-                    <div className="flex-1">
-                      {!isOnlyMedia && (
-                        <div className="whitespace-pre-wrap break-words">{txt}</div>
-                      )}
+                {readByIncludes(m.read_by, otherId)
+                  ? "✓✓ Read"
+                  : "✓ Sent"}
+              </span>
+            )}
+          </div>
 
-                      {attachments.map((attachment) => (
-                        <MessageAttachment
-                          key={attachment.id}
-                          attachment={attachment}
-                        />
-                      ))}
+          <div className={`mt-1 ${mine ? "flex justify-end" : ""}`}>
+     <MessageReactions
+       messageId={m.id}
+       reactions={m.reactions || {}}
+       onReactionUpdate={() =>
+         void refreshMessageReactions(m.id)
+       }
+       showPicker={false}
+     />
+          </div>
+        </div>
 
-                      <div
-                        className={`mt-1 flex items-center gap-1 text-[11px] ${
-                          mine
-                            ? "text-primary-foreground/70"
-                            : "text-muted-foreground"
-                        }`}
-                      >
-                        <span>{fmtTime(m.created_at)}</span>
+        <button
+          type="button"
+          onClick={() => setSelectedMessage(m)}
+          className={`rounded-full p-1 transition ${
+            mine
+              ? "text-white/80 hover:bg-white/15"
+              : "text-muted-foreground hover:bg-muted"
+          }`}
+          aria-label="Open message actions"
+        >
+          <MoreVertical className="h-4 w-4" />
+        </button>
+      </div>
+    </div>
+  </div>
+);
+})
+)}
+</div>
 
-                        {mine && (
-                          <span
-                            title={readByIncludes(m.read_by, otherId) ? "Read" : "Sent"}
-                          >
-                            {readByIncludes(m.read_by, otherId) ? "✓✓ Read" : "✓ Sent"}
-                          </span>
-                        )}
-                      </div>
-                    </div>
+{selectedMessage && (
+  <div
+    className="fixed inset-0 z-[9999] flex items-end bg-black/40 px-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] sm:items-center sm:justify-center"
+    onClick={() => setSelectedMessage(null)}
+  >
+    <div
+      className="w-full max-w-md overflow-hidden rounded-3xl border bg-background shadow-2xl"
+      onClick={(event) => event.stopPropagation()}
+    >
+      <div className="flex items-center justify-between border-b px-5 py-4">
+        <div>
+          <p className="font-semibold">Message actions</p>
+          <p className="max-w-[260px] truncate text-xs text-muted-foreground">
+            {normalizeContent(selectedMessage.content)}
+          </p>
+        </div>
 
-                    {mine && (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button
-                            type="button"
-                            className="p-1 rounded-md text-primary-foreground/80"
-                            aria-label="Message actions"
-                          >
-                            <MoreVertical className="h-4 w-4" />
-                          </button>
-                        </DropdownMenuTrigger>
+        <button
+          type="button"
+          onClick={() => setSelectedMessage(null)}
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-muted"
+          aria-label="Close message actions"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+<div className="border-b px-3 py-3">
+  <div className="flex items-center justify-between gap-1 rounded-2xl bg-muted/60 p-2">
+    {["❤️", "👍", "🤲", "😊", "😢", "🔥"].map((emoji) => {
+      const selected =
+        selectedMessage.reactions?.[emoji]?.includes(userId) || false;
 
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => void editMessage(m)}>
-                            <Pencil className="h-4 w-4 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
+      return (
+        <button
+          key={emoji}
+          type="button"
+          onClick={() =>
+            void handleQuickReaction(selectedMessage, emoji)
+          }
+          className={`flex h-11 w-11 items-center justify-center rounded-full text-2xl transition active:scale-90 ${
+            selected
+              ? "bg-green-600 shadow-sm ring-2 ring-green-600/30"
+              : "hover:bg-background"
+          }`}
+          aria-label={`React with ${emoji}`}
+        >
+          {emoji}
+        </button>
+      );
+    })}
+  </div>
+</div>
 
-                          <DropdownMenuItem
-                            onClick={() => void deleteMessage(m)}
-                            className="text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    )}
-                  </div>
-                </div>
-              </div>
-            );
-          })
+      <div className="grid grid-cols-2 gap-2 p-3">
+        <button
+          type="button"
+          onClick={() => void copyMessage(selectedMessage)}
+          className="flex items-center gap-3 rounded-2xl border p-4 text-left transition hover:bg-muted"
+        >
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-islamic-green/10 text-islamic-green">
+            <Copy className="h-5 w-5" />
+          </span>
+
+          <span className="font-medium">Copy</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => showMessageInfo(selectedMessage)}
+          className="flex items-center gap-3 rounded-2xl border p-4 text-left transition hover:bg-muted"
+        >
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-islamic-green/10 text-islamic-green">
+            <Info className="h-5 w-5" />
+          </span>
+
+          <span className="font-medium">Info</span>
+        </button>
+
+        {selectedMessage.sender_id === userId && (
+          <>
+            <button
+              type="button"
+              onClick={() => {
+                const message = selectedMessage;
+                setSelectedMessage(null);
+                void editMessage(message);
+              }}
+              className="flex items-center gap-3 rounded-2xl border p-4 text-left transition hover:bg-muted"
+            >
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-islamic-green/10 text-islamic-green">
+                <Pencil className="h-5 w-5" />
+              </span>
+
+              <span className="font-medium">Edit</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                const message = selectedMessage;
+                setSelectedMessage(null);
+                void deleteMessage(message);
+              }}
+              className="flex items-center gap-3 rounded-2xl border border-destructive/30 p-4 text-left text-destructive transition hover:bg-destructive/5"
+            >
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10">
+                <Trash2 className="h-5 w-5" />
+              </span>
+
+              <span className="font-medium">Delete</span>
+            </button>
+          </>
         )}
       </div>
 
-      {otherTyping && (
-        <div className="sticky bottom-[72px] z-[99998] px-3 text-xs text-muted-foreground">
-          {conversation.otherUserName} is typing...
-        </div>
-      )}
+      <div className="border-t px-5 py-3 text-center text-xs text-muted-foreground">
+        Tariq Islam private messaging
+      </div>
+    </div>
+  </div>
+)}
 
 <div className="sticky bottom-0 z-50 flex w-full items-center gap-1.5 border-t bg-background px-3 py-2 pb-[calc(env(safe-area-inset-bottom)+0.5rem)]">
         <input
@@ -1033,15 +1345,15 @@ return (
         />
 
         <div className="flex w-full gap-1.5 items-end">
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 rounded-full p-0"
-            onClick={() => setText((prev) => `${prev}🙂`)}
-          >
-            <Smile className="h-3.5 w-3.5" />
-          </Button>
+     <Button
+       type="button"
+       variant="ghost"
+       size="icon"
+       className="h-7 w-7 rounded-full p-0"
+       onClick={() => setText((prev) => `${prev}🙂`)}
+     >
+       🙂
+     </Button>
 
           <Button
             type="button"
@@ -1103,4 +1415,4 @@ return (
       )}
     </div>
   );
-}
+};

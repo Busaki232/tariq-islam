@@ -7,13 +7,18 @@ import { toast } from "sonner";
 
 interface MessageReactionsProps {
   messageId: string;
-  reactions: Record<string, string[]>; // { emoji: [userId1, userId2, ...] }
+  reactions: Record<string, string[]>;
   onReactionUpdate?: () => void;
+  showPicker?: boolean;
 }
-
 const QUICK_REACTIONS = ["👍", "❤️", "😂", "🎉", "🤔", "👏"];
 
-export const MessageReactions = ({ messageId, reactions = {}, onReactionUpdate }: MessageReactionsProps) => {
+export const MessageReactions = ({
+  messageId,
+  reactions = {},
+  onReactionUpdate,
+  showPicker = true,
+}: MessageReactionsProps) => {
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -80,35 +85,38 @@ export const MessageReactions = ({ messageId, reactions = {}, onReactionUpdate }
           <span className="text-muted-foreground">{getReactionCount(emoji)}</span>
         </Button>
       ))}
-      
-      <Popover open={isOpen} onOpenChange={setIsOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 px-2 text-muted-foreground hover:text-foreground"
-          >
-            <span className="text-lg">+</span>
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-2">
-          <div className="flex gap-1">
-            {QUICK_REACTIONS.map(emoji => (
-              <Button
-                key={emoji}
-                variant="ghost"
-                size="sm"
-                className={`h-9 w-9 p-0 text-xl ${
-                  hasUserReacted(emoji) ? 'bg-primary/10' : ''
-                }`}
-                onClick={() => handleReaction(emoji)}
-              >
-                {emoji}
-              </Button>
-            ))}
-          </div>
-        </PopoverContent>
-      </Popover>
+
+      {showPicker && (
+        <Popover open={isOpen} onOpenChange={setIsOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-muted-foreground hover:text-foreground"
+            >
+              <span className="text-lg">+</span>
+            </Button>
+          </PopoverTrigger>
+
+          <PopoverContent className="w-auto p-2">
+            <div className="flex gap-1">
+              {QUICK_REACTIONS.map((emoji) => (
+                <Button
+                  key={emoji}
+                  variant="ghost"
+                  size="sm"
+                  className={`h-9 w-9 p-0 text-xl ${
+                    hasUserReacted(emoji) ? "bg-primary/10" : ""
+                  }`}
+                  onClick={() => handleReaction(emoji)}
+                >
+                  {emoji}
+                </Button>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
+      )}
     </div>
   );
 };

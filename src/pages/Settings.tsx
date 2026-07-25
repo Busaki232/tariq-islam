@@ -919,7 +919,7 @@ const doSignOut = async () => {
       onClick={() => navigate(-1)}
       className="mb-4 text-sm text-muted-foreground hover:text-foreground"
     >
-      {t("common.close", { defaultValue: "Close" })}
+      {t("close", { defaultValue: "Close" })}
     </button>
 
       <h1 className="text-xl font-semibold">{t("settings.title")}</h1>
@@ -928,7 +928,15 @@ const doSignOut = async () => {
   onClick={() => navigate("/notifications")}
   className="w-full mt-4 rounded-xl border px-4 py-3 text-left hover:bg-muted"
 >
-  Notifications
+ <Button
+   type="button"
+   variant="outline"
+   onClick={() => navigate("/notifications")}
+ >
+   {t("settings.notifications", {
+     defaultValue: "Notifications",
+   })}
+ </Button>
 </button>
       <div className="mt-6 space-y-4">
         {/* Profile */}

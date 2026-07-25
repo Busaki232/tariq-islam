@@ -30,4 +30,5 @@ export const SUPPORTED_LANGUAGES: AppLanguage[] = [
     nativeName: "Hausa",
     flag: "🇳🇬",
   },
+
 ];

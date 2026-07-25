@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Shield, AlertTriangle, CheckCircle, XCircle, Clock, TrendingUp } from 'lucide-react';
+import { Shield, AlertTriangle, CheckCircle, XCircle, Clock, Trash2,TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Report {
@@ -41,6 +41,21 @@ interface PendingReflection {
   video_url: string;
   status: string;
   created_at: string;
+  thumbnail_url: string | null;
+  trim_start_seconds: number;
+  trim_end_seconds: number | null;
+  reference_type: string | null;
+  quran_surah_number: number | null;
+  quran_ayah_start: number | null;
+  quran_ayah_end: number | null;
+  hadith_collection: string | null;
+  hadith_number: string | null;
+  reference_note: string | null;
+  creatorProfile?: {
+    full_name: string | null;
+    username: string | null;
+    avatar_url: string | null;
+  } | null;
 }
 interface CreatorProfile {
   user_id: string;
@@ -48,6 +63,23 @@ interface CreatorProfile {
   username: string | null;
   avatar_url: string | null;
   is_creator_verified: boolean;
+}
+interface PendingScholarLecture {
+  id: string;
+  scholar_id: string;
+  title: string;
+  description: string | null;
+  video_url: string;
+  thumbnail_url: string | null;
+  category: string | null;
+  language: string | null;
+  status: string;
+  is_featured: boolean;
+  created_at: string;
+  scholarProfile?: {
+    display_name: string;
+    user_id: string;
+  } | null;
 }
 
 const ModerationDashboard = () => {
@@ -63,10 +95,26 @@ const ModerationDashboard = () => {
   const [pendingReflections, setPendingReflections] = useState<
     PendingReflection[]
   >([]);
+  const [allReflections, setAllReflections] = useState<
+    PendingReflection[]
+  >([]);
+
+  const [allReflectionsLoading, setAllReflectionsLoading] =
+    useState(true);
   const [reflectionsLoading, setReflectionsLoading] = useState(true);
   const [updatingReflectionId, setUpdatingReflectionId] = useState<
     string | null
   >(null);
+
+const [pendingScholarLectures, setPendingScholarLectures] = useState<
+  PendingScholarLecture[]
+>([]);
+
+const [scholarLecturesLoading, setScholarLecturesLoading] =
+  useState(true);
+
+const [updatingScholarLectureId, setUpdatingScholarLectureId] =
+  useState<string | null>(null);
 
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
@@ -84,7 +132,9 @@ const ModerationDashboard = () => {
       fetchReports();
       fetchStats();
       fetchPendingReflections();
+      fetchAllReflections();
       fetchCreators();
+      fetchPendingScholarLectures();
     }
   }, [isAdmin, isModerator, rolesLoading, navigate]);
 
@@ -153,6 +203,11 @@ const  handleReflectionAction = async (
           setPendingReflections((current) =>
             current.filter((reflection) => reflection.id !== reflectionId)
           );
+      setAllReflections((current) =>
+        current.filter(
+          (reflection) => reflection.id !== reflectionId
+        )
+      );
 
           toast.success(
             status === "approved"
@@ -166,29 +221,135 @@ const  handleReflectionAction = async (
           setUpdatingReflectionId(null);
         }
       };
-  const fetchPendingReflections = async () => {
-  setReflectionsLoading(true);
 
-  try {
-    const { data, error } = await supabase
-      .from("reflection_videos")
-      .select(
-        "id,user_id,title,caption,category,language,video_url,status,created_at"
-      )
-      .eq("status", "pending")
-      .order("created_at", { ascending: true });
+  const handleDeleteReflection = async (
+    reflectionId: string,
+    reflectionTitle: string
+  ) => {
+    if (!user?.id) return;
+
+    const confirmed = window.confirm(
+      `Permanently delete "${reflectionTitle}"?\n\nThis action cannot be undone.`
+    );
+
+    if (!confirmed) return;
+
+    setUpdatingReflectionId(reflectionId);
+
+    try {
+    const { data, error } = await supabase.functions.invoke(
+      "admin-delete-reflection",
+      {
+        body: {
+          reflectionId,
+        },
+      }
+    );
 
     if (error) throw error;
 
-    setPendingReflections(data || []);
-  } catch (error) {
-    console.error("Error fetching pending reflections:", error);
-    toast.error("Failed to load pending reflections");
+    if (!data?.success) {
+      throw new Error(
+        data?.error || "The reflection was not deleted."
+      );
+    }
+
+      setPendingReflections((current) =>
+        current.filter(
+          (reflection) => reflection.id !== reflectionId
+        )
+      );
+
+      toast.success("Reflection permanently deleted");
+    } catch (error) {
+      console.error("Error deleting reflection:", error);
+
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to delete reflection"
+      );
+    } finally {
+      setUpdatingReflectionId(null);
+    }
+  };
+
+const fetchPendingReflections = async () => {
+  setReflectionsLoading(true);
+
+  try {
+    const { data: reflectionsData, error: reflectionsError } =
+      await supabase
+        .from("reflection_videos")
+ .select(
+   "id,user_id,title,caption,category,language,video_url,thumbnail_url,trim_start_seconds,trim_end_seconds,reference_type,quran_surah_number,quran_ayah_start,quran_ayah_end,hadith_collection,hadith_number,reference_note,status,created_at"
+ )
+        .eq("status", "pending")
+        .order("created_at", { ascending: true });
+
+    if (reflectionsError) throw reflectionsError;
+
+    const reflections = reflectionsData ?? [];
+
+    const creatorIds = [
+      ...new Set(
+        reflections.map((reflection) => reflection.user_id)
+      ),
+    ];
+
+    let profilesByUserId: Record<
+      string,
+      {
+        full_name: string | null;
+        username: string | null;
+        avatar_url: string | null;
+      }
+    > = {};
+
+    if (creatorIds.length > 0) {
+      const { data: profilesData, error: profilesError } =
+        await supabase
+          .from("profiles")
+          .select("user_id,full_name,username,avatar_url")
+          .in("user_id", creatorIds);
+
+      if (profilesError) throw profilesError;
+
+      profilesByUserId = Object.fromEntries(
+        (profilesData ?? []).map((profile) => [
+          profile.user_id,
+          {
+            full_name: profile.full_name,
+            username: profile.username,
+            avatar_url: profile.avatar_url,
+          },
+        ])
+      );
+    }
+
+    setPendingReflections(
+      reflections.map((reflection) => ({
+        ...reflection,
+        creatorProfile:
+          profilesByUserId[reflection.user_id] ?? null,
+      }))
+    );
+  } catch (error: unknown) {
+    console.error(
+      "Error fetching pending reflections:",
+      error
+    );
+
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Failed to load pending reflections";
+
+    toast.error(message);
   } finally {
     setReflectionsLoading(false);
   }
 };
-
 const fetchCreators = async () => {
   setCreatorsLoading(true);
 
@@ -211,44 +372,194 @@ const fetchCreators = async () => {
   }
 };
 
-const handleCreatorVerification = async (
-  creatorId: string,
-  verified: boolean
-) => {
-  setUpdatingCreatorId(creatorId);
+const fetchAllReflections = async () => {
+  setAllReflectionsLoading(true);
 
   try {
-    const { error } = await supabase.rpc(
-      "set_creator_verification",
+    const { data: reflectionsData, error: reflectionsError } =
+      await supabase
+        .from("reflection_videos")
+        .select(
+          "id,user_id,title,caption,category,language,video_url,thumbnail_url,trim_start_seconds,trim_end_seconds,reference_type,quran_surah_number,quran_ayah_start,quran_ayah_end,hadith_collection,hadith_number,reference_note,status,created_at"
+        )
+        .order("created_at", { ascending: false });
+
+    if (reflectionsError) throw reflectionsError;
+
+    const reflections = reflectionsData ?? [];
+
+    const creatorIds = [
+      ...new Set(
+        reflections.map((reflection) => reflection.user_id)
+      ),
+    ];
+
+    let profilesByUserId: Record<
+      string,
       {
-        target_user_id: creatorId,
-        verified,
+        full_name: string | null;
+        username: string | null;
+        avatar_url: string | null;
       }
+    > = {};
+
+    if (creatorIds.length > 0) {
+      const { data: profileRows, error: profilesError } =
+        await supabase
+          .from("profiles")
+          .select("user_id,full_name,username,avatar_url")
+          .in("user_id", creatorIds);
+
+      if (profilesError) throw profilesError;
+
+      profilesByUserId = Object.fromEntries(
+        (profileRows ?? []).map((profile) => [
+          profile.user_id,
+          {
+            full_name: profile.full_name,
+            username: profile.username,
+            avatar_url: profile.avatar_url,
+          },
+        ])
+      );
+    }
+
+    setAllReflections(
+      reflections.map((reflection) => ({
+        ...reflection,
+        creatorProfile:
+          profilesByUserId[reflection.user_id] ?? null,
+      }))
     );
+  } catch (error) {
+    console.error("Error fetching all reflections:", error);
+    toast.error("Failed to load all reflections");
+  } finally {
+    setAllReflectionsLoading(false);
+  }
+};
+
+const fetchPendingScholarLectures = async () => {
+  setScholarLecturesLoading(true);
+
+  try {
+    const { data: lectureRows, error: lecturesError } =
+      await supabase
+        .from("scholar_lectures")
+        .select(
+          `
+            id,
+            scholar_id,
+            title,
+            description,
+            video_url,
+            thumbnail_url,
+            category,
+            language,
+            status,
+            is_featured,
+            created_at
+          `
+        )
+        .eq("status", "pending")
+        .order("created_at", { ascending: true });
+
+    if (lecturesError) throw lecturesError;
+
+    const lectures = lectureRows ?? [];
+
+    const scholarIds = [
+      ...new Set(
+        lectures
+          .map((lecture) => lecture.scholar_id)
+          .filter(Boolean)
+      ),
+    ];
+
+    let scholarsById: Record<
+      string,
+      {
+        display_name: string;
+        user_id: string;
+      }
+    > = {};
+
+    if (scholarIds.length > 0) {
+      const { data: scholarRows, error: scholarsError } =
+        await supabase
+          .from("scholar_profiles")
+          .select("id,user_id,display_name")
+          .in("id", scholarIds);
+
+      if (scholarsError) throw scholarsError;
+
+      scholarsById = Object.fromEntries(
+        (scholarRows ?? []).map((scholar) => [
+          scholar.id,
+          {
+            display_name: scholar.display_name,
+            user_id: scholar.user_id,
+          },
+        ])
+      );
+    }
+
+
+    setPendingScholarLectures(
+      lectures.map((lecture) => ({
+        ...lecture,
+        scholarProfile:
+          scholarsById[lecture.scholar_id] ?? null,
+      }))
+    );
+  } catch (error) {
+    console.error(
+      "Error fetching pending scholar lectures:",
+      error
+    );
+
+    toast.error("Failed to load pending scholar lectures");
+  } finally {
+    setScholarLecturesLoading(false);
+  }
+};
+const handleScholarLectureAction = async (
+  lectureId: string,
+  status: "approved" | "rejected"
+) => {
+  if (!user?.id) return;
+
+  setUpdatingScholarLectureId(lectureId);
+
+  try {
+    const { error } = await supabase
+      .from("scholar_lectures")
+      .update({
+        status,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", lectureId);
 
     if (error) throw error;
 
-    setCreators((current) =>
-      current.map((creator) =>
-        creator.user_id === creatorId
-          ? {
-              ...creator,
-              is_creator_verified: verified,
-            }
-          : creator
-      )
+    setPendingScholarLectures((current) =>
+      current.filter((lecture) => lecture.id !== lectureId)
     );
 
     toast.success(
-      verified
-        ? "Creator verified"
-        : "Creator verification removed"
+      status === "approved"
+        ? "Scholar lecture approved"
+        : "Scholar lecture rejected"
     );
   } catch (error) {
-    console.error("Error changing creator verification:", error);
-    toast.error("Failed to update creator verification");
+    console.error(
+      "Error updating scholar lecture:",
+      error
+    );
+
+    toast.error("Failed to update scholar lecture");
   } finally {
-    setUpdatingCreatorId(null);
+    setUpdatingScholarLectureId(null);
   }
 };
 
@@ -433,7 +744,7 @@ const handleCreatorVerification = async (
 
         {/* Reports Tabs */}
         <Tabs defaultValue="pending" className="space-y-4">
-          <TabsList className="flex h-auto w-full justify-start gap-1 overflow-x-auto whitespace-nowrap">
+          <TabsList className="flex h-auto w-full flex-wrap justify-start gap-2">
             <TabsTrigger value="pending">Pending ({stats.pending})</TabsTrigger>
 
             <TabsTrigger value="under_review">Under Review ({stats.underReview})</TabsTrigger>
@@ -445,7 +756,173 @@ const handleCreatorVerification = async (
                      <TabsTrigger value="reflections">
                        Reflections ({pendingReflections.length})
                      </TabsTrigger>
+                     <TabsTrigger value="scholar-lectures">
+                       Scholar Lectures ({pendingScholarLectures.length})
+                     </TabsTrigger>
+                     <TabsContent
+                       value="scholar-lectures"
+                       className="space-y-4"
+                     >
+                       {scholarLecturesLoading ? (
+                         <Card>
+                           <CardContent className="py-8 text-center text-muted-foreground">
+                             Loading pending scholar lectures...
+                           </CardContent>
+                         </Card>
+                       ) : pendingScholarLectures.length === 0 ? (
+                         <Card>
+                           <CardContent className="py-8 text-center text-muted-foreground">
+                             No scholar lectures are waiting for approval.
+                           </CardContent>
+                         </Card>
+                       ) : (
+                         pendingScholarLectures.map((lecture) => (
+                           <Card key={lecture.id}>
+                             <CardHeader>
+                               <div className="flex items-start justify-between gap-4">
+                                 <div>
+                                   <CardTitle>{lecture.title}</CardTitle>
 
+                                   <CardDescription>
+                                     Submitted{" "}
+                                     {new Date(
+                                       lecture.created_at
+                                     ).toLocaleString()}
+                                   </CardDescription>
+                                 </div>
+
+                                 <Badge variant="outline">Pending</Badge>
+                               </div>
+                             </CardHeader>
+
+                             <CardContent className="space-y-4">
+                               {lecture.thumbnail_url ? (
+                                 <div className="relative overflow-hidden rounded-xl bg-black">
+                                   <img
+                                     src={lecture.thumbnail_url}
+                                     alt={lecture.title}
+                                     className="max-h-[55vh] w-full object-contain"
+                                   />
+
+                                   <Button
+                                     type="button"
+                                     variant="secondary"
+                                     className="absolute bottom-4 left-4"
+                                     onClick={() => {
+                                       const video =
+                                         document.getElementById(
+                                           `scholar-lecture-video-${lecture.id}`
+                                         ) as HTMLVideoElement | null;
+
+                                       if (!video) return;
+
+                                       video.classList.remove("hidden");
+                                       void video.play();
+                                     }}
+                                   >
+                                     Play Lecture
+                                   </Button>
+
+                                   <video
+                                     id={`scholar-lecture-video-${lecture.id}`}
+                                     src={lecture.video_url}
+                                     controls
+                                     playsInline
+                                     preload="metadata"
+                                     className="hidden max-h-[55vh] w-full rounded-xl bg-black object-contain"
+                                   />
+                                 </div>
+                               ) : (
+                                 <video
+                                   src={lecture.video_url}
+                                   controls
+                                   playsInline
+                                   preload="metadata"
+                                   className="max-h-[55vh] w-full rounded-xl bg-black object-contain"
+                                 />
+                               )}
+
+                               <div className="space-y-3">
+                                 {lecture.description && (
+                                   <p className="whitespace-pre-wrap text-sm">
+                                     {lecture.description}
+                                   </p>
+                                 )}
+
+                                 <div className="flex flex-wrap gap-2">
+                                   {lecture.category && (
+                                     <Badge variant="secondary">
+                                       {lecture.category}
+                                     </Badge>
+                                   )}
+
+                                   {lecture.language && (
+                                     <Badge variant="secondary">
+                                       {lecture.language}
+                                     </Badge>
+                                   )}
+
+                                   {lecture.is_featured && (
+                                     <Badge>Featured</Badge>
+                                   )}
+                                 </div>
+
+                                 <p className="text-sm font-medium">
+                                   Scholar:{" "}
+                                   {lecture.scholarProfile?.display_name ||
+                                     "Unknown scholar"}
+                                 </p>
+                               </div>
+
+                               <div className="flex flex-wrap gap-3">
+                                 <Button
+                                   type="button"
+                                   onClick={() =>
+                                     void handleScholarLectureAction(
+                                       lecture.id,
+                                       "approved"
+                                     )
+                                   }
+                                   disabled={
+                                     updatingScholarLectureId === lecture.id
+                                   }
+                                 >
+                                   <CheckCircle className="mr-2 h-4 w-4" />
+                                   Approve
+                                 </Button>
+
+                                 <Button
+                                   type="button"
+                                   variant="destructive"
+                                   onClick={() => {
+                                     const confirmed = window.confirm(
+                                       `Reject "${lecture.title}"?`
+                                     );
+
+                                     if (confirmed) {
+                                       void handleScholarLectureAction(
+                                         lecture.id,
+                                         "rejected"
+                                       );
+                                     }
+                                   }}
+                                   disabled={
+                                     updatingScholarLectureId === lecture.id
+                                   }
+                                 >
+                                   <XCircle className="mr-2 h-4 w-4" />
+                                   Reject
+                                 </Button>
+                               </div>
+                             </CardContent>
+                           </Card>
+                         ))
+                       )}
+                     </TabsContent>
+
+<TabsTrigger value="all-reflections">
+  All Reflections ({allReflections.length})
+</TabsTrigger>
                      <TabsTrigger value="creators">
                        Creators ({creators.length})
                      </TabsTrigger>
@@ -506,13 +983,142 @@ const handleCreatorVerification = async (
           </CardHeader>
 
           <CardContent className="space-y-4">
-            <video
-              src={reflection.video_url}
-              controls
-              playsInline
-              preload="metadata"
-              className="max-h-[55vh] w-full rounded-xl bg-black object-contain"
-            />
+ {reflection.thumbnail_url ? (
+   <div className="relative overflow-hidden rounded-xl bg-black">
+     <img
+       src={reflection.thumbnail_url}
+       alt={reflection.title}
+       className="max-h-[55vh] w-full object-contain"
+     />
+
+     <Button
+       type="button"
+       variant="secondary"
+       className="absolute bottom-4 left-4"
+       onClick={() => {
+         const video = document.getElementById(
+           `moderation-video-${reflection.id}`
+         ) as HTMLVideoElement | null;
+
+         if (!video) return;
+
+         const start = Number(
+           reflection.trim_start_seconds ?? 0
+         );
+
+         video.classList.remove("hidden");
+         video.currentTime = start;
+         void video.play();
+       }}
+     >
+       Play Video
+     </Button>
+
+     <video
+       id={`moderation-video-${reflection.id}`}
+       src={reflection.video_url}
+       controls
+       playsInline
+       preload="metadata"
+       crossOrigin="anonymous"
+       onLoadedMetadata={(event) => {
+         const video = event.currentTarget;
+         const start = Number(
+           reflection.trim_start_seconds ?? 0
+         );
+
+         if (start > 0 && start < video.duration) {
+           video.currentTime = start;
+         }
+       }}
+       onPlay={(event) => {
+         const video = event.currentTarget;
+         const start = Number(
+           reflection.trim_start_seconds ?? 0
+         );
+         const end =
+           reflection.trim_end_seconds === null
+             ? null
+             : Number(reflection.trim_end_seconds);
+
+         if (
+           video.currentTime < start ||
+           (end !== null && video.currentTime >= end)
+         ) {
+           video.currentTime = start;
+         }
+       }}
+       onTimeUpdate={(event) => {
+         const video = event.currentTarget;
+         const start = Number(
+           reflection.trim_start_seconds ?? 0
+         );
+         const end =
+           reflection.trim_end_seconds === null
+             ? null
+             : Number(reflection.trim_end_seconds);
+
+         if (end !== null && video.currentTime >= end) {
+           video.currentTime = start;
+           void video.play();
+         }
+       }}
+       className="hidden max-h-[55vh] w-full rounded-xl bg-black object-contain"
+     />
+   </div>
+ ) : (
+   <video
+     src={reflection.video_url}
+     controls
+     playsInline
+     preload="metadata"
+     crossOrigin="anonymous"
+     onLoadedMetadata={(event) => {
+       const video = event.currentTarget;
+       const start = Number(
+         reflection.trim_start_seconds ?? 0
+       );
+
+       if (start > 0 && start < video.duration) {
+         video.currentTime = start;
+       }
+     }}
+     onPlay={(event) => {
+       const video = event.currentTarget;
+       const start = Number(
+         reflection.trim_start_seconds ?? 0
+       );
+       const end =
+         reflection.trim_end_seconds === null
+           ? null
+           : Number(reflection.trim_end_seconds);
+
+       if (
+         video.currentTime < start ||
+         (end !== null && video.currentTime >= end)
+       ) {
+         video.currentTime = start;
+       }
+     }}
+     onTimeUpdate={(event) => {
+       const video = event.currentTarget;
+       const start = Number(
+         reflection.trim_start_seconds ?? 0
+       );
+       const end =
+         reflection.trim_end_seconds === null
+           ? null
+           : Number(reflection.trim_end_seconds);
+
+       if (end !== null && video.currentTime >= end) {
+         video.currentTime = start;
+         void video.play();
+       }
+     }}
+     className="max-h-[55vh] w-full rounded-xl bg-black object-contain"
+   />
+ )}
+
 
             <div className="space-y-2">
               {reflection.caption && (
@@ -523,10 +1129,56 @@ const handleCreatorVerification = async (
                 <Badge variant="secondary">{reflection.category}</Badge>
                 <Badge variant="secondary">{reflection.language}</Badge>
               </div>
+              {reflection.reference_type === "quran" &&
+                reflection.quran_surah_number &&
+                reflection.quran_ayah_start && (
+                  <div className="rounded-lg border bg-muted/40 p-3 text-sm">
+                    <p className="font-medium">
+                      Quran {reflection.quran_surah_number}:
+                      {reflection.quran_ayah_start}
+                      {reflection.quran_ayah_end &&
+                        reflection.quran_ayah_end !==
+                          reflection.quran_ayah_start &&
+                        `-${reflection.quran_ayah_end}`}
+                    </p>
 
-              <p className="text-xs text-muted-foreground">
-                Creator ID: {reflection.user_id}
+                    {reflection.reference_note && (
+                      <p className="mt-1 text-muted-foreground">
+                        {reflection.reference_note}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+              {reflection.reference_type === "hadith" && (
+                <div className="rounded-lg border bg-muted/40 p-3 text-sm">
+                  <p className="font-medium">
+                    {reflection.hadith_collection || "Hadith"}
+                    {reflection.hadith_number
+                      ? `, Hadith ${reflection.hadith_number}`
+                      : ""}
+                  </p>
+
+                  {reflection.reference_note && (
+                    <p className="mt-1 text-muted-foreground">
+                      {reflection.reference_note}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              <p className="text-sm font-medium">
+                Creator:{" "}
+                {reflection.creatorProfile?.full_name ||
+                  reflection.creatorProfile?.username ||
+                  "Unknown creator"}
               </p>
+
+              {reflection.creatorProfile?.username && (
+                <p className="text-xs text-muted-foreground">
+                  @{reflection.creatorProfile.username}
+                </p>
+              )}
             </div>
 
             <div className="flex flex-wrap gap-3">
@@ -561,7 +1213,113 @@ const handleCreatorVerification = async (
                 <XCircle className="mr-2 h-4 w-4" />
                 Reject
               </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                onClick={() =>
+                  void handleDeleteReflection(
+                    reflection.id,
+                    reflection.title
+                  )
+                }
+                disabled={updatingReflectionId === reflection.id}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete Permanently
+              </Button>
             </div>
+
+          </CardContent>
+        </Card>
+      ))
+    )}
+  </TabsContent>
+
+  <TabsContent value="all-reflections" className="space-y-4">
+    {allReflectionsLoading ? (
+      <Card>
+        <CardContent className="py-8 text-center text-muted-foreground">
+          Loading all reflections...
+        </CardContent>
+      </Card>
+    ) : allReflections.length === 0 ? (
+      <Card>
+        <CardContent className="py-8 text-center text-muted-foreground">
+          No reflections found.
+        </CardContent>
+      </Card>
+    ) : (
+      allReflections.map((reflection) => (
+        <Card key={reflection.id}>
+          <CardHeader>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <CardTitle>{reflection.title}</CardTitle>
+
+                <CardDescription>
+                  Submitted{" "}
+                  {new Date(reflection.created_at).toLocaleString()}
+                </CardDescription>
+              </div>
+
+              <Badge variant="outline">
+                {reflection.status}
+              </Badge>
+            </div>
+          </CardHeader>
+
+          <CardContent className="space-y-4">
+            <video
+              src={reflection.video_url}
+              controls
+              playsInline
+              className="max-h-[520px] w-full rounded-xl bg-black"
+            />
+
+            <div>
+              <p className="font-medium">
+                {reflection.category} • {reflection.language}
+              </p>
+
+              {reflection.caption && (
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {reflection.caption}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <p className="text-sm font-medium">
+                Creator:{" "}
+                {reflection.creatorProfile?.full_name ||
+                  reflection.creatorProfile?.username ||
+                  "Unknown creator"}
+              </p>
+
+              {reflection.creatorProfile?.username && (
+                <p className="text-xs text-muted-foreground">
+                  @{reflection.creatorProfile.username}
+                </p>
+              )}
+            </div>
+
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={() =>
+                void handleDeleteReflection(
+                  reflection.id,
+                  reflection.title
+                )
+              }
+              disabled={
+                updatingReflectionId === reflection.id
+              }
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete Permanently
+            </Button>
           </CardContent>
         </Card>
       ))

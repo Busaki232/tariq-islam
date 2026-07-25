@@ -47,13 +47,13 @@ export function useUserRoles() {
   const [error, setError] = useState<string>("");
 
   const isAdmin = useMemo(() => roles.includes("admin"), [roles]);
+ const isModerator = roles.includes("moderator");
 
   // Prevent rapid re-fetch loops if something higher re-mounts frequently
 
 
   useEffect(() => {
     let cancelled = false;
-
     const run = async () => {
       setLoading(true);
       setError("");
@@ -115,5 +115,11 @@ export function useUserRoles() {
     };
   }, [user?.id]);
 
-  return { roles, isAdmin, loading, error };
+  return {
+    roles,
+    isAdmin,
+    isModerator,
+    loading,
+    error,
+  };
 }

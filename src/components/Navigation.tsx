@@ -6,7 +6,6 @@ import {
   Users,
   MapPin,
   ShoppingBag,
-  Building,
   Calendar,
   BarChart3,
   BookOpen,
@@ -147,7 +146,7 @@ const Navigation = () => {
           ]
         : []),
 
-      { name: t("navigation:mosques", { defaultValue: "Mosques" }), href: "/mosques", icon: Building },
+
       { name: t("navigation:events", { defaultValue: "Events" }), href: "/events", icon: Calendar },
       { name: t("navigation:marketplace", { defaultValue: "Marketplace" }), href: "/marketplace", icon: ShoppingBag },
 

@@ -408,7 +408,10 @@ export const AudioCallScreen = () => {
 
       const { data, error } = await supabase
         .from("call_invites")
-        .update({ status: "accepted" })
+        .update({
+          status: "accepted",
+          accepted_at: new Date().toISOString(),
+        })
         .eq("id", callId)
         .eq("callee_id", myId)
         .eq("status", "ringing")

@@ -7,7 +7,7 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: true, // IMPORTANT for Dev camera reliability
     port: 8080,
-    https: true,       // IMPORTANT: secure context for getUserMedia when not using localhost-only flows
+    https: false,       // IMPORTANT: secure context for getUserMedia when not using localhost-only flows
     headers: {
       "X-Frame-Options": "SAMEORIGIN",
       "X-Content-Type-Options": "nosniff",

@@ -3,8 +3,11 @@ import {
   ArrowLeft,
   Bookmark,
   BookmarkCheck,
+  ChevronDown,
+  ChevronUp,
   Eye,
   Flag,
+  GripVertical,
   Heart,
   MessageCircle,
   MoreVertical,
@@ -18,7 +21,27 @@ import { useTranslation } from "react-i18next";
 
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import TariqLogo from "@/components/tariq/TariqLogo";
+import TariqBadge from "@/components/tariq/TariqBadge";
 import { useAuth } from "@/hooks/useAuth";
+
+type CaptionSegment = {
+  id?: number;
+  start: number;
+  end: number;
+  text: string;
+};
+
+type CaptionTranslation = {
+  language_code: string;
+  language_name: string;
+  translated_segments: CaptionSegment[] | null;
+};
+
+type CaptionPosition = {
+  x: number;
+  y: number;
+};
 
 type ReflectionVideo = {
   id: string;
@@ -28,6 +51,27 @@ type ReflectionVideo = {
   category: string;
   language: string;
   video_url: string;
+  thumbnail_url: string | null;
+  trim_start_seconds: number;
+  trim_end_seconds: number | null;
+  reference_type: string | null;
+  quran_surah_number: number | null;
+  quran_ayah_start: number | null;
+  quran_ayah_end: number | null;
+  hadith_collection: string | null;
+  hadith_number: string | null;
+  reference_note: string | null;
+  captions_text: string | null;
+  captions_enabled: boolean;
+  captions_language: string | null;
+  captions_segments: CaptionSegment[] | null;
+    creator_profile: {
+      user_id: string;
+      full_name: string | null;
+      username: string | null;
+      avatar_url: string | null;
+      is_creator_verified: boolean | null;
+    } | null;
 };
 
 type FeedCache = {
@@ -39,7 +83,7 @@ type FeedCache = {
 };
 
 const PAGE_SIZE = 20;
-const FEED_CACHE_KEY = "tariq_reflections_feed_cache_v2";
+const FEED_CACHE_KEY = "tariq_reflections_feed_cache_v8";
 const FEED_CACHE_MAX_AGE = 5 * 60 * 1000;
 
 const saveFeedCache = (payload: Omit<FeedCache, "savedAt">) => {
@@ -115,6 +159,89 @@ export default function ReflectionsFeed() {
   const [reportComment, setReportComment] = useState<any | null>(null);
   const [moreMenuVideoId, setMoreMenuVideoId] = useState<string | null>(null);
 
+  const [activeCaptions, setActiveCaptions] = useState<
+    Record<string, string>
+  >({});
+
+  const [captionTranslations, setCaptionTranslations] = useState<
+    Record<string, CaptionTranslation[]>
+  >({});
+
+  const [selectedCaptionLanguages, setSelectedCaptionLanguages] = useState<
+    Record<string, string>
+  >({});
+const [captionPositions, setCaptionPositions] = useState<
+  Record<string, CaptionPosition>
+>({});
+
+const [collapsedCaptions, setCollapsedCaptions] = useState<
+  Record<string, boolean>
+>({});
+
+const captionDragRef = useRef<{
+  videoId: string;
+  startPointerX: number;
+  startPointerY: number;
+  startPositionX: number;
+  startPositionY: number;
+} | null>(null);
+
+const handleCaptionPointerDown = (
+  event: React.PointerEvent<HTMLButtonElement>,
+  videoId: string
+) => {
+  event.preventDefault();
+  event.stopPropagation();
+
+  const currentPosition = captionPositions[videoId] ?? {
+    x: 0,
+    y: 0,
+  };
+
+  captionDragRef.current = {
+    videoId,
+    startPointerX: event.clientX,
+    startPointerY: event.clientY,
+    startPositionX: currentPosition.x,
+    startPositionY: currentPosition.y,
+  };
+
+  event.currentTarget.setPointerCapture(event.pointerId);
+};
+
+const handleCaptionPointerMove = (
+  event: React.PointerEvent<HTMLButtonElement>
+) => {
+  const drag = captionDragRef.current;
+  if (!drag) return;
+
+  const nextX =
+    drag.startPositionX +
+    (event.clientX - drag.startPointerX);
+
+  const nextY =
+    drag.startPositionY +
+    (event.clientY - drag.startPointerY);
+
+  setCaptionPositions((current) => ({
+    ...current,
+    [drag.videoId]: {
+      x: nextX,
+      y: nextY,
+    },
+  }));
+};
+
+const handleCaptionPointerUp = (
+  event: React.PointerEvent<HTMLButtonElement>
+) => {
+  captionDragRef.current = null;
+
+  if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+    event.currentTarget.releasePointerCapture(event.pointerId);
+  }
+};
+
 
 
   const preloadNextVideo = useCallback(
@@ -160,15 +287,17 @@ export default function ReflectionsFeed() {
 
         const currentPage = reset ? 0 : page;
 
-        const { data: videoRows, error } = await supabase
-          .from("reflection_videos")
-          .select("id,user_id,title,caption,category,language,video_url")
-          .eq("status", "approved")
-          .order("created_at", { ascending: false })
-          .range(
-            currentPage * PAGE_SIZE,
-            currentPage * PAGE_SIZE + PAGE_SIZE - 1
-          );
+const { data: videoRows, error } = await supabase
+  .from("reflection_videos")
+.select(
+  "id,user_id,title,caption,category,language,video_url,thumbnail_url,trim_start_seconds,trim_end_seconds,reference_type,quran_surah_number,quran_ayah_start,quran_ayah_end,hadith_collection,hadith_number,reference_note,captions_text,captions_enabled,captions_language,captions_segments"
+)
+  .eq("status", "approved")
+  .order("created_at", { ascending: false })
+  .range(
+    currentPage * PAGE_SIZE,
+    currentPage * PAGE_SIZE + PAGE_SIZE - 1
+  );
 
         if (error) throw error;
 
@@ -178,11 +307,21 @@ export default function ReflectionsFeed() {
         }
 
         const videoIds = videoRows.map((video) => video.id);
+        const creatorIds = Array.from(
+          new Set(
+            videoRows
+              .map((video) => video.user_id)
+              .filter((userId): userId is string => Boolean(userId))
+          )
+        );
+
 const [
   { data: likes },
   { data: commentsData },
   { data: views },
   { data: saves },
+  { data: translations },
+  { data: creatorProfiles },
 ] = await Promise.all([
   supabase
     .from("reflection_likes")
@@ -206,7 +345,62 @@ const [
         .eq("user_id", user.id)
         .in("reflection_id", videoIds)
     : Promise.resolve({ data: [] }),
+
+  supabase
+    .from("reflection_caption_translations")
+    .select(
+      "reflection_id,language_code,language_name,translated_segments"
+    )
+    .in("reflection_id", videoIds),
+
+  creatorIds.length > 0
+    ? supabase
+        .from("profiles")
+        .select(
+          "user_id, full_name, username, avatar_url, is_creator_verified"
+        )
+        .in("user_id", creatorIds)
+    : Promise.resolve({ data: [] }),
 ]);
+
+
+const creatorProfileByUserId = new Map(
+  (creatorProfiles ?? []).map((profile) => [
+    profile.user_id,
+    profile,
+  ])
+);
+
+const enrichedVideoRows: ReflectionVideo[] = videoRows.map((video) => ({
+  ...video,
+  creator_profile:
+    creatorProfileByUserId.get(video.user_id) ?? null,
+}));
+
+const nextCaptionTranslations: Record<
+  string,
+  CaptionTranslation[]
+> = {};
+
+videoIds.forEach((id) => {
+  nextCaptionTranslations[id] = [];
+});
+
+translations?.forEach((row) => {
+  const reflectionId = row.reflection_id;
+
+  if (!nextCaptionTranslations[reflectionId]) {
+    nextCaptionTranslations[reflectionId] = [];
+  }
+
+  nextCaptionTranslations[reflectionId].push({
+    language_code: row.language_code,
+    language_name: row.language_name,
+    translated_segments: Array.isArray(row.translated_segments)
+      ? (row.translated_segments as CaptionSegment[])
+      : null,
+  });
+});
 
         const nextLikeCounts: Record<string, number> = {};
         const nextCommentCounts: Record<string, number> = {};
@@ -260,22 +454,27 @@ if (user) {
 }
 
         if (reset) {
-          setVideos(videoRows);
+          setVideos(enrichedVideoRows);
           setLikeCounts(nextLikeCounts);
           setCommentCounts(nextCommentCounts);
           setViewCounts(nextViewCounts);
+          setCaptionTranslations(nextCaptionTranslations);
 
           saveFeedCache({
-            videos: videoRows,
+            videos: enrichedVideoRows,
             likeCounts: nextLikeCounts,
             commentCounts: nextCommentCounts,
             viewCounts: nextViewCounts,
           });
         } else {
-          setVideos((prev) => [...prev, ...videoRows]);
+          setVideos((prev) => [...prev, ...enrichedVideoRows]);
           setLikeCounts((prev) => ({ ...prev, ...nextLikeCounts }));
           setCommentCounts((prev) => ({ ...prev, ...nextCommentCounts }));
           setViewCounts((prev) => ({ ...prev, ...nextViewCounts }));
+          setCaptionTranslations((prev) => ({
+            ...prev,
+            ...nextCaptionTranslations,
+          }));
         }
 
         setPage(currentPage + 1);
@@ -965,48 +1164,302 @@ useEffect(() => {
     key={video.id}
     className="flex h-[100dvh] snap-start items-center justify-center px-4 py-4"
   >
-              <div className="relative h-[78dvh] w-full max-w-md overflow-hidden rounded-3xl bg-black shadow-2xl transition-all duration-300">
-                <video
-                  ref={(el) => {
-                    videoRefs.current[video.id] = el;
-                  }}
-                  src={video.video_url}
-                  data-video-id={video.id}
-                  autoPlay
-                  muted={muted}
-                  loop
-                  playsInline
-                  controls={false}
-                  onPlay={() => handleView(video.id)}
-                  onClick={() => handleVideoTap(video.id)}
-                  preload="metadata"
-                  crossOrigin="anonymous"
-                  disablePictureInPicture
-                  className="h-full w-full select-none bg-black object-contain"
-                />
+  <div className="relative h-[78dvh] w-full max-w-md overflow-hidden rounded-3xl bg-black shadow-2xl transition-all duration-300">
+  <video
+     ref={(el) => {
+       videoRefs.current[video.id] = el;
+     }}
+     src={video.video_url}
+     poster={video.thumbnail_url ?? undefined}
+     data-video-id={video.id}
+     autoPlay
+     muted={muted}
+     playsInline
+     controls={false}
+     preload="metadata"
+     crossOrigin="anonymous"
+     disablePictureInPicture
+     onLoadedMetadata={(event) => {
+       const element = event.currentTarget;
+       const start = Number(video.trim_start_seconds ?? 0);
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
+       if (start > 0 && start < element.duration) {
+         element.currentTime = start;
+       }
+     }}
+     onPlay={(event) => {
+       const element = event.currentTarget;
+       const start = Number(video.trim_start_seconds ?? 0);
+       const end =
+         video.trim_end_seconds === null
+           ? null
+           : Number(video.trim_end_seconds);
 
-                {heartVideoId === video.id && (
-                  <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                    <Heart className="h-28 w-28 fill-red-500 text-red-500 animate-bounce drop-shadow-2xl" />
-                  </div>
-                )}
+       if (
+         element.currentTime < start ||
+         (end !== null && element.currentTime >= end)
+       ) {
+         element.currentTime = start;
+       }
 
-                <div className="absolute bottom-6 left-4 right-20">
-                  <div className="mb-2 inline-flex rounded-full bg-islamic-green/90 px-3 py-1 text-xs font-semibold">
-                    {video.category} • {video.language}
-                  </div>
+       handleView(video.id);
+     }}
+onEnded={() => {
+  const currentIndex = videos.findIndex(
+    (item) => item.id === video.id
+  );
+
+  const nextVideo = videos[currentIndex + 1] ?? videos[0];
+
+  const nextElement = document.getElementById(
+    `reflection-${nextVideo.id}`
+  );
+
+  nextElement?.scrollIntoView({
+    behavior: "smooth",
+    block: "start",
+  });
+}}
+onTimeUpdate={(event) => {
+  const element = event.currentTarget;
+  const end =
+    video.trim_end_seconds === null
+      ? null
+      : Number(video.trim_end_seconds);
+
+  const currentTime = element.currentTime;
+
+  if (end !== null && currentTime >= end) {
+    element.pause();
+
+    const currentIndex = videos.findIndex(
+      (item) => item.id === video.id
+    );
+
+    const nextVideo = videos[currentIndex + 1] ?? videos[0];
+
+    window.requestAnimationFrame(() => {
+      const nextElement = document.getElementById(
+        `reflection-${nextVideo.id}`
+      );
+
+      nextElement?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+
+    return;
+  }
+
+  const selectedLanguage =
+    selectedCaptionLanguages[video.id] || "original";
+    selectedCaptionLanguages[video.id] || "original";
+    if (selectedLanguage === "off") {
+      setActiveCaptions((current) => {
+        if (!current[video.id]) return current;
+
+        return {
+          ...current,
+          [video.id]: "",
+        };
+      });
+
+      return;
+    }
+
+  const selectedTranslation =
+    selectedLanguage === "original"
+      ? null
+      : captionTranslations[video.id]?.find(
+          (translation) =>
+            translation.language_code === selectedLanguage
+        );
+
+  const segments =
+    selectedLanguage === "original"
+      ? Array.isArray(video.captions_segments)
+        ? video.captions_segments
+        : []
+      : Array.isArray(selectedTranslation?.translated_segments)
+        ? selectedTranslation.translated_segments
+        : [];
+
+    const activeSegment = segments.find((segment) => {
+      const segmentStart = Number(segment.start);
+      const segmentEnd = Number(segment.end);
+
+      return (
+        currentTime >= segmentStart &&
+        currentTime < segmentEnd
+      );
+    });
+
+    const nextCaption = activeSegment?.text?.trim() ?? "";
+
+    setActiveCaptions((current) => {
+      if ((current[video.id] ?? "") === nextCaption) {
+        return current;
+      }
+
+      return {
+        ...current,
+        [video.id]: nextCaption,
+      };
+    });
+  }}
+     onClick={() => handleVideoTap(video.id)}
+     className="h-full w-full select-none bg-black object-contain"
+   />
+
+<div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
+
+{heartVideoId === video.id && (
+  <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center">
+    <Heart className="h-28 w-28 fill-red-500 text-red-500 animate-bounce drop-shadow-2xl" />
+  </div>
+)}
+
+{video.captions_enabled && (
+  <div
+    className="absolute bottom-32 left-4 right-20 z-30 max-w-xl"
+    style={{
+      transform: `translate(
+        ${captionPositions[video.id]?.x ?? 0}px,
+        ${captionPositions[video.id]?.y ?? 0}px
+      )`,
+    }}
+  >
+    <div className="overflow-hidden rounded-xl border border-white/20 bg-black/80 text-white shadow-xl backdrop-blur-md">
+      <div className="flex items-center gap-2 border-b border-white/10 p-2">
+        <button
+          type="button"
+          onPointerDown={(event) =>
+            handleCaptionPointerDown(event, video.id)
+          }
+          onPointerMove={handleCaptionPointerMove}
+          onPointerUp={handleCaptionPointerUp}
+          onPointerCancel={handleCaptionPointerUp}
+          className="touch-none cursor-grab rounded-md p-1 text-white/70 hover:bg-white/10 active:cursor-grabbing"
+          aria-label="Move captions"
+        >
+          <GripVertical className="h-5 w-5" />
+        </button>
+
+        <select
+          value={
+            selectedCaptionLanguages[video.id] || "original"
+          }
+          onChange={(event) => {
+            const nextLanguage = event.target.value;
+
+            setSelectedCaptionLanguages((current) => ({
+              ...current,
+              [video.id]: nextLanguage,
+            }));
+
+            setActiveCaptions((current) => ({
+              ...current,
+              [video.id]: "",
+            }));
+          }}
+          onClick={(event) => event.stopPropagation()}
+          className="min-w-0 flex-1 rounded-full border border-white/20 bg-black/70 px-3 py-1.5 text-xs font-semibold text-white"
+          aria-label="Caption language"
+        >
+          <option value="off">Captions Off</option>
+          <option value="original">Original</option>
+
+          {(captionTranslations[video.id] ?? []).map(
+            (translation) => (
+              <option
+                key={translation.language_code}
+                value={translation.language_code}
+              >
+                {translation.language_name}
+              </option>
+            )
+          )}
+        </select>
+
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+
+            setCollapsedCaptions((current) => ({
+              ...current,
+              [video.id]: !current[video.id],
+            }));
+          }}
+          className="rounded-md p-1 text-white/80 hover:bg-white/10"
+          aria-label={
+            collapsedCaptions[video.id]
+              ? "Expand captions"
+              : "Collapse captions"
+          }
+        >
+          {collapsedCaptions[video.id] ? (
+            <ChevronUp className="h-5 w-5" />
+          ) : (
+            <ChevronDown className="h-5 w-5" />
+          )}
+        </button>
+      </div>
+
+      {!collapsedCaptions[video.id] &&
+        (selectedCaptionLanguages[video.id] || "original") !==
+          "off" && (
+          <div className="max-h-32 overflow-y-auto px-3 py-2 text-center text-sm font-medium leading-relaxed sm:text-base">
+            {activeCaptions[video.id] || (
+              <span className="text-white/50">
+                Captions will appear here
+              </span>
+            )}
+          </div>
+        )}
+    </div>
+  </div>
+)}
+
+<div className="absolute bottom-6 left-4 right-20">
+  <div className="mb-2 inline-flex rounded-full bg-islamic-green/90 px-3 py-1 text-xs font-semibold">
+    {video.category} • {video.language}
+  </div>
 
 {video.user_id && (
   <button
     type="button"
     onClick={() => navigate(`/creator/${video.user_id}`)}
-    className="mb-2 block text-left text-sm font-semibold text-white hover:underline"
-  >
-    {t("reflections.viewCreator", {
+    className="mb-2 inline-flex items-center gap-2 rounded-full bg-black/25 px-2.5 py-1.5 text-left text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-black/40"
+    aria-label={t("reflections.viewCreator", {
       defaultValue: "View creator",
     })}
+  >
+    <TariqLogo
+      size="xs"
+      opacity={0.72}
+      className="shrink-0"
+    />
+
+ <span className="flex min-w-0 items-center gap-2">
+   <span className="truncate">
+     {video.creator_profile?.full_name ||
+       video.creator_profile?.username ||
+       t("reflections.tariqIslamCreator", {
+         defaultValue: "Tariq Islam Creator",
+       })}
+   </span>
+
+<TariqBadge
+  variant={
+    video.creator_profile?.is_creator_verified
+      ? "verified-creator"
+      : "creator"
+  }
+  showLabel={false}
+/>
+ </span>
   </button>
 )}
 
@@ -1018,6 +1471,42 @@ useEffect(() => {
                       {video.caption}
                     </p>
                   )}
+              {video.reference_type === "quran" &&
+                video.quran_surah_number &&
+                video.quran_ayah_start && (
+                  <div className="mt-3 rounded-xl border border-white/20 bg-black/45 px-3 py-2 text-sm text-white backdrop-blur-sm">
+                    <p className="font-semibold">
+                      Quran {video.quran_surah_number}:
+                      {video.quran_ayah_start}
+                      {video.quran_ayah_end &&
+                        video.quran_ayah_end !== video.quran_ayah_start &&
+                        `-${video.quran_ayah_end}`}
+                    </p>
+
+                    {video.reference_note && (
+                      <p className="mt-1 text-xs text-white/75">
+                        {video.reference_note}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+              {video.reference_type === "hadith" && (
+                <div className="mt-3 rounded-xl border border-white/20 bg-black/45 px-3 py-2 text-sm text-white backdrop-blur-sm">
+                  <p className="font-semibold">
+                    {video.hadith_collection || "Hadith"}
+                    {video.hadith_number
+                      ? `, Hadith ${video.hadith_number}`
+                      : ""}
+                  </p>
+
+                  {video.reference_note && (
+                    <p className="mt-1 text-xs text-white/75">
+                      {video.reference_note}
+                    </p>
+                  )}
+                </div>
+              )}
                 </div>
 
            <div className="absolute bottom-16 right-4 flex flex-col items-center gap-5">

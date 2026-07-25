@@ -350,65 +350,77 @@ export default function Profile() {
 
   if (!user) return null;
 
-  return (
-    <div className="p-4 pb-24">
-<button
-  type="button"
-  onClick={() => {
-    if (window.history.length > 1) {
-      navigate(-1);
-    } else {
-      navigate("/");
-    }
-  }}
-  className="mb-3 inline-flex items-center gap-2 rounded-lg px-2 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
-  aria-label={t("callsPage.back")}
->
-  <ArrowLeft className="h-5 w-5" />
-  <span>{t("callsPage.back")}</span>
-</button>
+return (
+  <div className="min-h-screen bg-background px-4 pb-24 pt-4">
+    <div className="mx-auto w-full max-w-2xl">
+      {/* Top navigation */}
+      <div className="mb-6 flex items-center justify-between">
+        <button
+          type="button"
+          onClick={() => {
+            if (window.history.length > 1) {
+              navigate(-1);
+            } else {
+              navigate("/");
+            }
+          }}
+          className="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+          aria-label={t("callsPage.back")}
+        >
+          <ArrowLeft className="h-5 w-5" />
+          <span>{t("callsPage.back")}</span>
+        </button>
 
-<div className="mb-4 flex items-center justify-between">
-  <h1 className="text-xl font-semibold truncate">
-    {isOwnProfile
-      ? t("profilePage.title")
-      : fullName || t("profilePage.userProfile")}
-  </h1>
+        {isOwnProfile && (
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => navigate("/notifications")}
+              className="flex h-10 w-10 items-center justify-center rounded-full border bg-background text-lg shadow-sm hover:bg-muted"
+              aria-label="Open notifications"
+            >
+              🔔
+            </button>
 
-  {isOwnProfile && (
-    <button
-      type="button"
-      onClick={() => navigate("/settings")}
-      className="rounded-full border px-3 py-2 text-sm hover:bg-muted"
-      aria-label="Open settings"
-    >
-      ⚙️
-    </button>
-  )}
-</div>
-
-      <div className="mt-4 rounded-xl border p-4">
-        <div className="text-sm text-muted-foreground">
-          {isOwnProfile
-            ? t("profilePage.signedInAs")
-            : t("profilePage.viewingProfile")}
-        </div>
-        <div className="font-medium">
-          {isOwnProfile ? user.email ?? user.id : fullName || profileUserId}
-        </div>
+            <button
+              type="button"
+              onClick={() => navigate("/settings")}
+              className="flex h-10 w-10 items-center justify-center rounded-full border bg-background text-lg shadow-sm hover:bg-muted"
+              aria-label="Open settings"
+            >
+              ⚙️
+            </button>
+          </div>
+        )}
       </div>
 
-      <div className="mt-4 rounded-xl border p-4 space-y-4">
-        <div className="flex items-start gap-4">
-          <div className="relative shrink-0">
+      {/* Page title */}
+      <div className="mb-5">
+        <h1 className="text-2xl font-bold tracking-tight">
+          {isOwnProfile
+            ? t("profilePage.title")
+            : fullName || t("profilePage.userProfile")}
+        </h1>
+
+        {isOwnProfile && (
+          <p className="mt-1 text-sm text-muted-foreground">
+            {user.email ?? user.id}
+          </p>
+        )}
+      </div>
+
+      {/* Main profile card */}
+      <div className="rounded-2xl border bg-card p-5 shadow-sm">
+        <div className="flex flex-col items-center text-center">
+          <div className="relative">
             {avatarUrl ? (
               <img
                 src={avatarUrl}
                 alt={fullName || t("profilePage.title")}
-                className="h-16 w-16 rounded-full object-cover border"
+                className="h-24 w-24 rounded-full border-4 border-background object-cover shadow"
               />
             ) : (
-              <div className="h-16 w-16 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xl font-bold">
+              <div className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-background bg-primary text-3xl font-bold text-primary-foreground shadow">
                 {(fullName || "U").charAt(0).toUpperCase()}
               </div>
             )}
@@ -423,6 +435,7 @@ export default function Profile() {
                   onChange={(e) => {
                     const file = e.currentTarget.files?.[0];
                     if (!file) return;
+
                     void handleAvatarUpload(file);
                     e.currentTarget.value = "";
                   }}
@@ -434,7 +447,7 @@ export default function Profile() {
                     document.getElementById("avatar-upload")?.click()
                   }
                   disabled={uploadingAvatar}
-                  className="absolute -bottom-1 -right-1 rounded-full border bg-background px-2 py-1 text-[10px] shadow"
+                  className="absolute bottom-0 right-0 rounded-full border bg-background px-2.5 py-1 text-xs font-medium shadow-sm disabled:opacity-60"
                 >
                   {uploadingAvatar ? "..." : "Edit"}
                 </button>
@@ -442,80 +455,76 @@ export default function Profile() {
             )}
           </div>
 
-          <div className="min-w-0 flex-1">
-            <div className="font-semibold text-lg truncate">
+          <div className="mt-4 min-w-0">
+            <div className="text-xl font-bold">
               {fullName || "Unnamed User"}
             </div>
 
-            <div className="text-sm text-muted-foreground truncate">
+            <div className="mt-1 text-sm text-muted-foreground">
               {location || "Location not set"}
             </div>
 
-            {bio && <div className="mt-2 text-sm break-words">{bio}</div>}
-
-{isOwnProfile && !editing && (
-  <>
-    <button
-      type="button"
-      onClick={() => setEditing(true)}
-      className="w-full rounded-xl border py-2 mt-3"
-    >
-      {t("profilePage.editProfile")}
-    </button>
-
-    <button
-      type="button"
-      onClick={() => navigate("/call-history")}
-      className="w-full rounded-xl border py-2 mt-3"
-    >
-      {t("profilePage.callHistory", {
-        defaultValue: "Call History",
-      })}
-    </button>
-  </>
-)}
-            {!isOwnProfile && (
-              <div className="mt-3 flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (followStatus === "accepted") {
-                      void handleUnfollow();
-                    } else if (followStatus === "pending") {
-                      void handleCancelRequest();
-                    } else {
-                      void handleConnect();
-                    }
-                  }}
-                  className="rounded-lg bg-green-600 text-white px-4 py-2 text-sm hover:bg-green-700"
-                >
-                  {followStatus === "accepted"
-                        ? t("profilePage.following")
-                    : followStatus === "pending"
-                    ? "Requested"
-                    : followStatus === "follow_back"
-                    ? "Follow back"
-                    : "Follow"}
-                </button>
-
-                {followStatus === "accepted" && (
-                  <button
-                    type="button"
-                    onClick={() => navigate(`/messages/${profileUserId}`)}
-                    className="rounded-lg border px-4 py-2 text-sm hover:bg-muted"
-                  >
-                    Message
-                  </button>
-                )}
+            {bio && (
+              <div className="mx-auto mt-3 max-w-md whitespace-pre-wrap text-sm leading-6">
+                {bio}
               </div>
             )}
           </div>
+
+      {isOwnProfile && !editing && (
+        <div className="mt-5 w-full">
+          <button
+            type="button"
+            onClick={() => setEditing(true)}
+            className="w-full rounded-xl bg-primary px-4 py-3 font-medium text-primary-foreground hover:opacity-90"
+          >
+            {t("profilePage.editProfile")}
+          </button>
+        </div>
+      )}
+
+          {!isOwnProfile && (
+            <div className="mt-5 flex w-full flex-wrap justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  if (followStatus === "accepted") {
+                    void handleUnfollow();
+                  } else if (followStatus === "pending") {
+                    void handleCancelRequest();
+                  } else {
+                    void handleConnect();
+                  }
+                }}
+                className="min-w-32 rounded-xl bg-green-600 px-5 py-3 text-sm font-medium text-white hover:bg-green-700"
+              >
+                {followStatus === "accepted"
+                  ? t("profilePage.following")
+                  : followStatus === "pending"
+                  ? "Requested"
+                  : followStatus === "follow_back"
+                  ? "Follow back"
+                  : "Follow"}
+              </button>
+
+              {followStatus === "accepted" && (
+                <button
+                  type="button"
+                  onClick={() => navigate(`/messages/${profileUserId}`)}
+                  className="min-w-32 rounded-xl border px-5 py-3 text-sm font-medium hover:bg-muted"
+                >
+                  Message
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
-        <div className="grid grid-cols-4 gap-2">
-          <div className="rounded-xl border p-3 text-center">
-            <div className="text-lg font-semibold">{connectionsCount}</div>
-            <div className="text-xs text-muted-foreground">
+        {/* Statistics */}
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="rounded-xl bg-muted/50 p-4 text-center">
+            <div className="text-xl font-bold">{connectionsCount}</div>
+            <div className="mt-1 text-xs text-muted-foreground">
               {t("profilePage.connections")}
             </div>
           </div>
@@ -523,10 +532,10 @@ export default function Profile() {
           <button
             type="button"
             onClick={() => navigate(`/profile/${profileUserId}/followers`)}
-            className="rounded-xl border p-3 text-center hover:bg-muted/50"
+            className="rounded-xl bg-muted/50 p-4 text-center hover:bg-muted"
           >
-            <div className="text-lg font-semibold">{followersCount}</div>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-xl font-bold">{followersCount}</div>
+            <div className="mt-1 text-xs text-muted-foreground">
               {t("profilePage.followers")}
             </div>
           </button>
@@ -534,19 +543,19 @@ export default function Profile() {
           <button
             type="button"
             onClick={() => navigate(`/profile/${profileUserId}/following`)}
-            className="rounded-xl border p-3 text-center hover:bg-muted/50"
+            className="rounded-xl bg-muted/50 p-4 text-center hover:bg-muted"
           >
-            <div className="text-lg font-semibold">{followingCount}</div>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-xl font-bold">{followingCount}</div>
+            <div className="mt-1 text-xs text-muted-foreground">
               {t("profilePage.following")}
             </div>
           </button>
 
-          <div className="rounded-xl border p-3 text-center">
-            <div className="text-lg font-semibold">
+          <div className="rounded-xl bg-muted/50 p-4 text-center">
+            <div className="text-xl font-bold">
               {isOwnProfile ? "—" : mutualCount}
             </div>
-            <div className="text-xs text-muted-foreground">Mutual</div>
+            <div className="mt-1 text-xs text-muted-foreground">Mutual</div>
           </div>
         </div>
 
@@ -554,18 +563,21 @@ export default function Profile() {
           <button
             type="button"
             onClick={() => navigate("/requests")}
-            className="w-full rounded-xl border px-4 py-3 text-sm hover:bg-muted"
+            className="mt-4 w-full rounded-xl border px-4 py-3 font-medium hover:bg-muted"
           >
             {t("profilePage.pendingRequests")}
           </button>
         )}
 
+        {/* Edit form */}
         {isOwnProfile && editing && (
-          <>
+          <div className="mt-6 space-y-4 border-t pt-6">
             <div>
-              <div className="text-sm text-muted-foreground mb-1">Full name</div>
+              <label className="mb-1.5 block text-sm font-medium">
+                Full name
+              </label>
               <input
-                className="w-full rounded-lg border bg-background px-3 py-2 disabled:opacity-70"
+                className="w-full rounded-xl border bg-background px-3 py-3 disabled:opacity-70"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="Name"
@@ -574,9 +586,11 @@ export default function Profile() {
             </div>
 
             <div>
-              <div className="text-sm text-muted-foreground mb-1">Location</div>
+              <label className="mb-1.5 block text-sm font-medium">
+                Location
+              </label>
               <input
-                className="w-full rounded-lg border bg-background px-3 py-2 disabled:opacity-70"
+                className="w-full rounded-xl border bg-background px-3 py-3 disabled:opacity-70"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder="City, Country"
@@ -585,9 +599,11 @@ export default function Profile() {
             </div>
 
             <div>
-              <div className="text-sm text-muted-foreground mb-1">About</div>
+              <label className="mb-1.5 block text-sm font-medium">
+                About
+              </label>
               <textarea
-                className="w-full min-h-[80px] rounded-lg border bg-background px-3 py-2 disabled:opacity-70"
+                className="min-h-28 w-full resize-none rounded-xl border bg-background px-3 py-3 disabled:opacity-70"
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
                 placeholder="Write something about yourself"
@@ -595,17 +611,29 @@ export default function Profile() {
               />
             </div>
 
-            <button
-              className="w-full rounded-xl bg-primary text-primary-foreground py-2 disabled:opacity-60"
-              onClick={() => void handleSave()}
-              type="button"
-              disabled={loading || saving}
-            >
-              {saving ? "Saving..." : "Save profile"}
-            </button>
-          </>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={() => setEditing(false)}
+                className="w-full rounded-xl border px-4 py-3 font-medium hover:bg-muted"
+                disabled={saving}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={() => void handleSave()}
+                disabled={loading || saving}
+                className="w-full rounded-xl bg-primary px-4 py-3 font-medium text-primary-foreground disabled:opacity-60"
+              >
+                {saving ? "Saving..." : "Save profile"}
+              </button>
+            </div>
+          </div>
         )}
       </div>
     </div>
-  );
+  </div>
+);
 }

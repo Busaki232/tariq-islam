@@ -47,6 +47,7 @@ import Auth from "@/pages/Auth";
 import EmailConfirmed from "@/pages/EmailConfirmed";
 import Advertisement from "@/pages/Advertisement";
 import Mosques from "@/pages/Mosques";
+import MosqueProfile from "@/pages/MosqueProfile";
 import SubmitAd from "@/pages/SubmitAd";
 import MyAds from "@/pages/MyAds";
 import SubmitMosque from "@/pages/SubmitMosque";
@@ -84,6 +85,20 @@ import ProfileConnections from "@/pages/ProfileConnections";
 import UploadReflection from "@/pages/UploadReflection";
 import ReflectionsFeed from "@/pages/ReflectionsFeed";
 import CreatorProfile from "@/pages/CreatorProfile";
+import CreatorStudio from "@/pages/CreatorStudio";
+import MosqueLivestreamViewer from "@/pages/MosqueLivestreamViewer";
+import ScholarApplication from "@/pages/ScholarApplication";
+import Scholars from "@/pages/Scholars";
+import UploadScholarLecture from "@/pages/UploadScholarLecture";
+import ScholarProfile from "@/pages/ScholarProfile";
+import ScholarLectures from "@/pages/ScholarLectures";
+import ScholarLectureViewer from "@/pages/ScholarLectureViewer";
+import SavedScholarLectures from "@/pages/SavedScholarLectures";
+import ContinueWatching from "@/pages/ContinueWatching";
+import CreateScholarPlaylist from "@/pages/CreateScholarPlaylist";
+import ManageScholarPlaylists from "./pages/ManageScholarPlaylists";
+import ScholarPlaylistViewer from "./pages/ScholarPlaylistViewer";
+import EditScholarPlaylist from "./pages/EditScholarPlaylist";
 
 if (import.meta.env.DEV) {
   (window as any).supabase = supabase;
@@ -155,6 +170,7 @@ function CallRoute() {
 
   const returnToRef = useRef<string>("/");
   const hydratedSigRef = useRef<string | null>(null);
+  const [hasHydratedCall, setHasHydratedCall] = useState(false);
 
   const callType = (sp.get("callType") as "audio" | "video" | null) ?? null;
   const roomUrl = sp.get("roomUrl");
@@ -191,9 +207,10 @@ function CallRoute() {
     if (!callType || !roomUrl) return;
     if (hydratedSigRef.current === sig) return;
 
-    hydratedSigRef.current = sig;
+hydratedSigRef.current = sig;
+setHasHydratedCall(true);
 
-    const outgoing = !!calleeId;
+const outgoing = !!calleeId;
 
     startCall({
       id: inviteId ?? undefined,
@@ -221,12 +238,12 @@ function CallRoute() {
     callerName,
   ]);
 
-  useEffect(() => {
-    if (activeCall) return;
-    if (callType || roomUrl || inviteId) {
-      navigate(returnToRef.current || "/", { replace: true });
-    }
-  }, [activeCall, navigate, callType, roomUrl, inviteId]);
+useEffect(() => {
+  if (activeCall) return;
+  if (!hasHydratedCall) return;
+
+  navigate(returnToRef.current || "/", { replace: true });
+}, [activeCall, hasHydratedCall, navigate]);
 
   if (!activeCall && !callType && !roomUrl) {
     return <Navigate to="/" replace />;
@@ -568,16 +585,110 @@ export default function App() {
                             <Route path="/auth" element={<Auth />} />
                             <Route path="/email-confirmed" element={<EmailConfirmed />} />
 
-                            <Route path="/quran" element={<QuranPage />} />
-                            <Route path="/qibla" element={<Qibla />} />
-                            <Route path="/tasbih" element={<Tasbih />} />
-                            <Route path="/mosques" element={<Mosques />} />
-                            <Route path="/events" element={<Events />} />
+<Route path="/quran" element={<QuranPage />} />
+<Route path="/qibla" element={<Qibla />} />
+<Route path="/tasbih" element={<Tasbih />} />
+
+<Route path="/mosques" element={<Mosques />} />
+<Route path="/mosques/:mosqueId" element={<MosqueProfile />} />
+<Route
+  path="/mosques/:mosqueId/livestreams/:livestreamId"
+  element={<MosqueLivestreamViewer />}
+/>
+
+<Route path="/scholars" element={<Scholars />} />
+
+<Route
+  path="/scholars/:scholarId/lectures"
+  element={
+    <ProtectedRoute>
+      <ScholarLectures />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/scholars/:scholarId/playlists/new"
+  element={
+    <ProtectedRoute>
+      <CreateScholarPlaylist />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/scholar-playlists/:playlistId"
+  element={<ScholarPlaylistViewer />}
+/>
+<Route
+  path="/scholars/:scholarId/playlists"
+  element={
+    <ProtectedRoute>
+      <ManageScholarPlaylists />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/scholars/:scholarId/playlists/:playlistId/edit"
+  element={
+    <ProtectedRoute>
+      <EditScholarPlaylist />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/scholars/:scholarId/lectures/new"
+  element={
+    <ProtectedRoute>
+      <UploadScholarLecture />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/scholars/:scholarId/lectures/:lectureId"
+  element={<ScholarLectureViewer />}
+/>
+<Route
+  path="/saved-scholar-lectures"
+  element={<SavedScholarLectures />}
+/>
+<Route
+  path="/continue-watching"
+  element={
+    <ProtectedRoute>
+      <ContinueWatching />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/scholars/:scholarId"
+  element={<ScholarProfile />}
+/>
+
+<Route path="/events" element={<Events />} />
+
                             <Route path="/islamic-calendar" element={<IslamicCalendar />} />
                             <Route path="/apply-leadership" element={<LeadershipApplication />} />
                             <Route path="/delete-account" element={<DeleteAccountPage />} />
                             <Route path="/creator/:userId" element={<CreatorProfile />} />
 
+
+<Route
+  path="/upload-reflection"
+  element={
+    <ProtectedRoute>
+      <UploadReflection />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/creator-studio"
+  element={
+    <ProtectedRoute>
+      <CreatorStudio />
+    </ProtectedRoute>
+  }
+/>
                             <Route path="/chat-room" element={<Chat />} />
                             <Route path="/community" element={<Community />} />
                            <Route
@@ -656,15 +767,7 @@ export default function App() {
                                 </ProtectedRoute>
                               }
                             />
-<Route
-  path="/upload-reflection"
-  element={
-    <ProtectedRoute>
-      <UploadReflection />
-    </ProtectedRoute>
-  }
-/>
-                            <Route
+                       <Route
                               path="/dashboard"
                               element={
                                 <ProtectedRoute>
@@ -753,6 +856,14 @@ export default function App() {
                                 </ProtectedRoute>
                               }
                             />
+<Route
+  path="/apply-scholar"
+  element={
+    <ProtectedRoute>
+      <ScholarApplication />
+    </ProtectedRoute>
+  }
+/>
 
                             <Route path="*" element={<NotFound />} />
                           </Routes>

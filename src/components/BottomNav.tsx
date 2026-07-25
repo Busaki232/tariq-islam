@@ -4,6 +4,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Home,
   BookOpen,
+  Bookmark,
+  Clock3,
   Compass,
   MessageCircle,
   Phone,
@@ -142,7 +144,7 @@ export default function BottomNav() {
               {t("bottomNav.ibadah", { defaultValue: "Ibadah" })}
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() => goToIbadahPage("/quran")}
@@ -175,6 +177,56 @@ export default function BottomNav() {
                   {t("moreMenu.tasbih", { defaultValue: "Tasbih" })}
                 </span>
               </button>
+              <button
+                type="button"
+                onClick={() => goToIbadahPage("/mosques")}
+                className="rounded-xl border p-4 flex flex-col items-center gap-2 hover:bg-muted"
+              >
+                <span className="text-2xl">🕌</span>
+
+                <span className="text-sm">
+                  {t("bottomNav.mosques", { defaultValue: "Mosques" })}
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => goToIbadahPage("/scholars")}
+                className="rounded-xl border p-4 flex flex-col items-center gap-2 hover:bg-muted"
+              >
+                <BookOpen size={22} />
+
+                <span className="text-sm">
+                  {t("bottomNav.scholars", {
+                    defaultValue: "Scholars",
+                  })}
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => goToIbadahPage("/saved-scholar-lectures")}
+                className="rounded-xl border p-4 flex flex-col items-center gap-2 hover:bg-muted"
+              >
+                <Bookmark size={22} />
+
+                <span className="text-sm">
+                  {t("bottomNav.savedLectures", {
+                    defaultValue: "Saved Lectures",
+                  })}
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => goToIbadahPage("/continue-watching")}
+                className="rounded-xl border p-4 flex flex-col items-center gap-2 hover:bg-muted"
+              >
+                <Clock3 size={22} />
+
+                <span className="text-sm">
+                  {t("bottomNav.continueWatching", {
+                    defaultValue: "Continue Watching",
+                  })}
+                </span>
+              </button>
             </div>
           </div>
         </div>
@@ -185,7 +237,7 @@ export default function BottomNav() {
           <Link
             to="/"
             className={[
-              "relative flex flex-col items-center justify-center min-w-[64px] px-2 py-2 rounded-xl transition",
+              "relative flex flex-col items-center justify-center min-w-[64px] px-1 py-2 rounded-xl transition",
               isActive("/")
                 ? "text-foreground bg-secondary"
                 : "text-muted-foreground hover:text-foreground hover:bg-secondary/50",
@@ -201,9 +253,18 @@ export default function BottomNav() {
             type="button"
             onClick={() => setShowIbadah(true)}
             className={[
-              "relative flex flex-col items-center justify-center min-w-[64px] px-2 py-2 rounded-xl transition",
-              ["/quran", "/qibla", "/tasbih"].includes(location.pathname)
-                ? "text-foreground bg-secondary"
+              "relative flex flex-col items-center justify-center min-w-[64px] px-1 py-2 rounded-xl transition",
+         [
+           "/quran",
+           "/qibla",
+           "/tasbih",
+           "/mosques",
+           "/scholars",
+           "/saved-scholar-lectures",
+           "/continueWatching",
+         ].includes(location.pathname) ||
+           location.pathname.startsWith("/mosques/") ||
+           location.pathname.startsWith("/scholars/")       ? "text-foreground bg-secondary"
                 : "text-muted-foreground hover:text-foreground hover:bg-secondary/50",
             ].join(" ")}
           >
@@ -212,6 +273,7 @@ export default function BottomNav() {
               {t("bottomNav.ibadah", { defaultValue: "Ibadah" })}
             </span>
           </button>
+
 
           {items.slice(1).map((it) => {
             const active = isActive(it.to);
@@ -226,7 +288,7 @@ export default function BottomNav() {
                     : it.to
                 }
                 className={[
-                  "relative flex flex-col items-center justify-center min-w-[64px] px-2 py-2 rounded-xl transition",
+                  "relative flex flex-col items-center justify-center min-w-[64px] px-1 py-2 rounded-xl transition",
                   active
                     ? "text-foreground bg-secondary"
                     : "text-muted-foreground hover:text-foreground hover:bg-secondary/50",

@@ -13,6 +13,15 @@ type ReflectionVideo = {
   category: string;
   language: string;
   video_url: string;
+  trim_start_seconds: number;
+  trim_end_seconds: number | null;
+  reference_type: string | null;
+  quran_surah_number: number | null;
+  quran_ayah_start: number | null;
+  quran_ayah_end: number | null;
+  hadith_collection: string | null;
+  hadith_number: string | null;
+  reference_note: string | null;
   created_at: string;
 };
 
@@ -24,6 +33,7 @@ export default function FeaturedReflection() {
   const [selectedVideo, setSelectedVideo] =
     useState<ReflectionVideo | null>(null);
   const [loading, setLoading] = useState(true);
+const [featuredIndex, setFeaturedIndex] = useState(0);
 
   useEffect(() => {
     const loadVideos = async () => {
@@ -31,12 +41,12 @@ export default function FeaturedReflection() {
 
       const { data, error } = await supabase
         .from("reflection_videos")
-        .select(
-          "id, title, caption, category, language, video_url, created_at"
-        )
+.select(
+  "id,title,caption,category,language,video_url,trim_start_seconds,trim_end_seconds,reference_type,quran_surah_number,quran_ayah_start,quran_ayah_end,hadith_collection,hadith_number,reference_note,created_at"
+)
         .eq("status", "approved")
         .order("created_at", { ascending: false })
-        .limit(6);
+
 
       if (!error && data) {
         setVideos(data as ReflectionVideo[]);
@@ -48,7 +58,85 @@ export default function FeaturedReflection() {
     void loadVideos();
   }, []);
 
-  const featured = videos[0];
+  const featured = videos[featuredIndex];
+  const playNextFeaturedVideo = () => {
+    if (videos.length === 0) return;
+
+    setFeaturedIndex((currentIndex) =>
+      currentIndex < videos.length - 1 ? currentIndex + 1 : 0
+    );
+  };
+
+  const playNextSelectedVideo = () => {
+    if (!selectedVideo || videos.length === 0) return;
+
+    const currentIndex = videos.findIndex(
+      (video) => video.id === selectedVideo.id
+    );
+
+    const nextIndex =
+      currentIndex >= 0 && currentIndex < videos.length - 1
+        ? currentIndex + 1
+        : 0;
+
+    setSelectedVideo(videos[nextIndex]);
+  };
+const getCategoryLabel = (category: string) => {
+  const normalized = category.trim().toLowerCase();
+
+  const categoryKeys: Record<string, string> = {
+    lecture: "reflections.categories.lecture",
+    "daily reminder": "reflections.categories.dailyReminder",
+    quran: "reflections.categories.quran",
+    hadith: "reflections.categories.hadith",
+    prayer: "reflections.categories.prayer",
+    recitation: "reflections.categories.recitation",
+  };
+
+  const translationKey = categoryKeys[normalized];
+
+  return translationKey
+    ? t(translationKey, { defaultValue: category })
+    : category;
+};
+
+const getLanguageLabel = (language: string) => {
+  const normalized = language.trim().toLowerCase();
+
+  const languageKeys: Record<string, string> = {
+    english: "reflections.languages.english",
+    arabic: "reflections.languages.arabic",
+    french: "reflections.languages.french",
+    hausa: "reflections.languages.hausa",
+    yoruba: "reflections.languages.yoruba",
+  };
+
+  const translationKey = languageKeys[normalized];
+
+  return translationKey
+    ? t(translationKey, { defaultValue: language })
+    : language;
+};
+const getTopicLabel = (title: string) => {
+  const normalized = title.trim().toLowerCase();
+
+  const topicKeys: Record<string, string> = {
+    lecture: "reflections.topics.lecture",
+    "daily reminder": "reflections.topics.dailyReminder",
+    prayer: "reflections.topics.prayer",
+    patience: "reflections.topics.patience",
+    forgiveness: "reflections.topics.forgiveness",
+    charity: "reflections.topics.charity",
+    family: "reflections.topics.family",
+    ramadan: "reflections.topics.ramadan",
+  };
+
+  const translationKey = topicKeys[normalized];
+
+  return translationKey
+    ? t(translationKey, { defaultValue: title })
+    : title;
+};
 
   return (
     <section className="px-4 py-6">
@@ -66,49 +154,144 @@ export default function FeaturedReflection() {
           ) : featured ? (
             <>
               <div className="aspect-video w-full overflow-hidden rounded-2xl border border-white/10 bg-black">
-                <video
-                  src={featured.video_url}
-                  controls
-                  muted
-                  autoPlay
-                  loop
-                  playsInline
-                  className="h-full w-full object-cover"
-                />
+       <video
+       key={featured.id}
+         src={featured.video_url}
+         controls
+         muted
+         autoPlay
+         playsInline
+         crossOrigin="anonymous"
+         onLoadedMetadata={(event) => {
+           const video = event.currentTarget;
+           const start = Number(featured.trim_start_seconds ?? 0);
+
+           if (start > 0 && start < video.duration) {
+             video.currentTime = start;
+           }
+         }}
+         onPlay={(event) => {
+           const video = event.currentTarget;
+           const start = Number(featured.trim_start_seconds ?? 0);
+           const end =
+             featured.trim_end_seconds === null
+               ? null
+               : Number(featured.trim_end_seconds);
+
+           if (
+             video.currentTime < start ||
+             (end !== null && video.currentTime >= end)
+           ) {
+             video.currentTime = start;
+           }
+         }}
+
+onTimeUpdate={(event) => {
+  const video = event.currentTarget;
+  const end =
+    featured.trim_end_seconds === null
+      ? null
+      : Number(featured.trim_end_seconds);
+
+  if (end !== null && video.currentTime >= end - 0.1) {
+    video.pause();
+    playNextFeaturedVideo();
+  }
+}}
+onEnded={playNextFeaturedVideo}
+
+className="h-full w-full object-cover"
+/>
               </div>
 
               <div className="mt-3">
-                <div className="text-lg font-semibold">{featured.title}</div>
+                <div className="text-lg font-semibold">{getTopicLabel(featured.title)}</div>
 
                 <div className="text-sm text-white/70">
-                  {featured.category} • {featured.language}
+                  {getCategoryLabel(featured.category)} •{" "}
+                  {getLanguageLabel(featured.language)}
                 </div>
+                {featured.reference_type === "quran" &&
+                  featured.quran_surah_number &&
+                  featured.quran_ayah_start && (
+                    <div className="mt-3 rounded-xl border border-white/20 bg-black/30 p-3 text-sm">
+                      <p className="font-semibold">
+                        Quran {featured.quran_surah_number}:
+                        {featured.quran_ayah_start}
+                        {featured.quran_ayah_end &&
+                          featured.quran_ayah_end !== featured.quran_ayah_start &&
+                          `-${featured.quran_ayah_end}`}
+                      </p>
+
+                      {featured.reference_note && (
+                        <p className="mt-1 text-xs text-white/70">
+                          {featured.reference_note}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                {featured.reference_type === "hadith" && (
+                  <div className="mt-3 rounded-xl border border-white/20 bg-black/30 p-3 text-sm">
+                    <p className="font-semibold">
+                      {featured.hadith_collection || "Hadith"}
+                      {featured.hadith_number
+                        ? `, Hadith ${featured.hadith_number}`
+                        : ""}
+                    </p>
+
+                    {featured.reference_note && (
+                      <p className="mt-1 text-xs text-white/70">
+                        {featured.reference_note}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
 
-              {videos.length > 1 && (
-                <div className="mt-4 grid gap-3">
-                  {videos.slice(1).map((video) => (
-                    <button
-                      key={video.id}
-                      type="button"
-                      onClick={() => setSelectedVideo(video)}
-                      className="flex items-center gap-3 rounded-xl bg-white/10 p-3 text-left hover:bg-white/15"
-                    >
-                      <PlayCircle className="h-8 w-8 text-islamic-gold" />
+{videos.length > 1 && (
+  <div className="mt-6 space-y-6">
+    {videos.map((video, index) => {
+      if (index === featuredIndex) return null;
 
-                      <div className="min-w-0">
-                        <div className="truncate font-medium">
-                          {video.title}
-                        </div>
+      return (
+        <article
+          key={video.id}
+          className="overflow-hidden rounded-2xl border border-white/15 bg-black/20"
+        >
+          <div className="aspect-video w-full bg-black">
+            <video
+              src={video.video_url}
+              controls
+              playsInline
+              preload="metadata"
+              crossOrigin="anonymous"
+              onPlay={() => setFeaturedIndex(index)}
+              className="h-full w-full object-cover"
+            />
+          </div>
 
-                        <div className="text-xs text-white/70">
-                          {video.category} • {video.language}
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
+          <div className="p-4">
+            <h3 className="text-lg font-semibold text-white">
+              {getTopicLabel(video.title)}
+            </h3>
+
+            <p className="mt-1 text-sm text-white/70">
+              {getCategoryLabel(video.category)} •{" "}
+              {getLanguageLabel(video.language)}
+            </p>
+
+            {video.caption && (
+              <p className="mt-2 line-clamp-2 text-sm text-white/80">
+                {video.caption}
+              </p>
+            )}
+          </div>
+        </article>
+      );
+    })}
+  </div>
+)}
             </>
           ) : (
             <div className="rounded-2xl bg-black/40 p-8 text-center">
@@ -155,38 +338,113 @@ export default function FeaturedReflection() {
 
       {selectedVideo && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 p-4">
-          <div className="w-full max-w-4xl">
-            <div className="mb-3 flex justify-end">
-              <button
-                type="button"
-                onClick={() => setSelectedVideo(null)}
-                className="rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
-                aria-label={t("reflections.closeVideo")}
-              >
-                <X className="h-6 w-6" />
-              </button>
-            </div>
+<div className="relative w-full max-w-4xl">
+  <button
+    type="button"
+    onClick={() => setSelectedVideo(null)}
+    className="absolute right-3 top-3 z-50 rounded-full bg-black/75 p-3 text-white shadow-xl backdrop-blur-sm hover:bg-black"
+    aria-label={t("reflections.closeVideo")}
+  >
+    <X className="h-6 w-6" />
+  </button>
 
-            <video
-              src={selectedVideo.video_url}
-              controls
-              autoPlay
-              playsInline
-              className="w-full rounded-2xl bg-black"
-            />
+<video
+         key={selectedVideo.id}
+         src={selectedVideo.video_url}
+          controls
+          autoPlay
+          playsInline
+          crossOrigin="anonymous"
+          onLoadedMetadata={(event) => {
+            const video = event.currentTarget;
+            const start = Number(selectedVideo.trim_start_seconds ?? 0);
 
+            if (start > 0 && start < video.duration) {
+              video.currentTime = start;
+            }
+          }}
+          onPlay={(event) => {
+            const video = event.currentTarget;
+            const start = Number(selectedVideo.trim_start_seconds ?? 0);
+            const end =
+              selectedVideo.trim_end_seconds === null
+                ? null
+                : Number(selectedVideo.trim_end_seconds);
+
+            if (
+              video.currentTime < start ||
+              (end !== null && video.currentTime >= end)
+            ) {
+              video.currentTime = start;
+            }
+          }}
+          onTimeUpdate={(event) => {
+            const video = event.currentTarget;
+            const start = Number(selectedVideo.trim_start_seconds ?? 0);
+            const end =
+              selectedVideo.trim_end_seconds === null
+                ? null
+                : Number(selectedVideo.trim_end_seconds);
+
+       if (end !== null && video.currentTime >= end) {
+         video.pause();
+         playNextSelectedVideo();
+       }
+          }}
+          onEnded={playNextSelectedVideo}
+          className="w-full rounded-2xl bg-black"
+        />
             <div className="mt-3 text-white">
               <div className="font-semibold">{selectedVideo.title}</div>
 
-              {selectedVideo.caption && (
-                <div className="text-sm text-white/70">
-                  {selectedVideo.caption}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-    </section>
-  );
-}
+          {selectedVideo.caption && (
+                 <div className="text-sm text-white/70">
+                   {selectedVideo.caption}
+                 </div>
+               )}
+
+                     {selectedVideo.reference_type === "quran" &&
+                       selectedVideo.quran_surah_number &&
+                       selectedVideo.quran_ayah_start && (
+                         <div className="mt-3 rounded-xl border border-white/20 bg-white/10 p-3 text-sm">
+                           <p className="font-semibold">
+                             Quran {selectedVideo.quran_surah_number}:
+                             {selectedVideo.quran_ayah_start}
+                             {selectedVideo.quran_ayah_end &&
+                               selectedVideo.quran_ayah_end !==
+                                 selectedVideo.quran_ayah_start &&
+                               `-${selectedVideo.quran_ayah_end}`}
+                           </p>
+
+                           {selectedVideo.reference_note && (
+                             <p className="mt-1 text-xs text-white/70">
+                               {selectedVideo.reference_note}
+                             </p>
+                           )}
+                         </div>
+                       )}
+                   {selectedVideo.reference_type === "hadith" && (
+                                     <div className="mt-3 rounded-xl border border-white/20 bg-white/10 p-3 text-sm">
+                                       <p className="font-semibold">
+                                         {selectedVideo.hadith_collection || "Hadith"}
+                                         {selectedVideo.hadith_number
+                                           ? `, Hadith ${selectedVideo.hadith_number}`
+                                           : ""}
+                                       </p>
+
+                                       {selectedVideo.reference_note && (
+                                         <p className="mt-1 text-xs text-white/70">
+                                           {selectedVideo.reference_note}
+                                         </p>
+                                       )}
+                                     </div>
+                                   )}
+                                 </div>
+                               </div>
+                             </div>
+
+                         )}
+                       </section>
+                     );
+                   }
+

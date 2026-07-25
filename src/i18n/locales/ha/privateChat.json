@@ -4,7 +4,7 @@
     "unknownUser": "Ba a san mai amfani ba"
   },
   "actions": {
-    "newChat": "Sabon hira",
+    "newChat": "Sabuwar Hira",
     "newGroup": "Sabon rukuni",
     "refresh": "Sabunta",
     "retry": "Sake gwadawa",
@@ -14,9 +14,10 @@
     "saving": "Ana ajiye..."
   },
   "tabs": {
-    "direct": "Kai tsaye ({{count}})",
-    "groups": "Rukuni",
-    "requests": "Buƙatu"
+    "direct": "Kai Tsaye ({{count}})",
+    "groups": "Rukunoni",
+    "requests": "Buƙatu",
+    "community": "Al’umma"
   },
   "states": {
     "loading": "Ana lodawa..."
@@ -140,5 +141,6 @@
   },
   "errors": {
     "timeout": "Lokacin buƙata ya ƙare"
-  }
+  },
+  "subtitle": "Yi hira, haɗu, kuma ku ci gaba da hulɗa."
 }

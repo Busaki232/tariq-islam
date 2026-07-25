@@ -39,9 +39,12 @@ const Admin = () => {
   
   const [advertisements, setAdvertisements] = useState<PendingItem[]>([]);
   const [mosques, setMosques] = useState<PendingItem[]>([]);
+  const [mosqueClaims, setMosqueClaims] = useState<PendingItem[]>([]);
   const [applications, setApplications] = useState<PendingItem[]>([]);
   const [prayerUpdates, setPrayerUpdates] = useState<PendingItem[]>([]);
   const [partnerships, setPartnerships] = useState<PendingItem[]>([]);
+  const [scholarApplications, setScholarApplications] =
+    useState<PendingItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [rejectionReason, setRejectionReason] = useState<Record<string, string>>({});
 
@@ -58,19 +61,62 @@ const Admin = () => {
 
   const fetchPendingItems = async () => {
     try {
-      const [adsRes, mosquesRes, appsRes, prayerRes, partnershipsRes] = await Promise.all([
+    const [
+      adsRes,
+      mosquesRes,
+      claimsRes,
+      appsRes,
+      prayerRes,
+      partnershipsRes,
+      scholarsRes,
+    ] = await Promise.all([
         supabase.from('advertisements').select('*').eq('status', 'pending').order('created_at', { ascending: false }),
         supabase.from('mosque_submissions').select('*').eq('status', 'pending').order('created_at', { ascending: false }),
-        supabase.from('leadership_applications').select('*').eq('status', 'pending').order('created_at', { ascending: false }),
-        supabase.from('prayer_time_updates').select('*').eq('status', 'pending').order('created_at', { ascending: false }),
-        supabase.from('partnership_inquiries').select('*').eq('status', 'pending').order('created_at', { ascending: false })
-      ]);
+        supabase
+          .from("mosque_claim_requests")
+          .select(`
+            *,
+            mosques (
+              id,
+              name,
+              address,
+              city,
+              state
+            )
+          `)
+          .eq("status", "pending")
+          .order("created_at", { ascending: false }),
+supabase
+  .from("leadership_applications")
+  .select("*")
+  .eq("status", "pending")
+  .order("created_at", { ascending: false }),
+
+supabase
+  .from("prayer_time_updates")
+  .select("*")
+  .eq("status", "pending")
+  .order("created_at", { ascending: false }),
+
+supabase
+  .from("partnership_inquiries")
+  .select("*")
+  .eq("status", "pending")
+  .order("created_at", { ascending: false }),
+
+supabase
+  .from("scholar_profiles")
+  .select("*")
+  .order("created_at", { ascending: false }),
+]);
 
       setAdvertisements(adsRes.data || []);
       setMosques(mosquesRes.data || []);
+      setMosqueClaims(claimsRes.data || []);
       setApplications(appsRes.data || []);
       setPrayerUpdates(prayerRes.data || []);
       setPartnerships(partnershipsRes.data || []);
+      setScholarApplications(scholarsRes.data || []);
     } catch (error) {
       console.error('Error fetching pending items:', error);
       toast({
@@ -147,6 +193,282 @@ const Admin = () => {
     }
   };
 
+const handleApproveMosqueClaim = async (claim: PendingItem) => {
+  try {
+    const { error: mosqueError } = await supabase
+      .from("mosques")
+      .update({
+        claimed_by: claim.user_id,
+      })
+      .eq("id", claim.mosque_id);
+
+    if (mosqueError) {
+      throw mosqueError;
+    }
+
+    const { error: claimError } = await supabase
+      .from("mosque_claim_requests")
+      .update({
+        status: "approved",
+        reviewed_at: new Date().toISOString(),
+      })
+      .eq("id", claim.id);
+
+    if (claimError) {
+      throw claimError;
+    }
+
+    toast({
+      title: "Mosque claim approved",
+      description: `${claim.full_name} can now manage this mosque.`,
+    });
+
+    void fetchPendingItems();
+  } catch (error) {
+    console.error("Error approving mosque claim:", error);
+
+    toast({
+      title: "Error",
+      description: "Failed to approve mosque claim",
+      variant: "destructive",
+    });
+  }
+};
+
+const handleRejectMosqueClaim = async (claimId: string) => {
+  const reason = rejectionReason[claimId];
+
+  if (!reason?.trim()) {
+    toast({
+      title: "Rejection reason required",
+      description: "Please provide a reason for rejecting this claim.",
+      variant: "destructive",
+    });
+
+    return;
+  }
+
+  try {
+    const { error } = await supabase
+      .from("mosque_claim_requests")
+      .update({
+        status: "rejected",
+        admin_notes: reason.trim(),
+        reviewed_at: new Date().toISOString(),
+      })
+      .eq("id", claimId);
+
+    if (error) {
+      throw error;
+    }
+
+    setRejectionReason((current) => ({
+      ...current,
+      [claimId]: "",
+    }));
+
+    toast({
+      title: "Mosque claim rejected",
+      description: "The claimant can submit updated information.",
+    });
+
+    void fetchPendingItems();
+  } catch (error) {
+    console.error("Error rejecting mosque claim:", error);
+
+    toast({
+      title: "Error",
+      description: "Failed to reject mosque claim",
+      variant: "destructive",
+    });
+  }
+};
+const handleApproveScholar = async (scholarId: string) => {
+  try {
+    const {
+      data: { user: currentUser },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError) {
+      throw userError;
+    }
+
+    if (!currentUser?.id) {
+      throw new Error("Administrator account could not be identified.");
+    }
+
+    const { error } = await supabase
+      .from("scholar_profiles")
+      .update({
+        verification_status: "approved",
+        verification_notes:
+          rejectionReason[scholarId]?.trim() || null,
+        verified_at: new Date().toISOString(),
+        verified_by: currentUser.id,
+        is_active: true,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", scholarId);
+
+    if (error) {
+      throw error;
+    }
+
+    setRejectionReason((current) => ({
+      ...current,
+      [scholarId]: "",
+    }));
+
+    toast({
+      title: "Scholar approved",
+      description:
+        "The scholar profile has been verified successfully.",
+    });
+
+    void fetchPendingItems();
+  } catch (error) {
+    console.error("Error approving scholar:", error);
+
+    toast({
+      title: "Error",
+      description: "Failed to approve scholar application.",
+      variant: "destructive",
+    });
+  }
+};
+
+const handleRejectScholar = async (scholarId: string) => {
+  const reason = rejectionReason[scholarId];
+
+  if (!reason?.trim()) {
+    toast({
+      title: "Rejection reason required",
+      description:
+        "Please provide a reason before rejecting this application.",
+      variant: "destructive",
+    });
+
+    return;
+  }
+
+  try {
+    const { error } = await supabase
+      .from("scholar_profiles")
+      .update({
+        verification_status: "rejected",
+        verification_notes: reason.trim(),
+        verified_at: null,
+        verified_by: null,
+        is_featured: false,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", scholarId);
+
+    if (error) {
+      throw error;
+    }
+
+    setRejectionReason((current) => ({
+      ...current,
+      [scholarId]: "",
+    }));
+
+    toast({
+      title: "Scholar rejected",
+      description:
+        "The scholar application has been rejected.",
+    });
+
+    void fetchPendingItems();
+  } catch (error) {
+    console.error("Error rejecting scholar:", error);
+
+    toast({
+      title: "Error",
+      description: "Failed to reject scholar application.",
+      variant: "destructive",
+    });
+  }
+};
+
+const handleToggleScholarFeatured = async (
+  scholarId: string,
+  currentlyFeatured: boolean
+) => {
+  try {
+    const { error } = await supabase
+      .from("scholar_profiles")
+      .update({
+        is_featured: !currentlyFeatured,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", scholarId);
+
+    if (error) {
+      throw error;
+    }
+
+    toast({
+      title: currentlyFeatured
+        ? "Scholar removed from featured"
+        : "Scholar featured",
+    });
+
+    void fetchPendingItems();
+  } catch (error) {
+    console.error("Error updating featured scholar:", error);
+
+    toast({
+      title: "Error",
+      description: "Failed to update featured status.",
+      variant: "destructive",
+    });
+  }
+};
+
+const handleToggleScholarActive = async (
+  scholarId: string,
+  currentlyActive: boolean
+) => {
+  try {
+    const { error } = await supabase
+      .from("scholar_profiles")
+      .update({
+ ...(currentlyActive
+   ? {
+       is_active: false,
+       is_featured: false,
+     }
+   : {
+       is_active: true,
+     }),
+ updated_at: new Date().toISOString(),
+      })
+      .eq("id", scholarId);
+
+    if (error) {
+      throw error;
+    }
+
+    toast({
+      title: currentlyActive
+        ? "Scholar deactivated"
+        : "Scholar activated",
+    });
+
+    void fetchPendingItems();
+  } catch (error) {
+    console.error("Error updating scholar status:", error);
+
+    toast({
+      title: "Error",
+      description: "Failed to update scholar status.",
+      variant: "destructive",
+    });
+  }
+};
+
   if (rolesLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -164,7 +486,15 @@ const Admin = () => {
     { label: 'Pending Mosques', count: mosques.length, icon: Building2 },
     { label: 'Pending Applications', count: applications.length, icon: UserCog },
     { label: 'Pending Prayer Updates', count: prayerUpdates.length, icon: Clock },
-    { label: 'Pending Partnerships', count: partnerships.length, icon: Handshake }
+{ label: 'Pending Partnerships', count: partnerships.length, icon: Handshake },
+{
+  label: "Scholar Applications",
+      count: scholarApplications.filter(
+        (scholar) =>
+          scholar.verification_status === "pending"
+      ).length,
+      icon: UserCog,
+    },
   ];
 
 return (
@@ -194,7 +524,7 @@ return (
       </Button>
     </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
           {stats.map((stat) => {
             const Icon = stat.icon;
             return (
@@ -214,27 +544,201 @@ return (
         </div>
 
         <Tabs defaultValue="advertisements" className="w-full">
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="advertisements">
-              Advertisements ({advertisements.length})
-            </TabsTrigger>
-            <TabsTrigger value="mosques">
-              Mosques ({mosques.length})
-            </TabsTrigger>
-            <TabsTrigger value="applications">
-              Applications ({applications.length})
-            </TabsTrigger>
-            <TabsTrigger value="prayer-updates">
-              Prayer Updates ({prayerUpdates.length})
-            </TabsTrigger>
-            <TabsTrigger value="partnerships">
-              Partnerships ({partnerships.length})
-            </TabsTrigger>
-            <TabsTrigger value="users">
-              <Users className="h-4 w-4 mr-2" />
-              Users
-            </TabsTrigger>
-          </TabsList>
+    <TabsList className="flex h-auto w-full justify-start gap-2 overflow-x-auto p-1">
+      <TabsTrigger
+        value="advertisements"
+        className="shrink-0 whitespace-nowrap px-3"
+      >
+        Ads ({advertisements.length})
+      </TabsTrigger>
+
+      <TabsTrigger
+        value="mosques"
+        className="shrink-0 whitespace-nowrap px-3"
+      >
+        Mosques ({mosques.length})
+      </TabsTrigger>
+
+      <TabsTrigger
+        value="mosque-claims"
+        className="shrink-0 whitespace-nowrap px-3"
+      >
+        Claims ({mosqueClaims.length})
+      </TabsTrigger>
+
+      <TabsTrigger
+        value="applications"
+        className="shrink-0 whitespace-nowrap px-3"
+      >
+        Applications ({applications.length})
+      </TabsTrigger>
+
+      <TabsTrigger
+        value="prayer-updates"
+        className="shrink-0 whitespace-nowrap px-3"
+      >
+        Prayer Updates ({prayerUpdates.length})
+      </TabsTrigger>
+
+      <TabsTrigger
+        value="partnerships"
+        className="shrink-0 whitespace-nowrap px-3"
+      >
+        Partnerships ({partnerships.length})
+      </TabsTrigger>
+
+      <TabsTrigger
+        value="scholars"
+        className="shrink-0 whitespace-nowrap px-3"
+      >
+        Scholars (
+        {
+          scholarApplications.filter(
+            (scholar) =>
+              scholar.verification_status === "pending"
+          ).length
+        }
+        )
+      </TabsTrigger>
+
+      <TabsTrigger
+        value="users"
+        className="shrink-0 whitespace-nowrap px-3"
+      >
+        <Users className="mr-2 h-4 w-4" />
+        Users
+      </TabsTrigger>
+    </TabsList>
+          <TabsContent value="mosque-claims" className="mt-6 space-y-4">
+            {mosqueClaims.length === 0 ? (
+              <Card>
+                <CardContent className="pt-6 text-center text-muted-foreground">
+                  No pending mosque claims
+                </CardContent>
+              </Card>
+            ) : (
+              mosqueClaims.map((claim) => {
+                const claimedMosque = Array.isArray(claim.mosques)
+                  ? claim.mosques[0]
+                  : claim.mosques;
+
+                return (
+                  <Card key={claim.id}>
+                    <CardHeader>
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <CardTitle>
+                            {claimedMosque?.name || "Mosque ownership claim"}
+                          </CardTitle>
+
+                          <CardDescription>
+                            Submitted by {claim.full_name} on{" "}
+                            {new Date(claim.created_at).toLocaleDateString()}
+                          </CardDescription>
+                        </div>
+
+                        <Badge variant="outline">{claim.status}</Badge>
+                      </div>
+                    </CardHeader>
+
+                    <CardContent className="space-y-5">
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <div>
+                          <p className="text-sm font-medium">Claimant</p>
+                          <p className="text-sm text-muted-foreground">
+                            {claim.full_name}
+                          </p>
+                        </div>
+
+                        <div>
+                          <p className="text-sm font-medium">Role at Mosque</p>
+                          <p className="text-sm text-muted-foreground">
+                            {claim.role_at_mosque}
+                          </p>
+                        </div>
+
+                        <div>
+                          <p className="text-sm font-medium">Email</p>
+                          <p className="break-all text-sm text-muted-foreground">
+                            {claim.email}
+                          </p>
+                        </div>
+
+                        <div>
+                          <p className="text-sm font-medium">Phone</p>
+                          <p className="text-sm text-muted-foreground">
+                            {claim.phone || "Not provided"}
+                          </p>
+                        </div>
+
+                        <div className="md:col-span-2">
+                          <p className="text-sm font-medium">Mosque Address</p>
+                          <p className="text-sm text-muted-foreground">
+                            {[
+                              claimedMosque?.address,
+                              claimedMosque?.city,
+                              claimedMosque?.state,
+                            ]
+                              .filter(Boolean)
+                              .join(", ") || "Not provided"}
+                          </p>
+                        </div>
+
+                        <div className="md:col-span-2">
+                          <p className="text-sm font-medium">
+                            Proof and Verification Details
+                          </p>
+
+                          <p className="mt-1 whitespace-pre-line rounded-lg border bg-muted/30 p-3 text-sm text-muted-foreground">
+                            {claim.proof_details}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Textarea
+                          placeholder="Rejection reason, required when rejecting"
+                          value={rejectionReason[claim.id] || ""}
+                          onChange={(event) => {
+                            const value = event.target.value;
+
+                            setRejectionReason((current) => ({
+                              ...current,
+                              [claim.id]: value,
+                            }));
+                          }}
+                          rows={3}
+                        />
+
+                        <div className="flex flex-col gap-2 sm:flex-row">
+                          <Button
+                            type="button"
+                            onClick={() => void handleApproveMosqueClaim(claim)}
+                            className="flex-1"
+                          >
+                            <CheckCircle className="mr-2 h-4 w-4" />
+                            Approve Claim
+                          </Button>
+
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            onClick={() =>
+                              void handleRejectMosqueClaim(claim.id)
+                            }
+                            className="flex-1"
+                          >
+                            <XCircle className="mr-2 h-4 w-4" />
+                            Reject Claim
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })
+            )}
+          </TabsContent>
 
           <TabsContent value="advertisements" className="space-y-4 mt-6">
             {advertisements.length === 0 ? (
@@ -620,6 +1124,228 @@ return (
                           Reject
                         </Button>
                       </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </TabsContent>
+
+          <TabsContent
+            value="scholars"
+            className="mt-6 space-y-4"
+          >
+            {scholarApplications.length === 0 ? (
+              <Card>
+                <CardContent className="pt-6 text-center text-muted-foreground">
+                  No scholar applications
+                </CardContent>
+              </Card>
+            ) : (
+              scholarApplications.map((scholar) => (
+                <Card key={scholar.id}>
+                  <CardHeader>
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <CardTitle>
+                          {scholar.display_name}
+                        </CardTitle>
+
+                        <CardDescription>
+                          Submitted{" "}
+                          {new Date(
+                            scholar.created_at
+                          ).toLocaleDateString()}
+                        </CardDescription>
+                      </div>
+
+                      <div className="flex flex-wrap gap-2">
+                        <Badge variant="outline">
+                          {scholar.verification_status}
+                        </Badge>
+
+                        {scholar.is_featured && (
+                          <Badge>Featured</Badge>
+                        )}
+
+                        {!scholar.is_active && (
+                          <Badge variant="destructive">
+                            Inactive
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="space-y-5">
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="md:col-span-2">
+                        <p className="text-sm font-medium">
+                          Biography
+                        </p>
+
+                        <p className="mt-1 whitespace-pre-line text-sm text-muted-foreground">
+                          {scholar.biography ||
+                            "No biography provided"}
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="text-sm font-medium">
+                          Specialties
+                        </p>
+
+                        <p className="text-sm text-muted-foreground">
+                          {scholar.specialties?.length
+                            ? scholar.specialties.join(", ")
+                            : "Not provided"}
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="text-sm font-medium">
+                          Languages
+                        </p>
+
+                        <p className="text-sm text-muted-foreground">
+                          {scholar.languages?.length
+                            ? scholar.languages.join(", ")
+                            : "Not provided"}
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="text-sm font-medium">
+                          Location
+                        </p>
+
+                        <p className="text-sm text-muted-foreground">
+                          {[scholar.city, scholar.country]
+                            .filter(Boolean)
+                            .join(", ") || "Not provided"}
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="text-sm font-medium">
+                          Website
+                        </p>
+
+                        <p className="break-all text-sm text-muted-foreground">
+                          {scholar.website_url || "Not provided"}
+                        </p>
+                      </div>
+
+                      {scholar.youtube_url && (
+                        <div>
+                          <p className="text-sm font-medium">
+                            YouTube
+                          </p>
+
+                          <p className="break-all text-sm text-muted-foreground">
+                            {scholar.youtube_url}
+                          </p>
+                        </div>
+                      )}
+
+                      {scholar.facebook_url && (
+                        <div>
+                          <p className="text-sm font-medium">
+                            Facebook
+                          </p>
+
+                          <p className="break-all text-sm text-muted-foreground">
+                            {scholar.facebook_url}
+                          </p>
+                        </div>
+                      )}
+
+                      {scholar.instagram_url && (
+                        <div>
+                          <p className="text-sm font-medium">
+                            Instagram
+                          </p>
+
+                          <p className="break-all text-sm text-muted-foreground">
+                            {scholar.instagram_url}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    <Textarea
+                      placeholder="Verification notes or rejection reason"
+                      value={
+                        rejectionReason[scholar.id] ??
+                        scholar.verification_notes ??
+                        ""
+                      }
+                      onChange={(event) => {
+                        const value = event.target.value;
+
+                        setRejectionReason((current) => ({
+                          ...current,
+                          [scholar.id]: value,
+                        }));
+                      }}
+                      rows={3}
+                    />
+
+                    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                      <Button
+                        type="button"
+                        onClick={() =>
+                          void handleApproveScholar(scholar.id)
+                        }
+                      >
+                        <CheckCircle className="mr-2 h-4 w-4" />
+                        Approve
+                      </Button>
+
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        onClick={() =>
+                          void handleRejectScholar(scholar.id)
+                        }
+                      >
+                        <XCircle className="mr-2 h-4 w-4" />
+                        Reject
+                      </Button>
+
+                      <Button
+                        type="button"
+                        variant="outline"
+                        disabled={
+                          scholar.verification_status !==
+                          "approved"
+                        }
+                        onClick={() =>
+                          void handleToggleScholarFeatured(
+                            scholar.id,
+                            scholar.is_featured
+                          )
+                        }
+                      >
+                        {scholar.is_featured
+                          ? "Remove Featured"
+                          : "Feature Scholar"}
+                      </Button>
+
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() =>
+                          void handleToggleScholarActive(
+                            scholar.id,
+                            scholar.is_active
+                          )
+                        }
+                      >
+                        {scholar.is_active
+                          ? "Deactivate"
+                          : "Activate"}
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>

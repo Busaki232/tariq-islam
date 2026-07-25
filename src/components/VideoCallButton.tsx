@@ -1,6 +1,6 @@
 // src/components/VideoCallButton.tsx
 import React, { useCallback, useMemo, useRef, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useActiveCall } from "@/hooks/useActiveCall";
@@ -17,6 +17,8 @@ type Props = {
   calleeName?: string;
   disabled?: boolean;
   edgeFunctionName?: string;
+  callType?: CallType;
+  iconOnly?: boolean;
 };
 
 type CallInviteRow = {
@@ -83,10 +85,14 @@ export default function VideoCallButton({
   calleeName = "User",
   disabled,
   edgeFunctionName = "create-daily-room",
+  callType,
+  iconOnly = false,
 }: Props) {
+
   const { user } = useAuth();
   const { activeCall, updateCallState } = useActiveCall();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [loadingVideo, setLoadingVideo] = useState(false);
   const [loadingAudio, setLoadingAudio] = useState(false);
@@ -232,19 +238,26 @@ export default function VideoCallButton({
           roomUrl: finalRoomUrl,
         });
 
-        navigate(
-          {
-            pathname: "/call",
-            search:
-              `?callType=${callType}` +
-              `&calleeId=${encodeURIComponent(calleeId)}` +
-              `&calleeName=${encodeURIComponent(calleeName)}` +
-              `&conversationId=${encodeURIComponent(conversationId)}` +
-              `&roomUrl=${encodeURIComponent(finalRoomUrl)}` +
-              `&inviteId=${encodeURIComponent(invite.id)}`,
-          },
-          { replace: true }
-        );
+navigate(
+  {
+    pathname: "/call",
+    search:
+      `?callType=${callType}` +
+      `&calleeId=${encodeURIComponent(calleeId)}` +
+      `&calleeName=${encodeURIComponent(calleeName || "User")}` +
+      `&conversationId=${encodeURIComponent(
+        invite.conversation_id ?? conversationId ?? ""
+      )}` +
+      `&roomUrl=${encodeURIComponent(finalRoomUrl)}` +
+      `&inviteId=${encodeURIComponent(invite.id)}`,
+  },
+  {
+    replace: true,
+    state: {
+      from: `${location.pathname}${location.search}`,
+    },
+  }
+);
 
         // Send pushes in parallel after navigation so UI feels faster
         const pushBody = {
@@ -301,14 +314,6 @@ export default function VideoCallButton({
         callState: "connected",
         roomUrl: String(next.room_url || invite.room_url || "").trim(),
       });
-
-      navigate(
-        `/call?callType=${invite.call_type}&roomUrl=${encodeURIComponent(
-          String(next.room_url || invite.room_url || "").trim()
-        )}&inviteId=${invite.id}`,
-        { replace: true }
-      );
-
       return;
     }
 
@@ -359,6 +364,8 @@ export default function VideoCallButton({
       disarmKill,
       edgeFunctionName,
       navigate,
+      location.pathname,
+      location.search,
       showStatusToast,
       updateCallState,
       user?.id,
@@ -366,29 +373,76 @@ export default function VideoCallButton({
       user?.user_metadata,
     ]
   );
+if (callType) {
+  const isVideoCall = callType === "video";
+  const isLoading = isVideoCall ? loadingVideo : loadingAudio;
 
   return (
-    <div className="flex gap-2">
-      <Button
-        type="button"
-        disabled={!canCall || busy}
-        variant="outline"
-        onClick={() => void startCall("audio")}
-        className="gap-2"
-      >
-        {loadingAudio ? <Loader2 className="h-4 w-4 animate-spin" /> : <Phone className="h-4 w-4" />}
-        Audio
-      </Button>
+    <Button
+      type="button"
+      disabled={!canCall || busy}
+      variant="ghost"
+      size={iconOnly ? "icon" : "default"}
+      onClick={() => void startCall(callType)}
+      className={
+        iconOnly
+          ? "h-10 w-10 shrink-0 rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground"
+          : "gap-2"
+      }
+      aria-label={
+        isVideoCall
+          ? `Video call ${calleeName}`
+          : `Audio call ${calleeName}`
+      }
+      title={
+        isVideoCall
+          ? `Video call ${calleeName}`
+          : `Audio call ${calleeName}`
+      }
+    >
+      {isLoading ? (
+        <Loader2 className="h-4 w-4 animate-spin" />
+      ) : isVideoCall ? (
+        <Video className="h-4 w-4" />
+      ) : (
+        <Phone className="h-4 w-4" />
+      )}
 
-      <Button
-        type="button"
-        disabled={!canCall || busy}
-        onClick={() => void startCall("video")}
-        className="gap-2"
-      >
-        {loadingVideo ? <Loader2 className="h-4 w-4 animate-spin" /> : <Video className="h-4 w-4" />}
-        Video
-      </Button>
-    </div>
+      {!iconOnly && (isVideoCall ? "Video" : "Audio")}
+    </Button>
   );
 }
+
+return (
+  <div className="flex gap-2">
+    <Button
+      type="button"
+      disabled={!canCall || busy}
+      variant="outline"
+      onClick={() => void startCall("audio")}
+      className="gap-2"
+    >
+      {loadingAudio ? (
+        <Loader2 className="h-4 w-4 animate-spin" />
+      ) : (
+        <Phone className="h-4 w-4" />
+      )}
+      Audio
+    </Button>
+
+    <Button
+      type="button"
+      disabled={!canCall || busy}
+      onClick={() => void startCall("video")}
+      className="gap-2"
+    >
+      {loadingVideo ? (
+        <Loader2 className="h-4 w-4 animate-spin" />
+      ) : (
+        <Video className="h-4 w-4" />
+      )}
+      Video
+    </Button>
+  </div>
+);
+};

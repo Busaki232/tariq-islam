@@ -16,7 +16,8 @@
   "tabs": {
     "direct": "Direct ({{count}})",
     "groups": "Groupes",
-    "requests": "Demandes"
+    "requests": "Demandes",
+    "community": "Communauté"
   },
   "states": {
     "loading": "Chargement..."
@@ -140,5 +141,6 @@
   },
   "errors": {
     "timeout": "Délai d’attente dépassé"
-  }
+  },
+  "subtitle": "Discutez, connectez-vous et restez en contact"
 }

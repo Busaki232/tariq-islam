@@ -12,6 +12,7 @@ type NotificationRow = {
   body: string | null;
   read_at: string | null;
   created_at: string;
+  link_path: string | null;
 };
 
 export default function Notifications() {
@@ -56,6 +57,20 @@ export default function Notifications() {
       .update({ read_at: new Date().toISOString() })
       .eq("id", n.id);
 
+      if (n.link_path) {
+        navigate(n.link_path);
+        return;
+      }
+
+    if (n.type.startsWith("volunteer_opportunity:")) {
+      const mosqueId = n.type.replace("volunteer_opportunity:", "");
+
+      if (mosqueId) {
+        navigate(`/mosques/${mosqueId}`);
+        return;
+      }
+    }
+
 if (n.type === "follow_request") {
   navigate("/requests");
   return;
@@ -70,22 +85,29 @@ if (n.actor_id) {
   navigate(`/profile/${n.actor_id}`);
 }
 };
-  const markAllRead = async () => {
-    if (!user?.id) return;
+const markAllRead = async () => {
+  if (!user?.id) return;
 
-    await supabase
-      .from("notifications")
-      .update({ read_at: new Date().toISOString() })
-      .eq("user_id", user.id)
-      .is("read_at", null);
+  const readAt = new Date().toISOString();
 
-    setNotifications((prev) =>
-      prev.map((n) => ({
-        ...n,
-        read_at: n.read_at || new Date().toISOString(),
-      }))
-    );
-  };
+  const { error } = await supabase
+    .from("notifications")
+    .update({ read_at: readAt })
+    .eq("user_id", user.id)
+    .is("read_at", null);
+
+  if (error) {
+    console.error("Could not mark notifications as read:", error);
+    return;
+  }
+
+  setNotifications((current) =>
+    current.map((notification) => ({
+      ...notification,
+      read_at: notification.read_at || readAt,
+    }))
+  );
+};
 
   return (
     <div className="p-4 pb-24">

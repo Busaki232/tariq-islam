@@ -11,7 +11,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-import { MessageCircle, Users, Plus, RefreshCw, Loader2, Inbox, Check, X } from "lucide-react";
+import {
+  Check,
+  Inbox,
+  Loader2,
+  MessageCircle,
+  Phone,
+  Plus,
+  RefreshCw,
+  Users,
+  X,
+} from "lucide-react";
+
 import { supabase } from "@/integrations/supabase/client";
 
 import { UserDirectory } from "@/components/UserDirectory";
@@ -214,86 +225,138 @@ useEffect(() => {
 }, [userId, directList]);
 
   return (
-    <div className="flex flex-col h-full min-h-0 w-full">
-      {/* Top actions row */}
-      <div className="shrink-0 border-b bg-card px-3 py-3">
-        <div className="flex items-center justify-between gap-2">
-      <div className="flex items-center gap-3">
+    <div className="flex h-full min-h-0 w-full flex-col bg-muted/30">
+      {/* Messages header */}
+      <div className="shrink-0 border-b bg-background/95 px-4 pb-3 pt-4 backdrop-blur">
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <h1 className="text-2xl font-bold tracking-tight">
+              {t("title", { defaultValue: "Messages" })}
+            </h1>
 
+            <p className="mt-0.5 text-sm text-muted-foreground">
+              {t("subtitle", {
+                defaultValue: "Chat, connect, and stay in touch",
+              })}
+            </p>
+          </div>
 
-        <div className="text-lg font-semibold">
-          {t("title", { defaultValue: "Messages" })}
-        </div>
-      </div>
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             <Button
               type="button"
-              variant="secondary"
-              onClick={() => setShowDirectory(true)}
-              className="gap-2"
+              variant="outline"
+              size="icon"
+              onClick={() => {
+                void reloadConnections();
+                void reloadGroups();
+              }}
+              disabled={!userId || loadingConnections || loadingGroups}
+              aria-label={t("actions.refresh", {
+                defaultValue: "Refresh",
+              })}
+              title={t("actions.refresh", {
+                defaultValue: "Refresh",
+              })}
+              className="h-10 w-10 rounded-full"
             >
-              <MessageCircle className="h-4 w-4" />
-              {t("actions.newChat", { defaultValue: "New Chat" })}
+              <RefreshCw
+                className={
+                  loadingConnections || loadingGroups
+                    ? "h-4 w-4 animate-spin"
+                    : "h-4 w-4"
+                }
+              />
             </Button>
 
             <Button
               type="button"
-              className="gap-2"
-              onClick={() => navigate("/groups/new")}
+              variant="outline"
+              size="icon"
+              onClick={() => navigate("/calls")}
+              aria-label={t("actions.calls", {
+                defaultValue: "Calls",
+              })}
+              title={t("actions.calls", {
+                defaultValue: "Calls",
+              })}
+              className="h-10 w-10 rounded-full"
             >
-              <Plus className="h-4 w-4" />
-              {t("actions.newGroup", { defaultValue: "New Group" })}
+              <Phone className="h-4 w-4" />
             </Button>
           </div>
         </div>
 
-        <div className="mt-3 flex items-center justify-between gap-2">
-          <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
-            <TabsList className="grid w-[460px] grid-cols-4">
-              <TabsTrigger value="direct">
-                {t("tabs.direct", {
-                  count: directList.length,
-                  defaultValue: "Direct ({{count}})",
-                })}
-              </TabsTrigger>
-
-              <TabsTrigger value="community">
-                Community
-              </TabsTrigger>
-
-              <TabsTrigger value="groups">
-                {t("tabs.groups", { defaultValue: "Groups" })}
-              </TabsTrigger>
-              <TabsTrigger value="requests">
-                <span className="inline-flex items-center gap-2">
-                  {t("tabs.requests", { defaultValue: "Requests" })}
-                  {counts?.pendingReceived ? (
-                    <span className="rounded-full bg-destructive/10 text-destructive px-2 py-0.5 text-xs">
-                      {counts.pendingReceived}
-                    </span>
-                  ) : null}
-                </span>
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => setShowDirectory(true)}
+            className="h-11 gap-2 rounded-xl"
+          >
+            <MessageCircle className="h-4 w-4" />
+            {t("actions.newChat", {
+              defaultValue: "New Chat",
+            })}
+          </Button>
 
           <Button
             type="button"
-            variant="ghost"
-            size="sm"
-            className="gap-2"
-            onClick={() => {
-              void reloadConnections();
-              void reloadGroups();
-            }}
-            disabled={!userId || loadingConnections || loadingGroups}
-            aria-label={t("actions.refresh", { defaultValue: "Refresh" })}
-            title={t("actions.refresh", { defaultValue: "Refresh" })}
+            onClick={() => navigate("/groups/new")}
+            className="h-11 gap-2 rounded-xl"
           >
-            <RefreshCw className="h-4 w-4" />
-            {t("actions.refresh", { defaultValue: "Refresh" })}
+            <Plus className="h-4 w-4" />
+            {t("actions.newGroup", {
+              defaultValue: "New Group",
+            })}
           </Button>
         </div>
+
+        <Tabs value={tab} onValueChange={(value) => setTab(value as any)}>
+          <TabsList className="mt-4 grid h-auto w-full grid-cols-4 rounded-xl bg-muted p-1">
+            <TabsTrigger
+              value="direct"
+              className="rounded-lg px-1 py-2 text-xs sm:text-sm"
+            >
+              {t("tabs.direct", {
+                count: directList.length,
+                defaultValue: "Chats",
+              })}
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="community"
+              className="rounded-lg px-1 py-2 text-xs sm:text-sm"
+            >
+              {t("tabs.community", {
+                defaultValue: "Community",
+              })}
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="groups"
+              className="rounded-lg px-1 py-2 text-xs sm:text-sm"
+            >
+              {t("tabs.groups", {
+                defaultValue: "Groups",
+              })}
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="requests"
+              className="relative rounded-lg px-1 py-2 text-xs sm:text-sm"
+            >
+              {t("tabs.requests", {
+                defaultValue: "Requests",
+              })}
+
+              {counts?.pendingReceived ? (
+                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-semibold text-destructive-foreground">
+                  {counts.pendingReceived}
+                </span>
+              ) : null}
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
 
       {/* Single-pane content */}

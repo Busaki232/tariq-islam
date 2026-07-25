@@ -1,5 +1,5 @@
 // src/pages/Mosques.tsx
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -7,6 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { HeroButton } from "@/components/ui/hero-button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { supabase } from "@/integrations/supabase/client";
+import brooklynIslamicCenterImage from "@/assets/brooklyn-islamic-center.png";
+import ciogcChicagoImage from "@/assets/ciogc-chicago.jpeg";
+import islamicSocietySouthTexasImage from "@/assets/islamic-society-south-texas.png";
 
 import {
   Star,
@@ -35,8 +39,11 @@ import masjidAlHikmahClevelandImage from "@/assets/masjid-al-hikmah-cleveland.pn
 import islamicSocietyGreaterMilwaukeeImage from "@/assets/islamic-society-greater-milwaukee.png";
 import islamicSocietyMidwestImage from "@/assets/islamic-society-midwest.png";
 
+import muslimCommunityCenterChicagoImage from "@/assets/muslim-community-center-chicago.png";
+import islamicCenterChicagoImage from "@/assets/islamic-center-chicago.png";
+
 type Mosque = {
-  id: number;
+id: string | number;
   name: string;
   address: string;
   city: string;
@@ -105,9 +112,82 @@ export default function Mosques() {
   const [activeFilter, setActiveFilter] = useState<
     "near" | "illinois" | "us" | "all"
   >(hasUserLocation ? "near" : "all");
-const mosques: Mosque[] = [
+ const [databaseMosques, setDatabaseMosques] = useState<Mosque[]>([]);
+
+ useEffect(() => {
+   const loadVerifiedMosques = async () => {
+     const { data, error } = await supabase
+       .from("mosques")
+       .select(
+         "id,name,address,city,state,phone,website,image_url,verified,rating_average,review_count,languages,services,prayer_times,imam_name,description"
+       )
+       .eq("verified", true)
+       .order("created_at", { ascending: false });
+
+     if (error) {
+       console.error("Unable to load verified mosques:", error);
+       return;
+     }
+
+     const mappedMosques: Mosque[] = (data ?? []).map((mosque) => {
+       const prayerTimes =
+         mosque.prayer_times &&
+         typeof mosque.prayer_times === "object" &&
+         !Array.isArray(mosque.prayer_times)
+           ? (mosque.prayer_times as Record<string, unknown>)
+           : {};
+
+       return {
+         id: mosque.id,
+         name: mosque.name,
+         address: mosque.address,
+         city: mosque.city,
+         state: mosque.state,
+         latitude: Number.NaN,
+         longitude: Number.NaN,
+         phone: mosque.phone ?? "",
+         website: mosque.website ?? "",
+   image:
+     mosque.image_url ||
+     (mosque.website?.includes("ciogc.org")
+       ? ciogcChicagoImage
+       : mosque.website?.includes("icconline.org")
+         ? islamicCenterChicagoImage
+         : mosque.website?.includes("mccchicago.org")
+           ? muslimCommunityCenterChicagoImage
+           : mosque.name === "Islamic Society of South Texas (ISST)"
+             ? islamicSocietySouthTexasImage
+             : islamicAssociationChicagoImage),
+         featured: mosque.verified === true,
+         rating: Number(mosque.rating_average ?? 0),
+         reviews: Number(mosque.review_count ?? 0),
+         diverseCommunity: (mosque.languages?.length ?? 0) >= 3,
+         languages: mosque.languages ?? [],
+         services: mosque.services ?? [],
+         prayerTimes: {
+           fajr: String(prayerTimes.fajr ?? "Not provided"),
+           dhuhr: String(prayerTimes.dhuhr ?? "Not provided"),
+           asr: String(prayerTimes.asr ?? "Not provided"),
+           maghrib: String(prayerTimes.maghrib ?? "Not provided"),
+           isha: String(prayerTimes.isha ?? "Not provided"),
+           jummah: String(prayerTimes.jummah ?? "Not provided"),
+         },
+         imam: mosque.imam_name || "Not provided",
+         description:
+           mosque.description || "Verified mosque and Islamic center.",
+       };
+     });
+
+     setDatabaseMosques(mappedMosques);
+   };
+
+   void loadVerifiedMosques();
+ }, []);
+
+
+const staticMosques: Mosque[] = [
     {
-      id: 1,
+      id: "e3c40772-382a-48e9-9536-fe8417956188",
       name: "Nigerian Islamic Association",
       address: "932 W Sheridan RD, Chicago, Illinois 60613",
       city: "Chicago",
@@ -121,7 +201,7 @@ const mosques: Mosque[] = [
       rating: 4.9,
       reviews: 187,
       diverseCommunity: true,
-      languages: ["English", "Arabic", "Urdu", "Hausa"],
+      languages: ["English", "Yoruba"],
       services: [
         "Jummah Prayers",
         "Multicultural Community",
@@ -142,9 +222,9 @@ const mosques: Mosque[] = [
       description:
         "Premier Islamic center serving the Chicago area with weekly Friday prayers featuring sermons in multiple languages including English, Hausa, and Yoruba. Active youth programs, sister circles, and community outreach programs.",
     },
-    {
-      id: 2,
-      name: "Islamic Society of Midwest",
+  {
+    id: "f9729b08-53e7-47e4-971a-07230c51b6db",
+    name: "Islamic Society of Midwest",
       address: "501 Midway Dr, Mt Prospect, IL 60056",
       city: "Mt Prospect",
       state: "IL",
@@ -178,9 +258,9 @@ const mosques: Mosque[] = [
       description:
         "Beautiful Islamic center serving the local Muslim community. Offers comprehensive programs for families, youth development, and cultural preservation.",
     },
-    {
-      id: 3,
-      name: "Islamic Center of Detroit",
+  {
+    id: "83a09926-b10c-4a50-8d96-fc157b32f6c6",
+    name: "Islamic Center of Detroit",
       address: "14350 Tireman, Detroit, MI 48228",
       city: "Detroit",
       state: "MI",
@@ -213,9 +293,9 @@ const mosques: Mosque[] = [
       description:
         "Comprehensive Islamic center serving Detroit's diverse Muslim community with programs for families, youth development, and women's empowerment.",
     },
-    {
-      id: 4,
-      name: "Islamic Center of Minnesota",
+ {
+   id: "a7156a1b-2616-4b6b-a924-bacd7853bd01",
+   name: "Islamic Center of Minnesota",
       address: "1401 Gardena Ave NE, Fridley, MN 55432",
       city: "Minneapolis",
       state: "MN",
@@ -248,9 +328,9 @@ const mosques: Mosque[] = [
       description:
         "Established Islamic center in the Minneapolis area offering religious and educational services for the Muslim community.",
     },
-    {
-      id: 5,
-      name: "Islamic Center of Cleveland",
+ {
+   id: "611d457d-0f71-4c72-8825-6e06281f14d8",
+   name: "Islamic Center of Cleveland",
       address: "6055 W130th St, Parma, OH 44130",
       city: "Cleveland",
       state: "OH",
@@ -283,8 +363,9 @@ const mosques: Mosque[] = [
       description:
         "Growing Islamic community in Cleveland with fellowship programs and emphasis on youth Islamic education.",
     },
+
     {
-      id: 6,
+      id: "9191e4a2-e2cd-45f6-8d5e-8920fd81ae7f",
       name: "Islamic Society of Milwaukee",
       address: "4707 S 13th St, Milwaukee, WI 53221",
       city: "Milwaukee",
@@ -318,17 +399,17 @@ const mosques: Mosque[] = [
       description:
         "Welcoming Islamic center in Milwaukee focused on community building, interfaith dialogue, and Islamic education.",
     },
+
     {
-      id: 7,
+      id: "7bcb9a91-698a-44be-b8a0-99cfc69ac0a9",
       name: "Brooklyn Islamic Center",
-      address: "722 Church Ave, Brooklyn, NY 11218",
       city: "Brooklyn",
       state: "NY",
       latitude: 40.6463,
       longitude: -73.9715,
       phone: "(718) 469-4899",
       website: "https://www.bicny.org",
-      image: islamicAssociationChicagoImage,
+      image: brooklynIslamicCenterImage,
       featured: false,
       rating: 4.6,
       reviews: 52,
@@ -355,6 +436,10 @@ const mosques: Mosque[] = [
         "Vibrant Islamic community center in Brooklyn serving New York's diverse Muslim population with religious services, cultural programs, and youth initiatives.",
     },
   ];
+
+const mosques = useMemo(() => {
+  return [...databaseMosques, ...staticMosques];
+}, [databaseMosques]);
 
   const handleSubmitMosque = () => {
     if (!user) {
@@ -383,10 +468,15 @@ const mosques: Mosque[] = [
     );
   };
 
-  const handleMoreDetails = (mosque: Mosque) => {
-    setSelectedMosque(mosque);
-    setIsModalOpen(true);
-  };
+const handleMoreDetails = (mosque: Mosque) => {
+  if (typeof mosque.id === "string") {
+    navigate(`/mosques/${mosque.id}`);
+    return;
+  }
+
+  setSelectedMosque(mosque);
+  setIsModalOpen(true);
+};
 
   const handleVisitWebsite = (website: string) => {
     const url = website.startsWith("http") ? website : `https://${website}`;
@@ -457,9 +547,17 @@ const mosques: Mosque[] = [
   const filteredMosques = useMemo<MosqueWithDistance[]>(() => {
     let list: MosqueWithDistance[] = mosques.map((mosque) => ({
       ...mosque,
-      distance: hasUserLocation
-        ? distanceMiles(urlLat, urlLng, mosque.latitude, mosque.longitude)
-        : null,
+     distance:
+       hasUserLocation &&
+       Number.isFinite(mosque.latitude) &&
+       Number.isFinite(mosque.longitude)
+         ? distanceMiles(
+             urlLat,
+             urlLng,
+             mosque.latitude,
+             mosque.longitude
+           )
+         : null,
     }));
 
     const q = searchTerm.trim().toLowerCase();
@@ -498,7 +596,10 @@ const mosques: Mosque[] = [
   }, [activeFilter, hasUserLocation, searchTerm, urlLat, urlLng]);
 
     return (
-    <main className="min-h-screen bg-background pt-16" dir={isRtl ? "rtl" : "ltr"}>
+    <main
+      className="min-h-screen bg-background pt-16 pb-28"
+      dir={isRtl ? "rtl" : "ltr"}
+    >
       <section className="bg-gradient-to-br from-secondary/30 to-background py-12">
         <div className="container mx-auto px-4">
           <div className="text-center mb-8">
@@ -678,6 +779,31 @@ const mosques: Mosque[] = [
                     <p className="text-muted-foreground mb-4 line-clamp-2">
                       {mosque.description}
                     </p>
+        <div className="mb-4 space-y-2">
+          <HeroButton
+            type="button"
+            size="sm"
+            className="w-full"
+            onClick={() => handleMoreDetails(mosque)}
+          >
+            <span className="mr-2 text-base">🕌</span>
+
+            {typeof mosque.id === "string"
+              ? "View Mosque Profile"
+              : "More Details"}
+          </HeroButton>
+
+          <HeroButton
+            type="button"
+            variant="outline"
+            size="sm"
+            className="w-full"
+            onClick={() => handleGetDirections(mosque)}
+          >
+            <Navigation className="mr-2 h-4 w-4" />
+            Get Directions
+          </HeroButton>
+        </div>
 
                     <div className="mb-4 space-y-2">
                       <div className="flex items-center gap-2 text-sm">
@@ -773,34 +899,29 @@ const mosques: Mosque[] = [
                         <span>{mosque.website}</span>
                       </button>
                     </div>
-
-                    <div className="grid grid-cols-2 gap-2">
-                      <HeroButton
-                        size="sm"
-                        className="w-full"
-                        onClick={() => handleGetDirections(mosque)}
-                      >
-                        <Navigation className="w-4 h-4 mr-1" />
-                        Directions
-                      </HeroButton>
-
-                      <HeroButton
-                        variant="outline"
-                        size="sm"
-                        className="w-full"
-                        onClick={() => handleMoreDetails(mosque)}
-                      >
-                        More Details
-                      </HeroButton>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
+</CardContent>
+</Card>
+))}
+</div>
+)}
+</div>
+</section>
+<section className="border-t bg-muted/30 py-6">
+  <div className="container mx-auto px-4">
+    <div className="mx-auto max-w-3xl rounded-xl border bg-background p-4 text-center">
+      <p className="text-sm leading-relaxed text-muted-foreground">
+        <span className="font-semibold text-foreground">
+          Disclaimer:
+        </span>{" "}
+        Tariq Islam is an independent platform and is not affiliated with,
+        endorsed by, or officially associated with any mosque or Islamic
+        organization listed in this directory. Mosque information is provided
+        for general community reference. Tariq Islam serves Muslims around the
+        world by helping users discover and connect with Islamic resources.
+      </p>
+    </div>
+  </div>
+</section>
       <section className="py-16 bg-gradient-to-br from-secondary/30 to-background">
         <div className="container mx-auto px-4 text-center">
           <div className="max-w-2xl mx-auto">

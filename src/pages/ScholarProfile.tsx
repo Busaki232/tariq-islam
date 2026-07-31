@@ -11,6 +11,10 @@ import {
   MapPin,
   Play,
   Plus,
+  Pencil,
+  Radio,
+  CalendarDays,
+  Loader2,
   Share2,
   Star,
   UserCheck,
@@ -27,6 +31,7 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 
 import { supabase } from "@/integrations/supabase/client";
+import { openInAppLink } from "@/utils/openInAppLink";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -97,6 +102,23 @@ type ScholarPlaylist = {
   first_lecture_video: string | null;
 };
 
+type ScholarLivestreamRecord = {
+  id: string;
+  scholar_id: string;
+  created_by: string;
+  title: string;
+  description: string | null;
+  daily_room_name: string | null;
+  daily_room_url: string | null;
+  source_language: string;
+  translation_languages: string[];
+  scheduled_for: string | null;
+  started_at: string | null;
+  ended_at: string | null;
+  status: "draft" | "upcoming" | "live" | "ended" | "cancelled";
+  created_at: string;
+};
+
 
 const ScholarProfile = () => {
   const navigate = useNavigate();
@@ -115,6 +137,23 @@ const ScholarProfile = () => {
   const [lecturesLoading, setLecturesLoading] = useState(true);
   const [playlists, setPlaylists] = useState<ScholarPlaylist[]>([]);
   const [playlistsLoading, setPlaylistsLoading] = useState(true);
+
+  const [activeLivestream, setActiveLivestream] =
+    useState<ScholarLivestreamRecord | null>(null);
+  const [livestreamLoading, setLivestreamLoading] = useState(true);
+  const [livestreamFormOpen, setLivestreamFormOpen] = useState(false);
+  const [creatingLivestream, setCreatingLivestream] = useState(false);
+
+  const [livestreamTitle, setLivestreamTitle] = useState("");
+  const [livestreamDescription, setLivestreamDescription] = useState("");
+  const [livestreamSourceLanguage, setLivestreamSourceLanguage] =
+    useState("ar");
+  const [
+    livestreamTranslationLanguages,
+    setLivestreamTranslationLanguages,
+  ] = useState("en");
+  const [livestreamScheduledFor, setLivestreamScheduledFor] =
+    useState("");
 
 
 
@@ -417,6 +456,109 @@ useEffect(() => {
   void loadPlaylists();
 }, [scholarId, scholar?.user_id, user?.id]);
 
+useEffect(() => {
+  const loadActiveLivestream = async () => {
+    if (!scholarId) {
+      setActiveLivestream(null);
+      setLivestreamLoading(false);
+      return;
+    }
+
+    try {
+      setLivestreamLoading(true);
+
+      const { data, error } = await supabase
+        .from("scholar_livestreams")
+        .select(
+          `
+            id,
+            scholar_id,
+            created_by,
+            title,
+            description,
+            daily_room_name,
+            daily_room_url,
+            source_language,
+            translation_languages,
+            scheduled_for,
+            started_at,
+            ended_at,
+            status,
+            created_at
+          `
+        )
+        .eq("scholar_id", scholarId)
+        .in("status", ["draft", "upcoming", "live"])
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (error) {
+        throw error;
+      }
+
+      setActiveLivestream(
+        (data as ScholarLivestreamRecord | null) ?? null
+      );
+    } catch (error) {
+      console.error(
+        "Could not load scholar livestream:",
+        error
+      );
+      setActiveLivestream(null);
+    } finally {
+      setLivestreamLoading(false);
+    }
+  };
+
+  void loadActiveLivestream();
+}, [scholarId]);
+
+useEffect(() => {
+  if (!scholarId) return;
+
+  const channel = supabase
+    .channel(`scholar-profile-livestream:${scholarId}`)
+    .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "scholar_livestreams",
+        filter: `scholar_id=eq.${scholarId}`,
+      },
+      (payload) => {
+        if (payload.eventType === "DELETE") {
+          const deletedId = (payload.old as { id?: string })?.id;
+
+          setActiveLivestream((current) =>
+            current?.id === deletedId ? null : current
+          );
+
+          return;
+        }
+
+        const updated =
+          payload.new as ScholarLivestreamRecord;
+
+        if (
+          ["draft", "upcoming", "live"].includes(updated.status)
+        ) {
+          setActiveLivestream(updated);
+        } else {
+          setActiveLivestream((current) =>
+            current?.id === updated.id ? null : current
+          );
+        }
+      }
+    )
+    .subscribe();
+
+  return () => {
+    void supabase.removeChannel(channel);
+  };
+}, [scholarId]);
+
 const handleFollowScholar = async () => {
   if (!scholar) {
     return;
@@ -487,13 +629,13 @@ toast({
       setFollowerCount((current) => current + 1);
 
  toast({
-   title: t("scholars.profilePage.unfollowed", {
-     defaultValue: "Scholar unfollowed",
+   title: t("scholars.profilePage.followed", {
+     defaultValue: "Scholar followed",
    }),
-   description: t("scholars.profilePage.unfollowedDescription", {
+   description: t("scholars.profilePage.followedDescription", {
      scholar: scholar.display_name,
      defaultValue:
-       "You are no longer following {{scholar}}.",
+       "You are now following {{scholar}}.",
    }),
  });
     }
@@ -567,8 +709,159 @@ toast({
     }
   };
 
+  const openLivestream = (
+    livestream: ScholarLivestreamRecord
+  ) => {
+    navigate(
+      `/scholars/${livestream.scholar_id}/livestreams/${livestream.id}`
+    );
+  };
+
+  const resetLivestreamForm = () => {
+    setLivestreamTitle("");
+    setLivestreamDescription("");
+    setLivestreamSourceLanguage("ar");
+    setLivestreamTranslationLanguages("en");
+    setLivestreamScheduledFor("");
+    setLivestreamFormOpen(false);
+  };
+
+  const handleCreateLivestream = async () => {
+    if (!scholar || !user?.id) {
+      navigate("/auth");
+      return;
+    }
+
+    if (user.id !== scholar.user_id) {
+      toast({
+        title: "Permission denied",
+        description:
+          "Only the owner of this scholar profile can create a livestream.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const cleanTitle = livestreamTitle.trim();
+
+    if (!cleanTitle) {
+      toast({
+        title: "Title required",
+        description:
+          "Enter a title for the livestream.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const translationLanguages =
+      livestreamTranslationLanguages
+        .split(",")
+        .map((language) => language.trim().toLowerCase())
+        .filter(Boolean);
+
+    const uniqueTranslationLanguages = Array.from(
+      new Set(translationLanguages)
+    );
+
+    let scheduledFor: string | null = null;
+
+    if (livestreamScheduledFor) {
+      const scheduledDate = new Date(livestreamScheduledFor);
+
+      if (Number.isNaN(scheduledDate.getTime())) {
+        toast({
+          title: "Invalid schedule",
+          description:
+            "Choose a valid livestream date and time.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (scheduledDate.getTime() <= Date.now()) {
+        toast({
+          title: "Choose a future time",
+          description:
+            "A scheduled livestream must begin in the future.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      scheduledFor = scheduledDate.toISOString();
+    }
+
+    try {
+      setCreatingLivestream(true);
+
+      const { data, error } = await supabase.functions.invoke(
+        "create-scholar-livestream",
+        {
+          body: {
+            scholarId: scholar.id,
+            title: cleanTitle,
+            description:
+              livestreamDescription.trim() || null,
+            sourceLanguage:
+              livestreamSourceLanguage.trim().toLowerCase() ||
+              "ar",
+            translationLanguages:
+              uniqueTranslationLanguages.length > 0
+                ? uniqueTranslationLanguages
+                : ["en"],
+            scheduledFor,
+          },
+        }
+      );
+
+      if (error) {
+        throw error;
+      }
+
+      if (!data?.livestream?.id) {
+        throw new Error(
+          "The livestream was created, but its ID was not returned."
+        );
+      }
+
+      const created =
+        data.livestream as ScholarLivestreamRecord;
+
+      setActiveLivestream(created);
+      resetLivestreamForm();
+
+      toast({
+        title: scheduledFor
+          ? "Livestream scheduled"
+          : "Livestream studio created",
+        description: scheduledFor
+          ? "The upcoming livestream now appears on your scholar profile."
+          : "Your private livestream room is ready.",
+      });
+
+      openLivestream(created);
+    } catch (error) {
+      console.error(
+        "Could not create scholar livestream:",
+        error
+      );
+
+      toast({
+        title: "Unable to create livestream",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setCreatingLivestream(false);
+    }
+  };
+
   const openExternalLink = (url: string) => {
-    window.open(url, "_blank", "noopener,noreferrer");
+    void openInAppLink(url);
   };
 
   if (loading) {
@@ -586,7 +879,7 @@ toast({
   if (notFound || !scholar) {
     return (
       <main className="flex min-h-screen items-center justify-center p-5">
-        <Card className="w-full max-w-lg">
+        <Card className="w-full max-w-lg border-0 bg-transparent shadow-none">
           <CardContent className="flex flex-col items-center py-12 text-center">
             <BookOpen className="mb-4 h-12 w-12 text-muted-foreground" />
 
@@ -633,19 +926,34 @@ toast({
           })}
          </Button>
 
-         <Button
-           type="button"
-           variant="outline"
-           onClick={handleShare}
-         >
-           <Share2 className="mr-2 h-4 w-4" />
-          {t("scholars.profilePage.share", {
-            defaultValue: "Share",
-          })}
-         </Button>
+         <div className="flex flex-wrap items-center gap-2">
+           {user?.id === scholar.user_id && (
+             <Button
+               type="button"
+               variant="outline"
+               onClick={() => navigate("/apply-scholar")}
+             >
+               <Pencil className="mr-2 h-4 w-4" />
+               {t("scholars.profilePage.editProfile", {
+                 defaultValue: "Edit Profile",
+               })}
+             </Button>
+           )}
+
+           <Button
+             type="button"
+             variant="outline"
+             onClick={handleShare}
+           >
+             <Share2 className="mr-2 h-4 w-4" />
+             {t("scholars.profilePage.share", {
+               defaultValue: "Share",
+             })}
+           </Button>
+         </div>
        </div>
 
-       <Card>
+       <Card className="border-0 bg-transparent shadow-none">
          <CardContent className="p-6 sm:p-8">
            <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
              <Avatar className="h-28 w-28">
@@ -741,8 +1049,328 @@ toast({
          </CardContent>
        </Card>
 
+       <Card className="overflow-hidden border-primary/20">
+         <CardHeader className="pb-3">
+           <div className="flex flex-wrap items-start justify-between gap-3">
+             <div>
+               <CardTitle className="flex items-center gap-2">
+                 <Radio
+                   className={`h-5 w-5 ${
+                     activeLivestream?.status === "live"
+                       ? "animate-pulse text-red-600"
+                       : "text-primary"
+                   }`}
+                 />
+                 Scholar Livestream
+               </CardTitle>
+
+               <p className="mt-1 text-sm text-muted-foreground">
+                 Live lectures hosted directly inside Tariq Islam.
+               </p>
+             </div>
+
+             {activeLivestream?.status === "live" && (
+               <Badge className="bg-red-600 text-white hover:bg-red-600">
+                 <Radio className="mr-1 h-3 w-3" />
+                 LIVE NOW
+               </Badge>
+             )}
+
+             {activeLivestream?.status === "upcoming" && (
+               <Badge variant="secondary">
+                 <CalendarDays className="mr-1 h-3 w-3" />
+                 UPCOMING
+               </Badge>
+             )}
+
+             {activeLivestream?.status === "draft" &&
+               user?.id === scholar.user_id && (
+                 <Badge variant="outline">DRAFT</Badge>
+               )}
+           </div>
+         </CardHeader>
+
+         <CardContent className="space-y-4">
+           {livestreamLoading ? (
+             <div className="flex items-center gap-2 py-4 text-sm text-muted-foreground">
+               <Loader2 className="h-4 w-4 animate-spin" />
+               Loading livestream…
+             </div>
+           ) : activeLivestream ? (
+             <div className="rounded-xl border bg-muted/30 p-4">
+               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                 <div className="min-w-0">
+                   <h3 className="text-lg font-semibold">
+                     {activeLivestream.title}
+                   </h3>
+
+                   {activeLivestream.description && (
+                     <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                       {activeLivestream.description}
+                     </p>
+                   )}
+
+                   {activeLivestream.scheduled_for && (
+                     <p className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
+                       <CalendarDays className="h-4 w-4" />
+                       {new Date(
+                         activeLivestream.scheduled_for
+                       ).toLocaleString()}
+                     </p>
+                   )}
+
+                   <p className="mt-2 text-xs text-muted-foreground">
+                     Source:{" "}
+                     {activeLivestream.source_language.toUpperCase()}
+                     {" · "}
+                     Translation:{" "}
+                     {activeLivestream.translation_languages
+                       .map((language) =>
+                         language.toUpperCase()
+                       )
+                       .join(", ")}
+                   </p>
+                 </div>
+
+                 {user?.id === scholar.user_id ? (
+                   <Button
+                     type="button"
+                     className={
+                       activeLivestream.status === "live"
+                         ? "shrink-0 bg-red-600 hover:bg-red-700"
+                         : "shrink-0"
+                     }
+                     onClick={() =>
+                       openLivestream(activeLivestream)
+                     }
+                   >
+                     <Radio className="mr-2 h-4 w-4" />
+                     {activeLivestream.status === "live"
+                       ? "Manage Live"
+                       : "Open Livestream Studio"}
+                   </Button>
+                 ) : activeLivestream.status === "live" ? (
+                   <Button
+                     type="button"
+                     className="shrink-0 bg-red-600 hover:bg-red-700"
+                     onClick={() =>
+                       openLivestream(activeLivestream)
+                     }
+                   >
+                     <Play className="mr-2 h-4 w-4 fill-current" />
+                     Watch Live
+                   </Button>
+                 ) : activeLivestream.status === "upcoming" ? (
+                   <Button
+                     type="button"
+                     variant="outline"
+                     className="shrink-0"
+                     onClick={() =>
+                       openLivestream(activeLivestream)
+                     }
+                   >
+                     <CalendarDays className="mr-2 h-4 w-4" />
+                     Join Waiting Room
+                   </Button>
+                 ) : null}
+               </div>
+             </div>
+           ) : user?.id === scholar.user_id ? (
+             <div className="space-y-4">
+               {!livestreamFormOpen ? (
+                 <div className="flex flex-col gap-4 rounded-xl border border-dashed p-5 sm:flex-row sm:items-center sm:justify-between">
+                   <div>
+                     <h3 className="font-semibold">
+                       Start a live scholar lecture
+                     </h3>
+
+                     <p className="mt-1 text-sm text-muted-foreground">
+                       Create a private Daily room and broadcast
+                       directly from your camera and microphone.
+                     </p>
+                   </div>
+
+                   <Button
+                     type="button"
+                     onClick={() =>
+                       setLivestreamFormOpen(true)
+                     }
+                   >
+                     <Plus className="mr-2 h-4 w-4" />
+                     Create Livestream
+                   </Button>
+                 </div>
+               ) : (
+                 <div className="space-y-4 rounded-xl border p-4 sm:p-5">
+                   <div>
+                     <label
+                       htmlFor="scholar-livestream-title"
+                       className="text-sm font-medium"
+                     >
+                       Livestream title
+                     </label>
+
+                     <input
+                       id="scholar-livestream-title"
+                       type="text"
+                       value={livestreamTitle}
+                       onChange={(event) =>
+                         setLivestreamTitle(
+                           event.target.value
+                         )
+                       }
+                       placeholder="Example: Understanding Surah Al-Fatiha"
+                       maxLength={160}
+                       className="mt-2 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                     />
+                   </div>
+
+                   <div>
+                     <label
+                       htmlFor="scholar-livestream-description"
+                       className="text-sm font-medium"
+                     >
+                       Description
+                     </label>
+
+                     <textarea
+                       id="scholar-livestream-description"
+                       value={livestreamDescription}
+                       onChange={(event) =>
+                         setLivestreamDescription(
+                           event.target.value
+                         )
+                       }
+                       placeholder="Describe the live lecture."
+                       rows={4}
+                       className="mt-2 flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                     />
+                   </div>
+
+                   <div className="grid gap-4 sm:grid-cols-2">
+                     <div>
+                       <label
+                         htmlFor="scholar-livestream-source"
+                         className="text-sm font-medium"
+                       >
+                         Source language code
+                       </label>
+
+                       <input
+                         id="scholar-livestream-source"
+                         type="text"
+                         value={livestreamSourceLanguage}
+                         onChange={(event) =>
+                           setLivestreamSourceLanguage(
+                             event.target.value
+                           )
+                         }
+                         placeholder="ar"
+                         className="mt-2 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                       />
+                     </div>
+
+                     <div>
+                       <label
+                         htmlFor="scholar-livestream-translations"
+                         className="text-sm font-medium"
+                       >
+                         Translation language codes
+                       </label>
+
+                       <input
+                         id="scholar-livestream-translations"
+                         type="text"
+                         value={
+                           livestreamTranslationLanguages
+                         }
+                         onChange={(event) =>
+                           setLivestreamTranslationLanguages(
+                             event.target.value
+                           )
+                         }
+                         placeholder="en, yo, ha, fr"
+                         className="mt-2 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                       />
+
+                       <p className="mt-1 text-xs text-muted-foreground">
+                         Separate multiple codes with commas.
+                       </p>
+                     </div>
+                   </div>
+
+                   <div>
+                     <label
+                       htmlFor="scholar-livestream-schedule"
+                       className="text-sm font-medium"
+                     >
+                       Schedule date and time
+                     </label>
+
+                     <input
+                       id="scholar-livestream-schedule"
+                       type="datetime-local"
+                       value={livestreamScheduledFor}
+                       onChange={(event) =>
+                         setLivestreamScheduledFor(
+                           event.target.value
+                         )
+                       }
+                       className="mt-2 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring"
+                     />
+
+                     <p className="mt-1 text-xs text-muted-foreground">
+                       Leave this empty to create the studio now
+                       and go live manually.
+                     </p>
+                   </div>
+
+                   <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                     <Button
+                       type="button"
+                       variant="outline"
+                       disabled={creatingLivestream}
+                       onClick={resetLivestreamForm}
+                     >
+                       Cancel
+                     </Button>
+
+                     <Button
+                       type="button"
+                       disabled={creatingLivestream}
+                       onClick={() =>
+                         void handleCreateLivestream()
+                       }
+                     >
+                       {creatingLivestream ? (
+                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                       ) : livestreamScheduledFor ? (
+                         <CalendarDays className="mr-2 h-4 w-4" />
+                       ) : (
+                         <Radio className="mr-2 h-4 w-4" />
+                       )}
+
+                       {creatingLivestream
+                         ? "Creating…"
+                         : livestreamScheduledFor
+                           ? "Schedule Livestream"
+                           : "Create and Open Studio"}
+                     </Button>
+                   </div>
+                 </div>
+               )}
+             </div>
+           ) : (
+             <p className="py-3 text-sm text-muted-foreground">
+               This scholar does not currently have a live or
+               upcoming broadcast.
+             </p>
+           )}
+         </CardContent>
+       </Card>
+
        <div className="grid gap-6 lg:grid-cols-3">
-         <Card className="lg:col-span-2">
+         <Card className="lg:col-span-2 border-0 bg-transparent shadow-none">
            <CardHeader>
              <CardTitle>
                {t("scholars.profilePage.biography", {
@@ -761,7 +1389,7 @@ toast({
            </CardContent>
          </Card>
 
-         <Card>
+         <Card className="border-0 bg-transparent shadow-none">
            <CardHeader>
              <CardTitle>
                {t("scholars.profilePage.profileLinks", {
@@ -781,7 +1409,9 @@ toast({
                  }
                >
                  <Globe2 className="mr-2 h-4 w-4" />
-                 Website
+                 {t("scholars.profilePage.website", {
+                   defaultValue: "Website",
+                 })}
                  <ExternalLink className="ml-auto h-4 w-4" />
                </Button>
              )}
@@ -846,7 +1476,7 @@ toast({
        </div>
 
        <div className="grid gap-6 md:grid-cols-2">
-         <Card>
+         <Card className="border-0 bg-transparent shadow-none">
            <CardHeader>
              <CardTitle className="flex items-center gap-2">
             <BookOpen className="h-5 w-5" />
@@ -878,7 +1508,7 @@ toast({
            </CardContent>
          </Card>
 
-         <Card>
+         <Card className="border-0 bg-transparent shadow-none">
            <CardHeader>
              <CardTitle className="flex items-center gap-2">
                <Languages className="h-5 w-5" />
@@ -912,11 +1542,14 @@ toast({
        </div>
 
      <Tabs defaultValue="home" className="w-full">
-       <TabsList className="grid w-full grid-cols-4">
-   {t("scholars.profilePage.noLanguagesAdded", {
-     defaultValue: "No languages have been added.",
-   })}
-         <TabsTrigger value="playlists">
+       <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="home">
+            {t("scholars.profilePage.home", {
+              defaultValue: "Home",
+            })}
+          </TabsTrigger>
+
+<TabsTrigger value="playlists">
            {t("scholars.playlists.title", {
              defaultValue: "Playlists",
            })}
@@ -929,7 +1562,7 @@ toast({
        </TabsList>
 
        <TabsContent value="home" className="mt-6 space-y-6">
-         <Card>
+         <Card className="border-0 bg-transparent shadow-none">
            <CardHeader>
              <CardTitle className="flex items-center gap-2">
             <Star className="h-5 w-5" />
@@ -976,13 +1609,21 @@ toast({
                             className="h-full w-full object-cover"
                           />
                         ) : (
-                          <video
-                            src={lecture.video_url}
-                            preload="metadata"
-                            muted
-                            playsInline
-                            className="h-full w-full object-cover"
-                          />
+                       <video
+                         src={`${lecture.video_url}#t=0.1`}
+                         preload="auto"
+                         muted
+                         playsInline
+                         crossOrigin="anonymous"
+                         className="h-full w-full object-cover"
+                         onLoadedMetadata={(event) => {
+                           const video = event.currentTarget;
+
+                           if (video.duration > 0) {
+                             video.currentTime = Math.min(0.1, video.duration);
+                           }
+                         }}
+                       />
                         )}
                        </div>
 
@@ -1017,7 +1658,7 @@ toast({
            </CardContent>
          </Card>
 
-         <Card>
+         <Card className="border-0 bg-transparent shadow-none">
            <CardHeader>
              <CardTitle>
                {t("scholars.profilePage.latestLectures", {
@@ -1111,7 +1752,7 @@ toast({
        </TabsContent>
 
        <TabsContent value="lectures" className="mt-6">
-         <Card>
+         <Card className="border-0 bg-transparent shadow-none">
            <CardHeader>
              <div className="flex items-center justify-between gap-4">
 
@@ -1239,7 +1880,7 @@ toast({
        </TabsContent>
 
 <TabsContent value="playlists" className="mt-6">
-  <Card>
+  <Card className="border-0 bg-transparent shadow-none">
     <CardHeader>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <CardTitle>
@@ -1369,7 +2010,7 @@ toast({
                   disabled={!playlist.is_published}
                   onClick={() =>
                     navigate(
-                      `/scholars/${scholar.id}/playlists/${playlist.id}`
+                      `/scholar-playlists/${playlist.id}`
                     )
                   }
                 >
@@ -1392,7 +2033,7 @@ toast({
   </Card>
 </TabsContent>
        <TabsContent value="about" className="mt-6">
-         <Card>
+         <Card className="border-0 bg-transparent shadow-none">
            <CardHeader>
              <CardTitle>
                {t("scholars.profilePage.aboutScholar", {

@@ -41,11 +41,15 @@ export default function UploadReflection() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const editingId = searchParams.get("edit");
-  const isEditing = Boolean(editingId);
+  const [workingReflectionId, setWorkingReflectionId] =
+    useState<string | null>(editingId);
+  const isEditing = Boolean(workingReflectionId);
   const { t } = useTranslation();
 
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [existingThumbnailUrl, setExistingThumbnailUrl] =
+    useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [caption, setCaption] = useState("");
   const [category, setCategory] = useState("Daily Reminder");
@@ -163,6 +167,7 @@ if (!active) return;
         }
         setExistingVideoUrl(data.video_url);
         setPreviewUrl(data.video_url);
+        setExistingThumbnailUrl(data.thumbnail_url ?? null);
         setTrimStartSeconds(Number(data.trim_start_seconds ?? 0));
         setTrimEndSeconds(
           data.trim_end_seconds === null
@@ -230,45 +235,96 @@ const createThumbnailBlob = async (): Promise<Blob | null> => {
 
   if (!video || !previewUrl) return null;
 
-  const canvas = document.createElement("canvas");
-
-  canvas.width = video.videoWidth || 1280;
-  canvas.height = video.videoHeight || 720;
-
-  const context = canvas.getContext("2d");
-
-  if (!context) return null;
-
-  context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-  return await new Promise<Blob | null>((resolve) => {
-    canvas.toBlob(
-      (blob) => resolve(blob),
-      "image/jpeg",
-      0.85
+  try {
+    const sourceWidth = video.videoWidth || 1280;
+    const sourceHeight = video.videoHeight || 720;
+    const maxDimension = 1280;
+    const scale = Math.min(
+      1,
+      maxDimension / Math.max(sourceWidth, sourceHeight)
     );
-});
+
+    const canvas = document.createElement("canvas");
+
+    canvas.width = Math.max(
+      1,
+      Math.round(sourceWidth * scale)
+    );
+    canvas.height = Math.max(
+      1,
+      Math.round(sourceHeight * scale)
+    );
+
+    const context = canvas.getContext("2d", {
+      alpha: false,
+    });
+
+    if (!context) return null;
+
+    context.drawImage(
+      video,
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+
+    const blob = await new Promise<Blob | null>((resolve) => {
+      canvas.toBlob(
+        resolve,
+        "image/jpeg",
+        0.78
+      );
+    });
+
+    canvas.width = 1;
+    canvas.height = 1;
+
+    return blob;
+  } catch (error) {
+    console.error(
+      "Unable to create reflection thumbnail:",
+      error
+    );
+
+    return null;
+  }
 };
 
 const handleGenerateCaptions = async () => {
-  if (!editingId) {
-    toast({
-      title: "Save the reflection first",
-      description:
-        "Save this reflection as a draft before generating automatic captions.",
-      variant: "destructive",
-    });
+  if (generatingCaptions || uploading) {
     return;
   }
 
   setGeneratingCaptions(true);
 
   try {
+    let reflectionId = workingReflectionId;
+
+    if (!reflectionId) {
+      reflectionId = await handleSubmit("draft", {
+        stayOnPage: true,
+        silent: true,
+      });
+
+      if (!reflectionId) {
+        throw new Error(
+          "The reflection could not be saved before generating captions."
+        );
+      }
+
+      toast({
+        title: "Draft saved automatically",
+        description:
+          "Caption generation is continuing on this page.",
+      });
+    }
+
     const { data, error } = await supabase.functions.invoke(
       "generate-reflection-captions",
       {
         body: {
-          reflectionId: editingId,
+          reflectionId,
         },
       }
     );
@@ -338,7 +394,7 @@ const handleGenerateCaptions = async () => {
 };
 
 const handleGenerateTranslation = async () => {
-  if (!editingId) {
+  if (!workingReflectionId) {
     toast({
       title: "Save the reflection first",
       description:
@@ -362,7 +418,7 @@ const handleGenerateTranslation = async () => {
 
  try {
    console.log("TRANSLATION REQUEST", {
-     reflectionId: editingId,
+     reflectionId: workingReflectionId,
      targetLanguageCode: translationLanguage,
    });
 
@@ -370,7 +426,7 @@ const handleGenerateTranslation = async () => {
      "translate-reflection-captions",
      {
        body: {
-         reflectionId: editingId,
+         reflectionId: workingReflectionId,
          targetLanguageCode: translationLanguage,
        },
      }
@@ -443,7 +499,7 @@ const handleGenerateTranslation = async () => {
   }
 };
 const handleGenerateAllTranslations = async () => {
-  if (!editingId) {
+  if (!workingReflectionId) {
     toast({
       title: "Save the reflection first",
       description:
@@ -467,6 +523,7 @@ const handleGenerateAllTranslations = async () => {
     { code: "ar", name: "Arabic" },
     { code: "fr", name: "French" },
     { code: "ha", name: "Hausa" },
+    { code: "yo", name: "Yoruba" },
   ];
 
   setGeneratingTranslation(true);
@@ -485,7 +542,7 @@ const handleGenerateAllTranslations = async () => {
         "translate-reflection-captions",
         {
           body: {
-            reflectionId: editingId,
+            reflectionId: workingReflectionId,
             targetLanguageCode: language.code,
           },
         }
@@ -536,7 +593,7 @@ const handleGenerateAllTranslations = async () => {
     toast({
       title: "Translations generated",
       description:
-        "Arabic, French, and Hausa translations were generated and saved.",
+        "Arabic, French, Hausa, and Yoruba translations were generated and saved.",
     });
   } catch (error: unknown) {
     const message =
@@ -556,11 +613,15 @@ const handleGenerateAllTranslations = async () => {
 };
 
 const handleSubmit = async (
-  submissionStatus: "draft" | "pending" | "scheduled" = "pending"
-) => {
+  submissionStatus: "draft" | "pending" | "scheduled" = "pending",
+  options?: {
+    stayOnPage?: boolean;
+    silent?: boolean;
+  }
+): Promise<string | null> => {
   if (!user) {
     navigate("/auth");
-    return;
+    return null;
   }
 
   if (!videoFile && !existingVideoUrl) {
@@ -569,7 +630,7 @@ const handleSubmit = async (
       description: t("reflections.chooseVideoFirst"),
       variant: "destructive",
     });
-    return;
+    return null;
   }
 
   if (!title.trim()) {
@@ -578,7 +639,7 @@ const handleSubmit = async (
       description: t("reflections.addReflectionTitle"),
       variant: "destructive",
     });
-    return;
+    return null;
   }
 
 if (submissionStatus === "scheduled") {
@@ -589,7 +650,7 @@ if (submissionStatus === "scheduled") {
         "Choose a future date and time before scheduling this reflection.",
       variant: "destructive",
     });
-    return;
+    return null;
   }
 
   const scheduledDate = new Date(scheduledAt);
@@ -604,7 +665,7 @@ if (submissionStatus === "scheduled") {
         "Choose a date and time later than the current time.",
       variant: "destructive",
     });
-    return;
+    return null;
   }
 }
 
@@ -620,7 +681,7 @@ if (
       "The ending ayah cannot be lower than the starting ayah.",
     variant: "destructive",
   });
-  return;
+  return null;
 }
 
 
@@ -636,11 +697,14 @@ if (
 
   try {
     let videoUrl = existingVideoUrl;
-    let thumbnailUrl: string | null = null;
+    let thumbnailUrl: string | null =
+      existingThumbnailUrl;
 
 
-    // Upload a new video only when the creator selected a replacement.
-    const thumbnailBlob = await createThumbnailBlob();
+    // Generate a new thumbnail only when a new video was selected.
+    const thumbnailBlob = videoFile
+      ? await createThumbnailBlob()
+      : null;
 
     if (thumbnailBlob) {
       const thumbnailPath =
@@ -753,18 +817,23 @@ if (
           reflectionValues,
         });
 
-    if (editingId) {
+    let savedReflectionId: string;
+
+    if (workingReflectionId) {
 const { data: updatedReflection, error: updateError } =
   await supabase
     .from("reflection_videos")
     .update(reflectionValues)
-    .eq("id", editingId)
+    .eq("id", workingReflectionId)
     .eq("user_id", user.id)
     .in("status", ["draft", "pending", "rejected", "scheduled"])
     .select("id,title,status,scheduled_at,published_at")
     .single();
 
 if (updateError) throw updateError;
+
+savedReflectionId = updatedReflection.id;
+setWorkingReflectionId(updatedReflection.id);
 
 console.log("SAVED REFLECTION:", updatedReflection);
     } else {
@@ -780,12 +849,27 @@ console.log("SAVED REFLECTION:", updatedReflection);
 
     if (insertError) throw insertError;
 
+    savedReflectionId = insertedReflection.id;
+    setWorkingReflectionId(insertedReflection.id);
+
     console.log("SAVED REFLECTION:", insertedReflection);
     }
 
     setUploadProgress(100);
 
-    if (editingId) {
+    if (options?.stayOnPage) {
+      if (!options.silent) {
+        toast({
+          title: "Draft saved automatically",
+          description:
+            "You can continue generating captions and translations.",
+        });
+      }
+
+      return savedReflectionId;
+    }
+
+    if (workingReflectionId) {
       toast({
         title:
           submissionStatus === "draft"
@@ -798,7 +882,7 @@ console.log("SAVED REFLECTION:", updatedReflection);
       });
 
       navigate("/creator-studio");
-      return;
+      return null;
     }
 
     if (submissionStatus === "draft") {
@@ -809,7 +893,7 @@ console.log("SAVED REFLECTION:", updatedReflection);
       });
 
       navigate("/creator-studio");
-      return;
+      return null;
     }
 
     setUploaded(true);
@@ -818,6 +902,8 @@ console.log("SAVED REFLECTION:", updatedReflection);
       title: t("reflections.reflectionUploaded"),
       description: t("reflections.pendingReviewShort"),
     });
+
+    return savedReflectionId;
   } catch (error: unknown) {
     const message =
       error instanceof Error
@@ -831,6 +917,8 @@ console.log("SAVED REFLECTION:", updatedReflection);
       description: message,
       variant: "destructive",
     });
+
+    return null;
   } finally {
     window.clearInterval(progressTimer);
     setUploading(false);
@@ -1206,23 +1294,6 @@ console.log("SAVED REFLECTION:", updatedReflection);
               </select>
             </div>
 
-  <Button
-    type="button"
-    onClick={() => void handleGenerateAllTranslations()}
-    disabled={
-      generatingTranslation ||
-      generatingCaptions ||
-      uploading ||
-      loadingReflection ||
-      !editingId ||
-      !captionsText.trim()
-    }
-    className="w-full"
-  >
-    {generatingTranslation
-      ? translationProgress || "Generating Translations..."
-      : "Automatically Translate to Arabic, French, and Hausa"}
-  </Button>
             <div>
               <label className="text-sm font-medium">
                 {t("reflections.languageLabel")}
@@ -1397,7 +1468,8 @@ console.log("SAVED REFLECTION:", updatedReflection);
         generatingCaptions ||
         uploading ||
         loadingReflection ||
-        !editingId
+        (!workingReflectionId &&
+          (!videoFile || !title.trim()))
       }
     >
       {generatingCaptions
@@ -1406,10 +1478,10 @@ console.log("SAVED REFLECTION:", updatedReflection);
     </Button>
   </div>
 
-  {!editingId && (
-    <p className="rounded-lg bg-muted p-3 text-sm text-muted-foreground">
-      Save the reflection as a draft first, then reopen it to generate
-      automatic captions.
+  {!workingReflectionId && (
+    <p className="rounded-lg bg-primary/5 p-3 text-sm text-muted-foreground">
+      When you generate captions, this reflection will be saved
+      automatically as a draft. You will remain on this page.
     </p>
   )}
 
@@ -1526,6 +1598,7 @@ console.log("SAVED REFLECTION:", updatedReflection);
       <option value="ar">🇸🇦 Arabic</option>
       <option value="fr">🇫🇷 French</option>
       <option value="ha">🇳🇬 Hausa</option>
+      <option value="yo">🇳🇬 Yorùbá</option>
     </select>
   </div>
 
@@ -1538,14 +1611,14 @@ console.log("SAVED REFLECTION:", updatedReflection);
        generatingCaptions ||
        uploading ||
        loadingReflection ||
-       !editingId ||
+       !workingReflectionId ||
        !captionsText.trim()
      }
      className="w-full"
    >
      {generatingTranslation
        ? translationProgress || "Generating Translations..."
-       : "Translate to Arabic, French, and Hausa"}
+       : "Translate to Arabic, French, Hausa, and Yoruba"}
    </Button>
 
    <Button
@@ -1557,7 +1630,7 @@ console.log("SAVED REFLECTION:", updatedReflection);
        generatingCaptions ||
        uploading ||
        loadingReflection ||
-       !editingId ||
+       !workingReflectionId ||
        !captionsText.trim()
      }
      className="w-full"
@@ -1566,13 +1639,14 @@ console.log("SAVED REFLECTION:", updatedReflection);
    </Button>
  </div>
 
-  {!editingId && (
+  {!workingReflectionId && (
     <p className="rounded-lg bg-muted p-3 text-sm text-muted-foreground">
-      Save this reflection as a draft before generating translations.
+      Generate captions first. The reflection will be saved
+      automatically as a draft without leaving this page.
     </p>
   )}
 
-  {editingId && !captionsText.trim() && (
+  {workingReflectionId && !captionsText.trim() && (
     <p className="rounded-lg bg-muted p-3 text-sm text-muted-foreground">
       Generate timed captions first. The translation will use those
       caption segments and preserve their timestamps.

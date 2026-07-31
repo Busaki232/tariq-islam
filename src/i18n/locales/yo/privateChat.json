@@ -1,0 +1,147 @@
+{
+  "title": "Àwọn Ìfiranṣẹ́",
+  "subtitle": "Bá àwọn ènìyàn sọ̀rọ̀, sopọ̀, kí o sì máa bá wọn ní ìbánisọ̀rọ̀",
+  "labels": {
+    "unknownUser": "Olùmúlò Tí A Kò Mọ̀"
+  },
+  "actions": {
+    "newChat": "Ìjíròrò Tuntun",
+    "newGroup": "Ẹgbẹ́ Tuntun",
+    "refresh": "Tún Kojọpọ̀",
+    "retry": "Gbìyànjú Lẹ́ẹ̀kan Sí I",
+    "findUsers": "Wa Àwọn Olùmúlò",
+    "close": "Pa Dé",
+    "save": "Fipamọ́",
+    "saving": "Ń Fipamọ́...",
+    "calls": "Àwọn Ìpè"
+  },
+  "tabs": {
+    "direct": "Taara ({{count}})",
+    "community": "Àwùjọ",
+    "groups": "Àwọn Ẹgbẹ́",
+    "requests": "Àwọn Ìbéèrè"
+  },
+  "states": {
+    "loading": "Ń Kojọpọ̀..."
+  },
+  "pending": {
+    "text": "O ní ìbéèrè {{count}} tí ń dúró{{plural}}. Ṣí ojú-ìwé Ìjíròrò Tuntun láti gbà tàbí kọ̀ ọ́."
+  },
+  "empty": {
+    "title": "Kò sí olùmúlò tí o ti sopọ̀ mọ́ síbẹ̀",
+    "desc": "Tẹ Ìjíròrò Tuntun láti fi ìbéèrè ránṣẹ́. Wọ́n gbọ́dọ̀ gbà á kí ẹ tó lè fi ìfiranṣẹ́ ránṣẹ́."
+  },
+  "groups": {
+    "placeholder": "Àkójọ àwọn ẹgbẹ́ yóò hàn níbí."
+  },
+  "modal": {
+    "title": "Bẹ̀rẹ̀ ìjíròrò tuntun"
+  },
+  "directory": {
+    "inviteTitle": "Pe nípasẹ̀ orúkọ olùmúlò",
+    "inviteDesc": "Àwọn ènìyàn lè sopọ̀ nìkan bí ẹnìkan bá fi ìpè ránṣẹ́.",
+    "invitePlaceholder": "orúkọ olùmúlò (àpẹẹrẹ: @ali)",
+    "inviteBtn": "Pe",
+    "inviteBtnLoading": "Ń Fi Ìpè Ránṣẹ́...",
+    "searchPlaceholder": "Wa àwọn asopọ̀ àti ìbéèrè...",
+    "onlineTitle": "Bí a ṣe rí ọ lórí ayelujara",
+    "onlineHidden": "Fífarapamọ́ (a ó rí ọ bí ẹni tí kò sí)",
+    "onlineVisible": "Hàn (a ó rí ọ bí ẹni tí ó wà lórí ayelujara)",
+    "showOnline": "Fi Hàn Pé Mo Wà Lórí Ayelujara",
+    "hideOnline": "Fi Mi Pamọ́ Lórí Ayelujara",
+    "tabs": {
+      "connected": "Àwọn Tí A Sopọ̀ Mọ́ ({{count}})",
+      "requests": "Àwọn Ìbéèrè",
+      "directory": "Àkójọ Àwọn Olùmúlò"
+    },
+    "message": "Fi Ìfiranṣẹ́ Ránṣẹ́",
+    "add": "Fi Kún",
+    "adding": "Ń Fi Kún...",
+    "noPending": "Kò sí ìbéèrè tó ń dúró",
+    "noRequestsMatch": "Kò sí ìbéèrè tó bá ìwádìí rẹ mu",
+    "accept": "Gbà",
+    "reject": "Kọ̀",
+    "signInToSearch": "Wọlé láti wa àwọn olùmúlò.",
+    "typeTwoChars": "Tẹ ó kéré tán àmì méjì láti ṣe ìwádìí.",
+    "searching": "Ń Wá...",
+    "noUsersFound": "A kò rí olùmúlò kankan",
+    "noneConnected": "Kò sí asopọ̀ kankan síbẹ̀",
+    "noneConnectedMatch": "A kò rí olùmúlò tí o sopọ̀ mọ́",
+    "searchFailed": "Ìwádìí àkójọ olùmúlò kọ̀. Ó ṣeé ṣe kí ìlànà profiles SELECT rẹ máa dí ìkàwé.",
+    "requestedOn": "A fi ìbéèrè ránṣẹ́ ní {{date}}"
+  },
+  "toast": {
+    "signInRequired": "O gbọ́dọ̀ wọlé",
+    "enterUsernameTitle": "Tẹ orúkọ olùmúlò",
+    "enterUsernameDesc": "Àpẹẹrẹ: @muhammad (má fi àlàfo sí i)",
+    "userNotFoundTitle": "A kò rí olùmúlò",
+    "userNotFoundDesc": "Kò sí olùmúlò pẹ̀lú orúkọ @{{uname}}",
+    "thatsYouTitle": "Ìwọ niyẹn",
+    "cantInviteSelf": "O kò lè pe ara rẹ.",
+    "alreadyConnectedTitle": "Ẹ ti sopọ̀ tẹ́lẹ̀",
+    "alreadyConnectedDesc": "O lè fi ìfiranṣẹ́ ránṣẹ́ sí wọn láti inú Àwọn Tí A Sopọ̀ Mọ́.",
+    "requestAlreadySentTitle": "A ti fi ìbéèrè ránṣẹ́ tẹ́lẹ̀",
+    "requestAlreadySentDesc": "A ń dúró de wọn láti gbà á.",
+    "theyRequestedYouTitle": "Wọ́n ti fi ìbéèrè ránṣẹ́ sí ọ",
+    "checkRequestsTab": "Ṣàyẹ̀wò taabu Àwọn Ìbéèrè láti gbà á.",
+    "inviteSentTitle": "A ti fi ìpè ránṣẹ́",
+    "inviteSentDesc": "A fi ìbéèrè asopọ̀ ránṣẹ́ sí @{{uname}}",
+    "couldNotSendInviteTitle": "A kò lè fi ìpè ránṣẹ́",
+    "couldNotSendInviteDesc": "Fífi ìpè ránṣẹ́ kọ̀",
+    "requestSentTitle": "A ti fi ìbéèrè ránṣẹ́",
+    "requestSentDesc": "A fi ìbéèrè ránṣẹ́ sí {{otherUserName}}. Wọ́n gbọ́dọ̀ gbà á kí ẹ tó lè bá ara yín sọ̀rọ̀.",
+    "requestSentToName": "A fi ìbéèrè asopọ̀ ránṣẹ́ sí {{name}}",
+    "couldNotSendRequestTitle": "A kò lè fi ìbéèrè ránṣẹ́",
+    "couldNotSendRequestDesc": "Fífi ìbéèrè ránṣẹ́ kọ̀",
+    "connectedTitle": "Ẹ Ti Sopọ̀",
+    "requestAccepted": "A ti gba ìbéèrè náà.",
+    "couldNotAcceptTitle": "A kò lè gbà á",
+    "couldNotAcceptDesc": "Gbígba ìbéèrè náà kọ̀",
+    "rejectedTitle": "A Ti Kọ̀ Ọ́",
+    "requestRejected": "A ti kọ ìbéèrè náà.",
+    "couldNotRejectTitle": "A kò lè kọ̀ ọ́",
+    "couldNotRejectDesc": "Kíkọ ìbéèrè náà kọ̀",
+    "newGroupTitle": "Ẹgbẹ́ Tuntun",
+    "newGroupDesc": "Ṣẹ̀dá ẹgbẹ́ kan kí o sì fi àwọn ọmọ ẹgbẹ́ kún un."
+  },
+  "onboarding": {
+    "chat": {
+      "title": "Ìjíròrò Aládàáni",
+      "desc": "Lọ sí Àwọn Ìfiranṣẹ́, tẹ Àkójọ Àwọn Olùmúlò láti wa nípasẹ̀ orúkọ olùmúlò, lẹ́yìn náà ṣàyẹ̀wò Àwọn Ìbéèrè láti gba àwọn asopọ̀ tuntun."
+    }
+  },
+  "createGroup": {
+    "title": "Ṣẹ̀dá ẹgbẹ́ tuntun",
+    "groupNameLabel": "Orúkọ ẹgbẹ́",
+    "groupNamePlaceholder": "Àpẹẹrẹ: Àwọn Arákùnrin Lagos",
+    "addMembersOptional": "Fi àwọn ọmọ ẹgbẹ́ kún un báyìí (kò pọndandan)",
+    "selectedCount": "Tí a yàn: {{count}}",
+    "searchConnections": "Wa àwọn tí o sopọ̀ mọ́...",
+    "noMatches": "Kò sí ohun tó bá a mu",
+    "noConnections": "Kò sí asopọ̀ kankan síbẹ̀",
+    "createBtn": "Ṣẹ̀dá Ẹgbẹ́",
+    "creating": "Ń Ṣẹ̀dá..."
+  },
+  "groupSettings": {
+    "title": "Àwọn ètò ẹgbẹ́",
+    "roleLabel": "Ipa rẹ",
+    "roleUnknown": "a kò mọ̀",
+    "groupName": "Orúkọ ẹgbẹ́",
+    "adminOnly": "Àwọn alábòójútó nìkan ni ó lè yí orúkọ ẹgbẹ́ padà.",
+    "members": "Àwọn ọmọ ẹgbẹ́",
+    "noMembers": "A kò rí ọmọ ẹgbẹ́ kankan.",
+    "you": "Ìwọ",
+    "leave": "Kúrò Nínú Ẹgbẹ́",
+    "leaving": "Ń Kúrò..."
+  },
+  "presence": {
+    "online": "Wà Lórí Ayelujara",
+    "offline": "Kò Sí Lórí Ayelujara",
+    "seenMinutes": "A rí i ní ìṣẹ́jú {{count}} sẹ́yìn",
+    "seenHours": "A rí i ní wákàtí {{count}} sẹ́yìn",
+    "seenDate": "A rí i ní {{date}}"
+  },
+  "errors": {
+    "timeout": "Àkókò ìbéèrè ti parí"
+  }
+}

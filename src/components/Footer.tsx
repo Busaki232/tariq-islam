@@ -137,7 +137,9 @@ const Footer = () => {
 
             <div className={isRtl ? "pt-4 flex justify-end" : "pt-4 flex"}>
               <span className="inline-flex items-center px-3 py-1 rounded-full bg-muted text-xs text-muted-foreground">
-                Mobile App Available
+                {t("footer.mobileAppAvailable", {
+                  defaultValue: "Mobile App Available",
+                })}
               </span>
             </div>
           </div>

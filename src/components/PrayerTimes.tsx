@@ -36,6 +36,29 @@ const PrayerTimes = () => {
   const { toast } = useToast();
   const [showCompass, setShowCompass] = useState(false);
 
+  const getTranslatedPrayerName = (
+    prayerName: string | null | undefined
+  ) => {
+    const normalized = (prayerName || "").trim().toLowerCase();
+
+    const prayerKeys: Record<string, string> = {
+      fajr: "fajr",
+      dhuhr: "dhuhr",
+      zuhr: "dhuhr",
+      asr: "asr",
+      maghrib: "maghrib",
+      isha: "isha",
+    };
+
+    const key = prayerKeys[normalized];
+
+    if (!key) return prayerName || "";
+
+    return t(`prayerNames.${key}`, {
+      defaultValue: prayerName || "",
+    });
+  };
+
   const handleQiblaClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -241,7 +264,7 @@ const PrayerTimes = () => {
 
               <CardContent className="text-center">
                 <div className="mb-4">
-                  <h3 className="text-2xl font-bold">{currentPrayer}</h3>
+                  <h3 className="text-2xl font-bold">{getTranslatedPrayerName(currentPrayer)}</h3>
                   <p className="text-lg opacity-90" dir="rtl" lang="ar">
                     {prayerTimes.find((p) => p.name === currentPrayer)?.arabic || ""}
                   </p>
@@ -249,7 +272,7 @@ const PrayerTimes = () => {
 
                 <div className="mb-6">
                   <p className="text-sm opacity-80 mb-1">
-                    {t("status.nextPrayer", "Next Prayer")}: {nextPrayer}
+                    {t("status.nextPrayer", "Next Prayer")}: {getTranslatedPrayerName(nextPrayer)}
                   </p>
                   <p className="text-2xl font-bold">{timeUntilNext}</p>
                 </div>
@@ -312,7 +335,7 @@ const PrayerTimes = () => {
                               prayer.name === currentPrayer ? "text-white" : "text-foreground"
                             }`}
                           >
-                            {prayer.name}
+                            {getTranslatedPrayerName(prayer.name)}
                           </h4>
                           <p
                             className={`text-sm ${

@@ -5,6 +5,7 @@ import {
   Loader2,
   Upload,
   Video,
+  Mic,
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -161,6 +162,139 @@ const UploadScholarLecture = () => {
     return data.publicUrl;
   };
 
+  const createAutomaticThumbnail = async (
+    file: File
+  ): Promise<File | null> => {
+    const objectUrl = URL.createObjectURL(file);
+
+    try {
+      return await new Promise<File | null>((resolve) => {
+        const video = document.createElement("video");
+        let completed = false;
+
+        const finish = (thumbnail: File | null) => {
+          if (completed) return;
+          completed = true;
+
+          window.clearTimeout(timeout);
+          video.pause();
+          video.removeAttribute("src");
+          video.load();
+          resolve(thumbnail);
+        };
+
+        const timeout = window.setTimeout(() => {
+          finish(null);
+        }, 15000);
+
+        video.preload = "metadata";
+        video.muted = true;
+        video.playsInline = true;
+
+        video.onerror = () => {
+          finish(null);
+        };
+
+        video.onloadedmetadata = () => {
+          const duration = Number.isFinite(video.duration)
+            ? video.duration
+            : 0;
+
+          const captureTime =
+            duration > 0
+              ? Math.min(
+                  Math.max(duration * 0.1, 0.1),
+                  Math.max(duration - 0.1, 0.1),
+                  1
+                )
+              : 0.1;
+
+          try {
+            video.currentTime = captureTime;
+          } catch {
+            finish(null);
+          }
+        };
+
+        video.onseeked = () => {
+          try {
+            const sourceWidth = video.videoWidth || 1280;
+            const sourceHeight = video.videoHeight || 720;
+            const maxDimension = 1280;
+            const scale = Math.min(
+              1,
+              maxDimension /
+                Math.max(sourceWidth, sourceHeight)
+            );
+
+            const canvas =
+              document.createElement("canvas");
+
+            canvas.width = Math.max(
+              1,
+              Math.round(sourceWidth * scale)
+            );
+            canvas.height = Math.max(
+              1,
+              Math.round(sourceHeight * scale)
+            );
+
+            const context = canvas.getContext("2d", {
+              alpha: false,
+            });
+
+            if (!context) {
+              finish(null);
+              return;
+            }
+
+            context.drawImage(
+              video,
+              0,
+              0,
+              canvas.width,
+              canvas.height
+            );
+
+            canvas.toBlob(
+              (blob) => {
+                if (!blob) {
+                  finish(null);
+                  return;
+                }
+
+                const thumbnail = new File(
+                  [blob],
+                  `lecture-thumbnail-${Date.now()}.jpg`,
+                  {
+                    type: "image/jpeg",
+                  }
+                );
+
+                canvas.width = 1;
+                canvas.height = 1;
+                finish(thumbnail);
+              },
+              "image/jpeg",
+              0.78
+            );
+          } catch (error) {
+            console.error(
+              "Automatic lecture thumbnail failed:",
+              error
+            );
+            finish(null);
+          }
+        };
+
+        video.src = objectUrl;
+        video.load();
+      });
+    } finally {
+      URL.revokeObjectURL(objectUrl);
+    }
+  };
+
   const validateForm = () => {
     if (!title.trim()) {
       toast({
@@ -268,10 +402,16 @@ const UploadScholarLecture = () => {
 
       let thumbnailUrl: string | null = null;
 
-      if (thumbnailFile) {
+      const thumbnailToUpload =
+        thumbnailFile ||
+        (videoFile
+          ? await createAutomaticThumbnail(videoFile)
+          : null);
+
+      if (thumbnailToUpload) {
         thumbnailUrl = await uploadFile(
           "scholar-thumbnails",
-          thumbnailFile,
+          thumbnailToUpload,
           scholarId
         );
       }
@@ -472,6 +612,18 @@ const UploadScholarLecture = () => {
               defaultValue: "Back to Channel",
             }
           )}
+        </Button>
+
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full justify-start border-primary/30"
+          onClick={() =>
+            navigate(`/scholars/${scholarId}/voice-enrollment`)
+          }
+        >
+          <Mic className="mr-2 h-4 w-4 text-primary" />
+          Voice Translation Setup
         </Button>
 
         <Card>
@@ -720,6 +872,15 @@ const UploadScholarLecture = () => {
                         "scholars.uploadLecture.languages.french",
                         {
                           defaultValue: "French",
+                        }
+                      )}
+                    </SelectItem>
+
+                    <SelectItem value="Yoruba">
+                      {t(
+                        "scholars.uploadLecture.languages.yoruba",
+                        {
+                          defaultValue: "Yorùbá",
                         }
                       )}
                     </SelectItem>

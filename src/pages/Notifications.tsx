@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -18,6 +19,7 @@ type NotificationRow = {
 export default function Notifications() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation("common");
 
   const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState<NotificationRow[]>([]);
@@ -116,26 +118,40 @@ const markAllRead = async () => {
         onClick={() => navigate(-1)}
         className="mb-4 text-sm text-muted-foreground hover:text-foreground"
       >
-        ← Back
+        ← {t("notificationsPage.back", {
+          defaultValue: "Back",
+        })}
       </button>
 
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Notifications</h1>
+        <h1 className="text-xl font-semibold">
+          {t("notificationsPage.title", {
+            defaultValue: "Notifications",
+          })}
+        </h1>
 
         <button
           type="button"
           onClick={() => void markAllRead()}
           className="text-sm text-muted-foreground hover:text-foreground"
         >
-          Mark all read
+          {t("notificationsPage.markAllRead", {
+            defaultValue: "Mark all read",
+          })}
         </button>
       </div>
 
       {loading ? (
-        <div className="text-sm text-muted-foreground">Loading...</div>
+        <div className="text-sm text-muted-foreground">
+          {t("notificationsPage.loading", {
+            defaultValue: "Loading...",
+          })}
+        </div>
       ) : notifications.length === 0 ? (
         <div className="rounded-xl border p-4 text-sm text-muted-foreground">
-          No notifications yet.
+          {t("notificationsPage.empty", {
+            defaultValue: "No notifications yet.",
+          })}
         </div>
       ) : (
         <div className="divide-y rounded-xl border overflow-hidden">

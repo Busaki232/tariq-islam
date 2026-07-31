@@ -8,6 +8,7 @@ import { HeroButton } from "@/components/ui/hero-button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
+import { openInAppLink } from "@/utils/openInAppLink";
 import brooklynIslamicCenterImage from "@/assets/brooklyn-islamic-center.png";
 import ciogcChicagoImage from "@/assets/ciogc-chicago.jpeg";
 import islamicSocietySouthTexasImage from "@/assets/islamic-society-south-texas.png";
@@ -479,8 +480,7 @@ const handleMoreDetails = (mosque: Mosque) => {
 };
 
   const handleVisitWebsite = (website: string) => {
-    const url = website.startsWith("http") ? website : `https://${website}`;
-    window.open(url, "_blank", "noopener,noreferrer");
+    void openInAppLink(website);
   };
 
   const handleCallMosque = (phone: string) => {
@@ -705,17 +705,25 @@ const handleMoreDetails = (mosque: Mosque) => {
             </p>
           </div>
 
-          {filteredMosques.length === 0 ? (
-            <Card>
-              <CardContent className="p-8 text-center">
-                <MapPin className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
-                <h3 className="text-lg font-semibold">No mosques found</h3>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Try another search or switch to All.
-                </p>
-              </CardContent>
-            </Card>
-          ) : (
+    {filteredMosques.length === 0 ? (
+      <Card>
+        <CardContent className="p-8 text-center">
+          <MapPin className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
+
+          <h3 className="text-lg font-semibold">
+            {t("directory.noMosquesFound", {
+              defaultValue: "No mosques found",
+            })}
+          </h3>
+
+          <p className="mt-2 text-sm text-muted-foreground">
+            {t("directory.tryAnotherSearch", {
+              defaultValue: "Try another search or switch to All.",
+            })}
+          </p>
+        </CardContent>
+      </Card>
+    ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {filteredMosques.map((mosque) => (
                 <Card
@@ -738,14 +746,17 @@ const handleMoreDetails = (mosque: Mosque) => {
                       </Badge>
                     )}
 
-                    {mosque.diverseCommunity && (
-                      <Badge
-                        variant="secondary"
-                        className="absolute top-3 right-3 bg-islamic-gold text-white"
-                      >
-                        Diverse Community
-                      </Badge>
-                    )}
+                   {mosque.diverseCommunity && (
+                     <Badge
+                       variant="secondary"
+                       className="absolute top-3 right-3 bg-islamic-gold text-white"
+                     >
+                       {t("directory.diverseCommunity", {
+                         defaultValue: "Diverse Community",
+                       })}
+                     </Badge>
+                   )}
+
                   </div>
 
                   <CardHeader>
@@ -757,9 +768,12 @@ const handleMoreDetails = (mosque: Mosque) => {
                         <span className="text-sm font-medium">{mosque.rating}</span>
                       </div>
 
-                      <span className="text-sm text-muted-foreground">
-                        ({mosque.reviews} reviews)
-                      </span>
+                     <span className="text-sm text-muted-foreground">
+                       {t("directory.reviews", {
+                         count: mosque.reviews,
+                         defaultValue: "({{count}} reviews)",
+                       })}
+                     </span>
                     </div>
 
                     <div className="flex items-start gap-2 text-sm text-muted-foreground">
@@ -770,7 +784,12 @@ const handleMoreDetails = (mosque: Mosque) => {
                     {mosque.distance != null && (
                       <div className="flex items-center gap-2 text-sm font-medium text-islamic-green">
                         <Navigation className="w-4 h-4" />
-                        <span>{mosque.distance.toFixed(1)} miles away</span>
+              <span>
+                {t("directory.milesAway", {
+                  distance: mosque.distance.toFixed(1),
+                  defaultValue: "{{distance}} miles away",
+                })}
+              </span>
                       </div>
                     )}
                   </CardHeader>
@@ -788,9 +807,13 @@ const handleMoreDetails = (mosque: Mosque) => {
           >
             <span className="mr-2 text-base">🕌</span>
 
-            {typeof mosque.id === "string"
-              ? "View Mosque Profile"
-              : "More Details"}
+           {typeof mosque.id === "string"
+             ? t("directory.viewProfile", {
+                 defaultValue: "View Mosque Profile",
+               })
+             : t("directory.moreDetails", {
+                 defaultValue: "More Details",
+               })}
           </HeroButton>
 
           <HeroButton
@@ -801,20 +824,36 @@ const handleMoreDetails = (mosque: Mosque) => {
             onClick={() => handleGetDirections(mosque)}
           >
             <Navigation className="mr-2 h-4 w-4" />
-            Get Directions
+           {t("directory.getDirections", {
+             defaultValue: "Get Directions",
+           })}
           </HeroButton>
         </div>
 
                     <div className="mb-4 space-y-2">
                       <div className="flex items-center gap-2 text-sm">
                         <Users className="w-4 h-4 text-islamic-green" />
-                        <span className="font-medium">Imam:</span>
-                        <span>{mosque.imam}</span>
+                   <span className="font-medium">
+                     {t("directory.imam", {
+                       defaultValue: "Imam:",
+                     })}
+                   </span>
+                  <span>
+                    {mosque.imam === "Call for Details"
+                      ? t("directory.callForDetails", {
+                          defaultValue: "Call for Details",
+                        })
+                      : mosque.imam}
+                  </span>
                       </div>
 
                       <div className="flex items-center gap-2 text-sm">
                         <Globe className="w-4 h-4 text-islamic-green" />
-                        <span className="font-medium">Languages:</span>
+                        <span className="font-medium">
+                          {t("directory.languages", {
+                            defaultValue: "Languages:",
+                          })}
+                        </span>
                         <span>{mosque.languages.join(", ")}</span>
                       </div>
                     </div>
@@ -829,7 +868,10 @@ const handleMoreDetails = (mosque: Mosque) => {
 
                         {mosque.services.length > 4 && (
                           <Badge variant="outline" className="text-xs">
-                            +{mosque.services.length - 4} more
+                        {t("directory.moreServices", {
+                          count: mosque.services.length - 4,
+                          defaultValue: "+{{count}} more",
+                        })}
                           </Badge>
                         )}
                       </div>
@@ -839,43 +881,57 @@ const handleMoreDetails = (mosque: Mosque) => {
                       <div className="flex items-center gap-2 mb-2">
                         <Clock className="w-4 h-4 text-islamic-green" />
                         <span className="font-medium text-sm">
-                          Prayer Times Today
+                  {t("directory.prayerTimesToday", {
+                    defaultValue: "Prayer Times Today",
+                  })}
                         </span>
                       </div>
 
                       <div className="grid grid-cols-3 gap-2 text-xs">
                         <div>
-                          Fajr:{" "}
+                   {t("directory.prayers.fajr", {
+                     defaultValue: "Fajr:",
+                   })}{" "}
                           <span className="font-medium">
                             {mosque.prayerTimes.fajr}
                           </span>
                         </div>
                         <div>
-                          Dhuhr:{" "}
+                   {t("directory.prayers.dhuhr", {
+                     defaultValue: "Dhuhr:",
+                   })}{" "}
                           <span className="font-medium">
                             {mosque.prayerTimes.dhuhr}
                           </span>
                         </div>
                         <div>
-                          Asr:{" "}
+             {t("directory.prayers.asr", {
+               defaultValue: "Asr:",
+             })}{" "}
                           <span className="font-medium">
                             {mosque.prayerTimes.asr}
                           </span>
                         </div>
                         <div>
-                          Maghrib:{" "}
+                          {t("directory.prayers.maghrib", {
+                            defaultValue: "Maghrib:",
+                          })}{" "}
                           <span className="font-medium">
                             {mosque.prayerTimes.maghrib}
                           </span>
                         </div>
                         <div>
-                          Isha:{" "}
+                      {t("directory.prayers.isha", {
+                        defaultValue: "Isha:",
+                      })}{" "}
                           <span className="font-medium">
                             {mosque.prayerTimes.isha}
                           </span>
                         </div>
                         <div className="font-semibold text-islamic-green">
-                          Jummah: {mosque.prayerTimes.jummah}
+                        {t("directory.prayers.jummah", {
+                          defaultValue: "Jummah:",
+                        })}{" "}
                         </div>
                       </div>
                     </div>

@@ -71,7 +71,7 @@ export default function DirectMessagePage() {
   }
 
   return (
-    <div className="h-screen w-full bg-background overflow-hidden">
+    <div className="h-[calc(100dvh-4.5rem-env(safe-area-inset-bottom))] w-full overflow-hidden bg-background md:h-[100dvh]">
       <PrivateChatWindow conversation={conv} />
     </div>
   );

@@ -103,7 +103,9 @@
       "french": "Français",
       "hausa": "Hausa",
       "arabic": "العربية"
-    }
+    },
+    "how_to_use_title": "How to Use Tariq Islam",
+    "how_to_use_subtitle": "Reopen the app guide and learn about Ibadah, Reflections, scholars, mosques, Tariq AI, and community features."
   },
   "reflections": {
     "featuredReflections": "Featured Reflections",
@@ -347,7 +349,15 @@
     "noLecturesDescription": "This scholar has not published any lectures.",
     "aboutScholar": "About This Scholar",
     "noSpecialtiesListed": "No specialties listed.",
-    "noLanguagesListed": "No languages listed."
+    "noLanguagesListed": "No languages listed.",
+    "title": "Profile",
+    "userProfile": "User Profile",
+    "editProfile": "Edit Profile",
+    "connections": "Connections",
+    "followers": "Followers",
+    "pendingRequests": "Pending Requests",
+    "adminBio": "Tariq Islam Admin is the management and moderation system behind the Tariq Islam platform, created and operated by Busaki Media. It is designed to help oversee the growing Muslim community by managing users, monitoring content, reviewing reports, approving mosque listings, handling events, and maintaining a safe Islamic environment for all members.\n\nThe admin system gives full control over community operations, including:\n\n• User management and verification\n• Community moderation and content review\n• Mosque and event approvals\n• Advertisement management\n• Reports and complaints handling\n• Message monitoring for safety compliance\n• Partnership and organization management\n• Analytics and engagement tracking\n\nOur mission is to build a secure, beneficial, and global Islamic digital community where Muslims can connect, learn, and grow together while maintaining Islamic values.\n\nPowered by Busaki Media\nBuilding technology for the Ummah.",
+    "edit": "Edit"
   },
   "bottomNav": {
     "home": "Home",
@@ -661,7 +671,131 @@
       "specialties": "Specialties",
       "viewScholar": "View Scholar",
       "loadError": "Unable to load scholars",
-      "loadErrorDescription": "The scholar directory could not be loaded. Please try again."
+      "loadErrorDescription": "The scholar directory could not be loaded. Please try again.",
+      "watchLectures": "Watch Scholar Lectures",
+      "watchLecturesDescription": "Browse the latest lectures from verified scholars."
+    },
+    "lectureViewer": {
+      "loading": "Loading lecture...",
+      "unavailable": "Lecture unavailable",
+      "unavailableDescription": "This lecture may be unavailable, removed, or awaiting approval.",
+      "returnToScholar": "Return to Scholar",
+      "back": "Back",
+      "save": "Save",
+      "saved": "Saved",
+      "viewProfile": "View Profile",
+      "like_one": "{{count}} Like",
+      "like_other": "{{count}} Likes",
+      "comment_one": "{{count}} Comment",
+      "comment_other": "{{count}} Comments",
+      "share": "Share",
+      "view_one": "{{count}} view",
+      "view_other": "{{count}} views",
+      "noDescription": "No description was provided for this lecture.",
+      "comments": "Comments",
+      "nextVideoComing": "The next video is coming up",
+      "commentCount_one": "{{count}} comment",
+      "commentCount_other": "{{count}} comments",
+      "writeComment": "Write a comment...",
+      "signInToComment": "Sign in to comment",
+      "postComment": "Post comment",
+      "loadingComments": "Loading comments...",
+      "noComments": "No comments yet. Start the discussion.",
+      "memberFallback": "Tariq Islam Member",
+      "deleteComment": "Delete comment",
+      "moreFromScholar": "More from this Scholar",
+      "continueLearning": "Continue learning from this scholar.",
+      "noOtherLectures": "No other approved lectures yet.",
+      "videoUnsupported": "Your browser does not support video playback.",
+      "loadError": "Unable to load lecture",
+      "loadErrorDescription": "The lecture could not be opened.",
+      "linkCopied": "Lecture link copied",
+      "linkCopiedDescription": "The lecture link was copied to your clipboard.",
+      "shareError": "Unable to share",
+      "shareErrorDescription": "The lecture link could not be shared.",
+      "likeError": "Unable to update like",
+      "saveRemoved": "Removed from saved lectures",
+      "saveAdded": "Lecture saved",
+      "saveError": "Unable to update saved lecture",
+      "commentAddError": "Unable to add comment",
+      "commentDeleteError": "Unable to delete comment",
+      "tryAgain": "Please try again."
+    },
+    "lectureFeed": {
+      "title": "Scholar Lectures",
+      "subtitle": "Learn from verified scholars",
+      "empty": "No lectures available yet",
+      "openLecture": "Open Lecture and Comments",
+      "captionsOff": "Captions Off",
+      "original": "Original",
+      "captionsWillAppear": "Captions will appear here",
+      "captionLanguage": "Caption language",
+      "expandCaptions": "Expand captions",
+      "collapseCaptions": "Collapse captions",
+      "muteVideo": "Mute video",
+      "turnOnSound": "Turn on sound"
+    }
+  },
+  "appOnboarding": {
+    "progress": "Step {{current}} of {{total}}",
+    "skip": "Skip",
+    "back": "Back",
+    "next": "Next",
+    "done": "Done",
+    "openIbadah": "Open Ibadah",
+    "steps": {
+      "welcome": {
+        "title": "Welcome to Tariq Islam",
+        "body": "Tariq Islam brings worship, learning, trusted scholars, mosques, community, and Islamic AI tools together in one place."
+      },
+      "ibadah": {
+        "title": "Begin with Ibadah",
+        "body": "Open Ibadah to access the Quran, Qibla, Tasbih, mosques, scholars, saved lectures, continuing education, and Tariq AI."
+      },
+      "reflections": {
+        "title": "Explore Reflections",
+        "body": "Watch short Islamic reminders with captions and translations in supported languages."
+      },
+      "scholars": {
+        "title": "Learn from Scholars",
+        "body": "Follow verified scholars, watch lectures, save lessons, explore playlists, and continue watching later."
+      },
+      "mosques": {
+        "title": "Connect with Mosques",
+        "body": "Find mosque profiles, announcements, events, prayer information, and in-app livestreams."
+      },
+      "ai": {
+        "title": "Use Tariq AI",
+        "body": "Ask Islamic questions, use the Hajj Assistant and dua library, and translate or summarize Islamic text."
+      },
+      "community": {
+        "title": "Join the Community",
+        "body": "Connect with other Muslims through community features, private messaging, groups, and calls."
+      },
+      "scholarWelcome": {
+        "title": "Welcome to the Scholar Platform",
+        "body": "Your approved scholar account includes tools for teaching, publishing lectures, organizing playlists, and reaching followers."
+      },
+      "scholarProfile": {
+        "title": "Manage Your Scholar Profile",
+        "body": "Keep your biography, specialties, languages, location, and public information accurate."
+      },
+      "scholarLectures": {
+        "title": "Upload Lectures",
+        "body": "Create lecture drafts, add titles and descriptions, upload videos, and prepare content for review."
+      },
+      "scholarCaptions": {
+        "title": "Captions and Translation",
+        "body": "Generate timed captions and make lectures accessible through supported caption translations."
+      },
+      "scholarReview": {
+        "title": "Submit for Review",
+        "body": "Submit completed lectures for moderation and track draft, pending, approved, or rejected status."
+      },
+      "scholarManage": {
+        "title": "Manage Lectures and Playlists",
+        "body": "Organize approved lectures into playlists and help followers continue learning from your channel."
+      }
     }
   }
 }

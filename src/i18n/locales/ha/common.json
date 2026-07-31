@@ -103,7 +103,9 @@
       "french": "Faransanci",
       "hausa": "Hausa",
       "arabic": "Larabci"
-    }
+    },
+    "how_to_use_title": "Yadda Ake Amfani da Tariq Islam",
+    "how_to_use_subtitle": "Sake buɗe jagorar app domin koyon Ibadah, Tunatarwa, malamai, masallatai, Tariq AI da fasalolin al’umma."
   },
   "reflections": {
     "featuredReflections": "Fitattun Tunatarwa",
@@ -316,7 +318,9 @@
     "mutual": "Na Juna",
     "pendingRequests": "Buƙatun da ke Jira",
     "noFollowers": "Babu mabiya tukuna.",
-    "noFollowing": "Ba ka bin kowa tukuna."
+    "noFollowing": "Ba ka bin kowa tukuna.",
+    "adminBio": "Tariq Islam Admin shi ne tsarin gudanarwa da sa ido da ke bayan dandalin Tariq Islam, wanda Busaki Media ta ƙirƙira kuma take gudanarwa. An tsara shi domin taimakawa wajen kula da al’ummar Musulmi da ke ƙaruwa ta hanyar sarrafa masu amfani, sa ido kan abubuwan da ake wallafawa, duba rahotanni, amincewa da jerin masallatai, gudanar da abubuwan da suka faru, da kuma tabbatar da ingantaccen yanayin Musulunci mai aminci ga dukkan mambobi.\n\nTsarin gudanarwar yana ba da cikakken iko kan ayyukan al’umma, ciki har da:\n\n• Gudanarwa da tantance masu amfani\n• Kula da al’umma da nazarin abubuwan da ake wallafawa\n• Amincewa da masallatai da abubuwan da suka faru\n• Gudanar da tallace-tallace\n• Kula da rahotanni da korafe-korafe\n• Sa ido kan saƙonni domin tabbatar da tsaro\n• Gudanar da haɗin gwiwa da ƙungiyoyi\n• Nazari da bin diddigin yadda mutane ke amfani da dandalin\n\nManufarmu ita ce gina al’ummar Musulunci ta zamani mai aminci, mai amfani, kuma ta duniya, inda Musulmi za su iya haɗuwa, koyo, da bunƙasa tare suna kiyaye ƙa’idodin Musulunci.\n\nBusaki Media ce ke tallafawa\nMuna gina fasaha domin al’ummar Musulmi.",
+    "edit": "Gyara"
   },
   "bottomNav": {
     "home": "Gida",
@@ -414,7 +418,9 @@
       "specialties": "Fannonin ƙwarewa",
       "viewScholar": "Duba Malami",
       "loadError": "Ba a iya loda malamai ba",
-      "loadErrorDescription": "Ba a iya loda kundin malamai ba. Da fatan za a sake gwadawa."
+      "loadErrorDescription": "Ba a iya loda kundin malamai ba. Da fatan za a sake gwadawa.",
+      "watchLectures": "Kalli Darussan Malamai",
+      "watchLecturesDescription": "Duba sabbin darussa daga malamai da aka tabbatar."
     },
     "profilePage": {
       "loadError": "Ba a iya loda malamin ba",
@@ -577,7 +583,129 @@
         "hausa": "Hausa",
         "french": "Faransanci"
       }
+    },
+    "lectureViewer": {
+      "loading": "Ana loda darasi...",
+      "unavailable": "Darasin ba ya samuwa",
+      "unavailableDescription": "Wataƙila darasin ba ya samuwa, an cire shi, ko yana jiran amincewa.",
+      "returnToScholar": "Koma zuwa Malami",
+      "back": "Komawa",
+      "save": "Ajiye",
+      "saved": "An Ajiye",
+      "viewProfile": "Duba Bayanan Malami",
+      "like_one": "So {{count}}",
+      "like_other": "So {{count}}",
+      "comment_one": "Sharhi {{count}}",
+      "comment_other": "Sharhi {{count}}",
+      "share": "Raba",
+      "view_one": "Kallo {{count}}",
+      "view_other": "Kallo {{count}}",
+      "noDescription": "Ba a bayar da bayanin wannan darasin ba.",
+      "comments": "Sharhi",
+      "nextVideoComing": "Bidiyo na gaba zai fara nan ba da jimawa ba",
+      "commentCount_one": "Sharhi {{count}}",
+      "commentCount_other": "Sharhi {{count}}",
+      "writeComment": "Rubuta sharhi...",
+      "signInToComment": "Shiga domin yin sharhi",
+      "postComment": "Wallafa sharhi",
+      "loadingComments": "Ana loda sharhi...",
+      "noComments": "Babu sharhi tukuna. Fara tattaunawa.",
+      "memberFallback": "Mamba na Tariq Islam",
+      "deleteComment": "Goge sharhi",
+      "moreFromScholar": "Ƙarin Darussa daga Wannan Malami",
+      "continueLearning": "Ci gaba da koyo daga wannan malami.",
+      "noOtherLectures": "Babu wasu darussa da aka amince da su tukuna.",
+      "videoUnsupported": "Burauzarka ba ta goyon bayan kunna bidiyo.",
+      "loadError": "Ba a iya loda darasin ba",
+      "loadErrorDescription": "Ba a iya buɗe darasin ba.",
+      "linkCopied": "An kwafi mahaɗin darasin",
+      "linkCopiedDescription": "An kwafi mahaɗin darasin zuwa allo.",
+      "shareError": "Ba a iya rabawa ba",
+      "shareErrorDescription": "Ba a iya raba mahaɗin darasin ba.",
+      "likeError": "Ba a iya sabunta so ba",
+      "saveRemoved": "An cire daga darussan da aka ajiye",
+      "saveAdded": "An ajiye darasin",
+      "saveError": "Ba a iya sabunta darasin da aka ajiye ba",
+      "commentAddError": "Ba a iya ƙara sharhi ba",
+      "commentDeleteError": "Ba a iya goge sharhi ba",
+      "tryAgain": "Da fatan za a sake gwadawa."
+    },
+    "lectureFeed": {
+      "title": "Darussan Malamai",
+      "subtitle": "Koyi daga malamai da aka tabbatar",
+      "empty": "Babu darussan da ake da su tukuna",
+      "openLecture": "Buɗe Darasi da Sharhi",
+      "captionsOff": "Kashe rubutun bidiyo",
+      "original": "Na asali",
+      "captionsWillAppear": "Rubutun bidiyo zai bayyana a nan",
+      "captionLanguage": "Harshen rubutun bidiyo",
+      "expandCaptions": "Faɗaɗa rubutun bidiyo",
+      "collapseCaptions": "Rufe rubutun bidiyo",
+      "muteVideo": "Kashe sautin bidiyo",
+      "turnOnSound": "Kunna sauti"
     }
   },
-  "close": "Rufe"
+  "close": "Rufe",
+  "appOnboarding": {
+    "progress": "Mataki na {{current}} cikin {{total}}",
+    "skip": "Tsallake",
+    "back": "Baya",
+    "next": "Na gaba",
+    "done": "An gama",
+    "openIbadah": "Buɗe Ibadah",
+    "steps": {
+      "welcome": {
+        "title": "Barka da zuwa Tariq Islam",
+        "body": "Tariq Islam ya haɗa ibada, ilmantarwa, malamai, masallatai, al’umma da kayan AI na Musulunci a wuri guda."
+      },
+      "ibadah": {
+        "title": "Fara da Ibadah",
+        "body": "Buɗe Ibadah domin samun Al-Qur’ani, Alƙibla, Tasbih, masallatai, malamai, darussan da aka ajiye da Tariq AI."
+      },
+      "reflections": {
+        "title": "Duba Tunatarwa",
+        "body": "Kalli gajerun tunatarwar Musulunci tare da rubutun bidiyo da fassara."
+      },
+      "scholars": {
+        "title": "Koyi daga Malamai",
+        "body": "Bi malamai da aka tabbatar, kalli darussa, ajiye su kuma ci gaba daga baya."
+      },
+      "mosques": {
+        "title": "Haɗu da Masallatai",
+        "body": "Nemo bayanan masallatai, sanarwa, abubuwan da ke faruwa da watsa shirye-shirye kai tsaye."
+      },
+      "ai": {
+        "title": "Yi amfani da Tariq AI",
+        "body": "Yi tambayoyi, yi amfani da Mataimakin Hajji, addu’o’i, fassara da taƙaitawa."
+      },
+      "community": {
+        "title": "Shiga Al’umma",
+        "body": "Haɗu da Musulmai ta hanyar al’umma, saƙonni, ƙungiyoyi da kira."
+      },
+      "scholarWelcome": {
+        "title": "Barka da zuwa Dandalin Malamai",
+        "body": "Asusun malaminka yana da kayan koyarwa, wallafa darussa da tsara jerin darussa."
+      },
+      "scholarProfile": {
+        "title": "Sarrafa Bayanan Malami",
+        "body": "Sabunta tarihin rayuwa, fannoni, harsuna da bayanan jama’a."
+      },
+      "scholarLectures": {
+        "title": "Loda Darussa",
+        "body": "Ƙirƙiri daftari, saka bayanai sannan ka loda bidiyon darasi."
+      },
+      "scholarCaptions": {
+        "title": "Rubutu da Fassara",
+        "body": "Ƙirƙiri rubutun bidiyo mai lokaci da fassarar harsuna."
+      },
+      "scholarReview": {
+        "title": "Aika don Dubawa",
+        "body": "Aika darussan da aka kammala domin tantancewa sannan ka bibiyi matsayinsu."
+      },
+      "scholarManage": {
+        "title": "Sarrafa Darussa da Jerin Bidiyo",
+        "body": "Tsara darussan da aka amince da su cikin jerin bidiyo."
+      }
+    }
+  }
 }

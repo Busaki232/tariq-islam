@@ -245,7 +245,7 @@ const ContinueWatching = () => {
                         />
                       ) : (
                         <video
-                          src={lecture.video_url}
+                          src={`${lecture.video_url}#t=0.001`}
                           preload="metadata"
                           muted
                           playsInline

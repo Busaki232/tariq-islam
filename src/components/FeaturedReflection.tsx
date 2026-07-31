@@ -124,10 +124,11 @@ export default function FeaturedReflection() {
 
   const [videos, setVideos] = useState<UnifiedVideo[]>([]);
   const [loading, setLoading] = useState(true);
-  const [featuredIndex, setFeaturedIndex] = useState(0);
+  const [activeVideoKey, setActiveVideoKey] =
+    useState<string | null>(null);
   const [soundEnabled, setSoundEnabled] = useState(false);
-  const [featuredVideoTime, setFeaturedVideoTime] =
-    useState(0);
+  const [videoTimes, setVideoTimes] =
+    useState<Record<string, number>>({});
 
   const [translationsByVideoKey, setTranslationsByVideoKey] =
     useState<Record<string, CaptionTranslation[]>>({});
@@ -161,8 +162,9 @@ export default function FeaturedReflection() {
   const [submittingComment, setSubmittingComment] =
     useState(false);
 
-  const swipeStartXRef = useRef<number | null>(null);
-  const swipeStartYRef = useRef<number | null>(null);
+  const feedRef = useRef<HTMLDivElement | null>(null);
+  const videoRefs =
+    useRef<Map<string, HTMLVideoElement>>(new Map());
   const commentInputRef = useRef<HTMLTextAreaElement | null>(
     null
   );
@@ -577,13 +579,13 @@ export default function FeaturedReflection() {
         setLikeCounts(nextLikeCounts);
         setCommentCounts(nextCommentCounts);
         setLikedVideoKeys(nextLikedVideoKeys);
-        setFeaturedIndex((current) =>
-          unifiedVideos.length === 0
-            ? 0
-            : Math.min(
-                current,
-                unifiedVideos.length - 1
-              )
+        setActiveVideoKey((current) =>
+          current &&
+          unifiedVideos.some(
+            (video) => video.key === current
+          )
+            ? current
+            : unifiedVideos[0]?.key ?? null
         );
       } catch (error) {
         console.error(
@@ -599,11 +601,81 @@ export default function FeaturedReflection() {
     void loadVideos();
   }, [t, user?.id]);
 
-  const featured = videos[featuredIndex];
-
   useEffect(() => {
-    setFeaturedVideoTime(0);
-  }, [featured?.key]);
+    if (
+      loading ||
+      videos.length === 0 ||
+      commentsOpen
+    ) {
+      if (commentsOpen) {
+        videoRefs.current.forEach((video) =>
+          video.pause()
+        );
+      }
+
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const mostVisible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort(
+            (first, second) =>
+              second.intersectionRatio -
+              first.intersectionRatio
+          )[0];
+
+        if (
+          !mostVisible ||
+          mostVisible.intersectionRatio < 0.65
+        ) {
+          return;
+        }
+
+        const videoKey = (
+          mostVisible.target as HTMLElement
+        ).dataset.videoKey;
+
+        if (!videoKey) {
+          return;
+        }
+
+        setActiveVideoKey(videoKey);
+
+        videoRefs.current.forEach((video, key) => {
+          if (key === videoKey) {
+            video.muted = !soundEnabled;
+            void video.play().catch(() => {});
+          } else {
+            video.pause();
+          }
+        });
+      },
+      {
+        root: feedRef.current,
+        threshold: [0.25, 0.5, 0.65, 0.8, 1],
+      }
+    );
+
+    const cards = feedRef.current?.querySelectorAll<HTMLElement>(
+      "[data-video-key]"
+    );
+
+    cards?.forEach((card) => observer.observe(card));
+
+    return () => {
+      observer.disconnect();
+      videoRefs.current.forEach((video) =>
+        video.pause()
+      );
+    };
+  }, [
+    videos,
+    loading,
+    soundEnabled,
+    commentsOpen,
+  ]);
 
   useEffect(() => {
     if (!commentsOpen) {
@@ -728,24 +800,24 @@ export default function FeaturedReflection() {
     }
   };
 
-  const showNextVideo = () => {
-    if (videos.length < 2) {
-      return;
-    }
-
-    setFeaturedIndex((current) =>
-      current < videos.length - 1 ? current + 1 : 0
+  const playNextVideo = (videoKey: string) => {
+    const currentIndex = videos.findIndex(
+      (video) => video.key === videoKey
     );
-  };
+    const nextVideo =
+      videos[currentIndex + 1] ?? videos[0];
 
-  const showPreviousVideo = () => {
-    if (videos.length < 2) {
-      return;
-    }
-
-    setFeaturedIndex((current) =>
-      current > 0 ? current - 1 : videos.length - 1
-    );
+    document
+      .getElementById(
+        `featured-video-${nextVideo.key.replace(
+          ":",
+          "-"
+        )}`
+      )
+      ?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
   };
 
   const handleLike = async (video: UnifiedVideo) => {
@@ -1083,56 +1155,6 @@ export default function FeaturedReflection() {
       year: "numeric",
     }).format(new Date(value));
 
-  const originalCaptionSegments = featured
-    ? normalizeCaptionSegments(
-        featured.captionsSegments
-      )
-    : [];
-  const featuredTranslations = featured
-    ? translationsByVideoKey[featured.key] ?? []
-    : [];
-  const selectedCaptionLanguage = featured
-    ? selectedCaptionLanguages[featured.key] ??
-      (originalCaptionSegments.length > 0
-        ? "original"
-        : featuredTranslations[0]?.language_code ??
-          "off")
-    : "off";
-  const selectedTranslation =
-    featuredTranslations.find(
-      (translation) =>
-        translation.language_code ===
-        selectedCaptionLanguage
-    );
-  const activeSegments =
-    selectedCaptionLanguage === "off"
-      ? []
-      : selectedCaptionLanguage === "original"
-        ? originalCaptionSegments
-        : selectedTranslation?.translated_segments ?? [];
-  const activeCaption =
-    activeSegments.find(
-      (segment) =>
-        featuredVideoTime >= segment.start &&
-        featuredVideoTime < segment.end
-    )?.text ?? "";
-  const hasCaptionChoices =
-    originalCaptionSegments.length > 0 ||
-    featuredTranslations.some(
-      (translation) =>
-        Array.isArray(translation.translated_segments) &&
-        translation.translated_segments.length > 0
-    );
-  const captionsCollapsed = featured
-    ? collapsedCaptions[featured.key] ?? false
-    : false;
-  const captionPosition = featured
-    ? captionPositions[featured.key] ?? {
-        x: 0,
-        y: 0,
-      }
-    : { x: 0, y: 0 };
-
   return (
     <section className="px-4 py-6">
       <div className="relative mx-auto max-w-4xl">
@@ -1147,456 +1169,542 @@ export default function FeaturedReflection() {
               <Loader2 className="mr-2 h-5 w-5 animate-spin" />
               {t("reflections.loadingReflections")}
             </div>
-          ) : featured ? (
-            <>
-              <button
-                type="button"
-                onClick={() => navigateToOwner(featured)}
-                className="mb-3 flex w-full items-center gap-3 rounded-2xl border border-white/15 bg-islamic-green/40 px-4 py-3 text-left text-white"
-              >
-                {featured.ownerAvatarUrl ? (
-                  <img
-                    src={featured.ownerAvatarUrl}
-                    alt={featured.ownerName}
-                    className="h-11 w-11 rounded-full border border-white/20 object-cover"
-                  />
-                ) : (
-                  <span className="flex h-11 w-11 items-center justify-center rounded-full bg-islamic-green font-bold text-white">
-                    {featured.ownerName
-                      .split(/\s+/)
-                      .filter(Boolean)
-                      .slice(0, 2)
-                      .map((part) =>
-                        part[0]?.toUpperCase()
-                      )
-                      .join("") || "T"}
-                  </span>
-                )}
+          ) : videos.length > 0 ? (
+            <div
+              ref={feedRef}
+              className="h-[78dvh] min-h-[560px] snap-y snap-mandatory overflow-y-auto overscroll-y-contain rounded-2xl bg-black"
+              style={{
+                WebkitOverflowScrolling: "touch",
+                scrollSnapType: "y mandatory",
+              }}
+            >
+              {videos.map((video) => {
+                const isActive =
+                  activeVideoKey === video.key;
+                const originalCaptionSegments =
+                  normalizeCaptionSegments(
+                    video.captionsSegments
+                  );
+                const translations =
+                  translationsByVideoKey[video.key] ?? [];
+                const selectedCaptionLanguage =
+                  selectedCaptionLanguages[video.key] ??
+                  (originalCaptionSegments.length > 0
+                    ? "original"
+                    : translations[0]?.language_code ??
+                      "off");
+                const selectedTranslation =
+                  translations.find(
+                    (translation) =>
+                      translation.language_code ===
+                      selectedCaptionLanguage
+                  );
+                const activeSegments =
+                  selectedCaptionLanguage === "off"
+                    ? []
+                    : selectedCaptionLanguage ===
+                        "original"
+                      ? originalCaptionSegments
+                      : selectedTranslation
+                          ?.translated_segments ?? [];
+                const currentTime =
+                  videoTimes[video.key] ?? 0;
+                const activeCaption =
+                  activeSegments.find(
+                    (segment) =>
+                      currentTime >= segment.start &&
+                      currentTime < segment.end
+                  )?.text ?? "";
+                const hasCaptionChoices =
+                  originalCaptionSegments.length > 0 ||
+                  translations.some(
+                    (translation) =>
+                      Array.isArray(
+                        translation.translated_segments
+                      ) &&
+                      translation.translated_segments
+                        .length > 0
+                  );
+                const captionsCollapsed =
+                  collapsedCaptions[video.key] ?? false;
+                const captionPosition =
+                  captionPositions[video.key] ?? {
+                    x: 0,
+                    y: 0,
+                  };
 
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate font-semibold">
-                    {featured.ownerName}
-                    {featured.ownerVerified ? " ✓" : ""}
-                  </span>
-                  <span className="mt-0.5 block text-xs text-white/70">
-                    {[
-                      getCategoryLabel(
-                        featured.category
-                      ),
-                      getLanguageLabel(
-                        featured.language
-                      ),
-                    ]
-                      .filter(Boolean)
-                      .join(" • ")}
-                  </span>
-                </span>
-              </button>
-
-              <div
-                className="relative h-[68dvh] min-h-[520px] w-full overflow-hidden rounded-2xl border border-white/10 bg-black"
-                style={{ touchAction: "pan-x" }}
-                onTouchStartCapture={(event) => {
-                  const touch = event.touches[0];
-                  swipeStartXRef.current = touch.clientX;
-                  swipeStartYRef.current = touch.clientY;
-                }}
-                onTouchEndCapture={(event) => {
-                  if (
-                    swipeStartXRef.current === null ||
-                    swipeStartYRef.current === null ||
-                    videos.length < 2
-                  ) {
-                    swipeStartXRef.current = null;
-                    swipeStartYRef.current = null;
-                    return;
-                  }
-
-                  const touch = event.changedTouches[0];
-                  const horizontalDistance =
-                    touch.clientX -
-                    swipeStartXRef.current;
-                  const verticalDistance =
-                    touch.clientY -
-                    swipeStartYRef.current;
-
-                  swipeStartXRef.current = null;
-                  swipeStartYRef.current = null;
-
-                  const isVerticalSwipe =
-                    Math.abs(verticalDistance) >= 60 &&
-                    Math.abs(verticalDistance) >
-                      Math.abs(horizontalDistance) * 1.2;
-
-                  if (!isVerticalSwipe) {
-                    return;
-                  }
-
-                  if (verticalDistance < 0) {
-                    showNextVideo();
-                  } else {
-                    showPreviousVideo();
-                  }
-                }}
-              >
-                <video
-                  key={featured.key}
-                  src={featured.videoUrl}
-                  poster={
-                    featured.thumbnailUrl ?? undefined
-                  }
-                  muted={!soundEnabled}
-                  autoPlay
-                  playsInline
-                  preload="metadata"
-                  crossOrigin="anonymous"
-                  className="h-full w-full select-none bg-black object-contain"
-                  onLoadedMetadata={(event) => {
-                    const video = event.currentTarget;
-
-                    if (
-                      featured.trimStartSeconds > 0 &&
-                      featured.trimStartSeconds <
-                        video.duration
-                    ) {
-                      video.currentTime =
-                        featured.trimStartSeconds;
-                    }
-                  }}
-                  onPlay={(event) => {
-                    const video = event.currentTarget;
-
-                    if (
-                      video.currentTime <
-                        featured.trimStartSeconds ||
-                      (featured.trimEndSeconds !== null &&
-                        video.currentTime >=
-                          featured.trimEndSeconds)
-                    ) {
-                      video.currentTime =
-                        featured.trimStartSeconds;
-                    }
-                  }}
-                  onTimeUpdate={(event) => {
-                    const video = event.currentTarget;
-                    const currentTime =
-                      video?.currentTime ?? 0;
-
-                    setFeaturedVideoTime(currentTime);
-
-                    if (
-                      featured.trimEndSeconds !== null &&
-                      currentTime >=
-                        featured.trimEndSeconds - 0.1
-                    ) {
-                      video.pause();
-                      showNextVideo();
-                    }
-                  }}
-                  onEnded={showNextVideo}
-                  onClick={(event) => {
-                    const video = event.currentTarget;
-
-                    if (video.paused) {
-                      void video.play();
-                    } else {
-                      video.pause();
-                    }
-                  }}
-                />
-
-                {hasCaptionChoices && (
-                  <div
-                    className="absolute left-1/2 top-[38%] z-20 w-[calc(100%-5rem)] max-w-lg -translate-x-1/2"
-                    style={{
-                      transform:
-                        `translate(calc(-50% + ${captionPosition.x}px), ` +
-                        `${captionPosition.y}px)`,
-                    }}
+                return (
+                  <article
+                    id={`featured-video-${video.key.replace(
+                      ":",
+                      "-"
+                    )}`}
+                    key={video.key}
+                    data-video-key={video.key}
+                    className="flex h-full min-h-full snap-start snap-always flex-col bg-black"
                   >
-                    <div className="overflow-hidden rounded-xl border border-white/20 bg-black/80 text-white shadow-xl backdrop-blur-md">
-                      <div className="flex items-center gap-2 border-b border-white/10 p-2">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        navigateToOwner(video)
+                      }
+                      className="flex shrink-0 items-center gap-3 border-b border-white/10 bg-islamic-green/55 px-4 py-3 text-left text-white"
+                    >
+                      {video.ownerAvatarUrl ? (
+                        <img
+                          src={video.ownerAvatarUrl}
+                          alt={video.ownerName}
+                          className="h-11 w-11 rounded-full border border-white/20 object-cover"
+                        />
+                      ) : (
+                        <span className="flex h-11 w-11 items-center justify-center rounded-full bg-islamic-green font-bold text-white">
+                          {video.ownerName
+                            .split(/\s+/)
+                            .filter(Boolean)
+                            .slice(0, 2)
+                            .map((part) =>
+                              part[0]?.toUpperCase()
+                            )
+                            .join("") || "T"}
+                        </span>
+                      )}
+
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate font-semibold">
+                          {video.ownerName}
+                          {video.ownerVerified ? " ✓" : ""}
+                        </span>
+                        <span className="mt-0.5 block truncate text-xs text-white/75">
+                          {[
+                            getCategoryLabel(
+                              video.category
+                            ),
+                            getLanguageLabel(
+                              video.language
+                            ),
+                          ]
+                            .filter(Boolean)
+                            .join(" • ")}
+                        </span>
+                      </span>
+                    </button>
+
+                    <div className="relative min-h-0 flex-1 overflow-hidden bg-black">
+                      <video
+                        ref={(node) => {
+                          if (node) {
+                            videoRefs.current.set(
+                              video.key,
+                              node
+                            );
+                          } else {
+                            videoRefs.current.delete(
+                              video.key
+                            );
+                          }
+                        }}
+                        src={video.videoUrl}
+                        poster={
+                          video.thumbnailUrl ?? undefined
+                        }
+                        muted={!soundEnabled}
+                        playsInline
+                        preload={
+                          isActive ? "auto" : "metadata"
+                        }
+                        crossOrigin="anonymous"
+                        className="h-full w-full select-none bg-black object-contain"
+                        onLoadedMetadata={(event) => {
+                          const element =
+                            event.currentTarget;
+
+                          if (
+                            video.trimStartSeconds > 0 &&
+                            video.trimStartSeconds <
+                              element.duration
+                          ) {
+                            element.currentTime =
+                              video.trimStartSeconds;
+                          }
+                        }}
+                        onPlay={(event) => {
+                          const element =
+                            event.currentTarget;
+
+                          videoRefs.current.forEach(
+                            (otherVideo, key) => {
+                              if (
+                                key !== video.key
+                              ) {
+                                otherVideo.pause();
+                              }
+                            }
+                          );
+
+                          if (
+                            element.currentTime <
+                              video.trimStartSeconds ||
+                            (video.trimEndSeconds !==
+                              null &&
+                              element.currentTime >=
+                                video.trimEndSeconds)
+                          ) {
+                            element.currentTime =
+                              video.trimStartSeconds;
+                          }
+                        }}
+                        onTimeUpdate={(event) => {
+                          const element =
+                            event.currentTarget;
+                          const nextTime =
+                            element?.currentTime ?? 0;
+
+                          setVideoTimes((current) => ({
+                            ...current,
+                            [video.key]: nextTime,
+                          }));
+
+                          if (
+                            video.trimEndSeconds !==
+                              null &&
+                            nextTime >=
+                              video.trimEndSeconds -
+                                0.1
+                          ) {
+                            element.pause();
+                            playNextVideo(video.key);
+                          }
+                        }}
+                        onEnded={() =>
+                          playNextVideo(video.key)
+                        }
+                        onClick={(event) => {
+                          const element =
+                            event.currentTarget;
+
+                          if (element.paused) {
+                            void element.play();
+                          } else {
+                            element.pause();
+                          }
+                        }}
+                      />
+
+                      {isActive &&
+                        hasCaptionChoices && (
+                          <div
+                            className="absolute left-1/2 top-[38%] z-20 w-[calc(100%-5rem)] max-w-lg"
+                            style={{
+                              transform:
+                                `translate(calc(-50% + ${captionPosition.x}px), ` +
+                                `${captionPosition.y}px)`,
+                            }}
+                          >
+                            <div className="overflow-hidden rounded-xl border border-white/20 bg-black/80 text-white shadow-xl backdrop-blur-md">
+                              <div className="flex items-center gap-2 border-b border-white/10 p-2">
+                                <button
+                                  type="button"
+                                  onPointerDown={(
+                                    event
+                                  ) =>
+                                    handleCaptionPointerDown(
+                                      event,
+                                      video.key
+                                    )
+                                  }
+                                  onPointerMove={
+                                    handleCaptionPointerMove
+                                  }
+                                  onPointerUp={
+                                    handleCaptionPointerUp
+                                  }
+                                  onPointerCancel={
+                                    handleCaptionPointerUp
+                                  }
+                                  className="touch-none cursor-grab rounded-md p-1 text-white/75 active:cursor-grabbing"
+                                  aria-label={t(
+                                    "reflections.moveCaptions",
+                                    {
+                                      defaultValue:
+                                        "Move captions",
+                                    }
+                                  )}
+                                >
+                                  <GripVertical className="h-5 w-5" />
+                                </button>
+
+                                <select
+                                  value={
+                                    selectedCaptionLanguage
+                                  }
+                                  onChange={(event) =>
+                                    setSelectedCaptionLanguages(
+                                      (current) => ({
+                                        ...current,
+                                        [video.key]:
+                                          event.target
+                                            .value,
+                                      })
+                                    )
+                                  }
+                                  onClick={(event) =>
+                                    event.stopPropagation()
+                                  }
+                                  className="min-w-0 flex-1 rounded-full border border-white/20 bg-black/70 px-3 py-1.5 text-xs font-semibold text-white"
+                                  aria-label={t(
+                                    "reflections.captionLanguage",
+                                    {
+                                      defaultValue:
+                                        "Caption language",
+                                    }
+                                  )}
+                                >
+                                  <option value="off">
+                                    {t(
+                                      "reflections.captionsOff",
+                                      {
+                                        defaultValue:
+                                          "Captions Off",
+                                      }
+                                    )}
+                                  </option>
+
+                                  {originalCaptionSegments.length >
+                                    0 && (
+                                    <option value="original">
+                                      {t(
+                                        "reflections.original",
+                                        {
+                                          defaultValue:
+                                            "Original",
+                                        }
+                                      )}
+                                    </option>
+                                  )}
+
+                                  {translations.map(
+                                    (translation) => (
+                                      <option
+                                        key={
+                                          translation.language_code
+                                        }
+                                        value={
+                                          translation.language_code
+                                        }
+                                      >
+                                        {
+                                          translation.language_name
+                                        }
+                                      </option>
+                                    )
+                                  )}
+                                </select>
+
+                                <button
+                                  type="button"
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    setCollapsedCaptions(
+                                      (current) => ({
+                                        ...current,
+                                        [video.key]:
+                                          !captionsCollapsed,
+                                      })
+                                    );
+                                  }}
+                                  className="rounded-md bg-white/10 p-1.5 text-white/80"
+                                  aria-label={
+                                    captionsCollapsed
+                                      ? t(
+                                          "reflections.expandCaptions",
+                                          {
+                                            defaultValue:
+                                              "Expand captions",
+                                          }
+                                        )
+                                      : t(
+                                          "reflections.collapseCaptions",
+                                          {
+                                            defaultValue:
+                                              "Collapse captions",
+                                          }
+                                        )
+                                  }
+                                >
+                                  {captionsCollapsed ? (
+                                    <ChevronUp className="h-5 w-5" />
+                                  ) : (
+                                    <ChevronDown className="h-5 w-5" />
+                                  )}
+                                </button>
+                              </div>
+
+                              {!captionsCollapsed &&
+                                selectedCaptionLanguage !==
+                                  "off" && (
+                                  <div
+                                    dir={
+                                      selectedCaptionLanguage ===
+                                        "ar" ||
+                                      selectedCaptionLanguage ===
+                                        "ur"
+                                        ? "rtl"
+                                        : "auto"
+                                    }
+                                    className="max-h-28 overflow-y-auto px-3 py-2 text-center text-sm font-medium leading-relaxed sm:text-base"
+                                  >
+                                    {activeCaption || (
+                                      <span className="text-white/50">
+                                        {t(
+                                          "reflections.captionsWillAppear",
+                                          {
+                                            defaultValue:
+                                              "Captions will appear here",
+                                          }
+                                        )}
+                                      </span>
+                                    )}
+                                  </div>
+                                )}
+                            </div>
+                          </div>
+                        )}
+
+                      <div className="absolute right-3 top-1/2 z-30 flex -translate-y-1/2 flex-col items-center gap-3">
                         <button
                           type="button"
-                          onPointerDown={(event) =>
-                            handleCaptionPointerDown(
-                              event,
-                              featured.key
-                            )
+                          disabled={likingVideoKeys.includes(
+                            video.key
+                          )}
+                          onClick={() =>
+                            void handleLike(video)
                           }
-                          onPointerMove={
-                            handleCaptionPointerMove
-                          }
-                          onPointerUp={
-                            handleCaptionPointerUp
-                          }
-                          onPointerCancel={
-                            handleCaptionPointerUp
-                          }
-                          className="touch-none cursor-grab rounded-md p-1 text-white/75 active:cursor-grabbing"
+                          className="flex h-13 min-w-13 flex-col items-center justify-center rounded-full bg-black/65 px-2 py-2 text-white shadow-xl backdrop-blur-md"
                           aria-label={t(
-                            "reflections.moveCaptions",
+                            "reflections.like",
                             {
-                              defaultValue:
-                                "Move captions",
+                              defaultValue: "Like",
                             }
                           )}
                         >
-                          <GripVertical className="h-5 w-5" />
+                          <Heart
+                            className={`h-6 w-6 ${
+                              likedVideoKeys.includes(
+                                video.key
+                              )
+                                ? "fill-red-500 text-red-500"
+                                : ""
+                            }`}
+                          />
+                          <span className="text-xs font-bold">
+                            {likeCounts[video.key] ?? 0}
+                          </span>
                         </button>
 
-                        <select
-                          value={selectedCaptionLanguage}
-                          onChange={(event) =>
-                            setSelectedCaptionLanguages(
-                              (current) => ({
-                                ...current,
-                                [featured.key]:
-                                  event.target.value,
-                              })
-                            )
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleOpenComments(video)
                           }
-                          onClick={(event) =>
-                            event.stopPropagation()
-                          }
-                          className="min-w-0 flex-1 rounded-full border border-white/20 bg-black/70 px-3 py-1.5 text-xs font-semibold text-white"
+                          className="flex h-13 min-w-13 flex-col items-center justify-center rounded-full bg-black/65 px-2 py-2 text-white shadow-xl backdrop-blur-md"
                           aria-label={t(
-                            "reflections.captionLanguage",
+                            "reflections.comments",
                             {
                               defaultValue:
-                                "Caption language",
+                                "Comments",
                             }
                           )}
                         >
-                          <option value="off">
-                            {t(
-                              "reflections.captionsOff",
-                              {
-                                defaultValue:
-                                  "Captions Off",
-                              }
-                            )}
-                          </option>
-
-                          {originalCaptionSegments.length >
-                            0 && (
-                            <option value="original">
-                              {t(
-                                "reflections.original",
-                                {
-                                  defaultValue:
-                                    "Original",
-                                }
-                              )}
-                            </option>
-                          )}
-
-                          {featuredTranslations.map(
-                            (translation) => (
-                              <option
-                                key={
-                                  translation.language_code
-                                }
-                                value={
-                                  translation.language_code
-                                }
-                              >
-                                {
-                                  translation.language_name
-                                }
-                              </option>
-                            )
-                          )}
-                        </select>
+                          <MessageCircle className="h-6 w-6" />
+                          <span className="text-xs font-bold">
+                            {commentCounts[video.key] ??
+                              0}
+                          </span>
+                        </button>
 
                         <button
                           type="button"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            setCollapsedCaptions(
-                              (current) => ({
-                                ...current,
-                                [featured.key]:
-                                  !captionsCollapsed,
-                              })
-                            );
-                          }}
-                          className="rounded-md bg-white/10 p-1.5 text-white/80"
+                          onClick={() =>
+                            void handleShare(video)
+                          }
+                          className="flex h-13 min-w-13 items-center justify-center rounded-full bg-black/65 p-3 text-white shadow-xl backdrop-blur-md"
+                          aria-label={t(
+                            "reflections.share",
+                            {
+                              defaultValue: "Share",
+                            }
+                          )}
+                        >
+                          <Share2 className="h-6 w-6" />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setSoundEnabled(
+                              (current) => !current
+                            )
+                          }
+                          className="flex h-13 min-w-13 items-center justify-center rounded-full bg-black/65 p-3 text-white shadow-xl backdrop-blur-md"
                           aria-label={
-                            captionsCollapsed
+                            soundEnabled
                               ? t(
-                                  "reflections.expandCaptions",
+                                  "reflections.mute",
                                   {
                                     defaultValue:
-                                      "Expand captions",
+                                      "Mute video",
                                   }
                                 )
                               : t(
-                                  "reflections.collapseCaptions",
+                                  "reflections.sound",
                                   {
                                     defaultValue:
-                                      "Collapse captions",
+                                      "Turn on sound",
                                   }
                                 )
                           }
                         >
-                          {captionsCollapsed ? (
-                            <ChevronUp className="h-5 w-5" />
+                          {soundEnabled ? (
+                            <Volume2 className="h-6 w-6" />
                           ) : (
-                            <ChevronDown className="h-5 w-5" />
+                            <VolumeX className="h-6 w-6" />
                           )}
                         </button>
                       </div>
 
-                      {!captionsCollapsed &&
-                        selectedCaptionLanguage !==
-                          "off" && (
-                          <div
-                            dir={
-                              selectedCaptionLanguage ===
-                                "ar" ||
-                              selectedCaptionLanguage ===
-                                "ur"
-                                ? "rtl"
-                                : "auto"
-                            }
-                            className="max-h-28 overflow-y-auto px-3 py-2 text-center text-sm font-medium leading-relaxed sm:text-base"
-                          >
-                            {activeCaption || (
-                              <span className="text-white/50">
-                                {t(
-                                  "reflections.captionsWillAppear",
-                                  {
-                                    defaultValue:
-                                      "Captions will appear here",
-                                  }
-                                )}
-                              </span>
-                            )}
-                          </div>
+                      <div className="pointer-events-none absolute bottom-4 left-4 right-20 z-10 text-white">
+                        <div className="mb-2 flex flex-wrap items-center gap-2">
+                          {video.category && (
+                            <span className="rounded-full bg-islamic-green/90 px-3 py-1 text-xs font-semibold text-white">
+                              {getCategoryLabel(
+                                video.category
+                              )}
+                            </span>
+                          )}
+                          {video.language && (
+                            <span className="rounded-full border border-white/25 bg-black/55 px-3 py-1 text-xs font-semibold">
+                              {getLanguageLabel(
+                                video.language
+                              )}
+                            </span>
+                          )}
+                        </div>
+
+                        <h2 className="line-clamp-2 text-xl font-bold drop-shadow-lg">
+                          {video.title}
+                        </h2>
+
+                        {video.description && (
+                          <p className="mt-1 line-clamp-2 text-sm text-white/85 drop-shadow">
+                            {video.description}
+                          </p>
                         )}
+                      </div>
                     </div>
-                  </div>
-                )}
-
-                <div className="absolute right-3 top-1/2 z-30 flex -translate-y-1/2 flex-col items-center gap-4">
-                  <button
-                    type="button"
-                    disabled={likingVideoKeys.includes(
-                      featured.key
-                    )}
-                    onClick={() =>
-                      void handleLike(featured)
-                    }
-                    className="flex h-14 min-w-14 flex-col items-center justify-center rounded-full bg-black/65 px-2 text-white shadow-xl backdrop-blur-md"
-                    aria-label={t("reflections.like", {
-                      defaultValue: "Like",
-                    })}
-                  >
-                    <Heart
-                      className={`h-6 w-6 ${
-                        likedVideoKeys.includes(
-                          featured.key
-                        )
-                          ? "fill-red-500 text-red-500"
-                          : ""
-                      }`}
-                    />
-                    <span className="text-xs font-bold">
-                      {likeCounts[featured.key] ?? 0}
-                    </span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      handleOpenComments(featured)
-                    }
-                    className="flex h-14 min-w-14 flex-col items-center justify-center rounded-full bg-black/65 px-2 text-white shadow-xl backdrop-blur-md"
-                    aria-label={t(
-                      "reflections.comments",
-                      {
-                        defaultValue: "Comments",
-                      }
-                    )}
-                  >
-                    <MessageCircle className="h-6 w-6" />
-                    <span className="text-xs font-bold">
-                      {commentCounts[featured.key] ?? 0}
-                    </span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      void handleShare(featured)
-                    }
-                    className="flex h-14 min-w-14 items-center justify-center rounded-full bg-black/65 text-white shadow-xl backdrop-blur-md"
-                    aria-label={t("reflections.share", {
-                      defaultValue: "Share",
-                    })}
-                  >
-                    <Share2 className="h-6 w-6" />
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setSoundEnabled(
-                        (current) => !current
-                      )
-                    }
-                    className="flex h-14 min-w-14 items-center justify-center rounded-full bg-black/65 text-white shadow-xl backdrop-blur-md"
-                    aria-label={
-                      soundEnabled
-                        ? t("reflections.mute", {
-                            defaultValue:
-                              "Mute video",
-                          })
-                        : t("reflections.sound", {
-                            defaultValue:
-                              "Turn on sound",
-                          })
-                    }
-                  >
-                    {soundEnabled ? (
-                      <Volume2 className="h-6 w-6" />
-                    ) : (
-                      <VolumeX className="h-6 w-6" />
-                    )}
-                  </button>
-                </div>
-
-                <div className="pointer-events-none absolute bottom-4 left-4 right-20 z-10 text-white">
-                  <div className="mb-2 flex flex-wrap items-center gap-2">
-                    {featured.category && (
-                      <span className="rounded-full bg-islamic-green/90 px-3 py-1 text-xs font-semibold text-white">
-                        {getCategoryLabel(
-                          featured.category
-                        )}
-                      </span>
-                    )}
-                    {featured.language && (
-                      <span className="rounded-full border border-white/25 bg-black/55 px-3 py-1 text-xs font-semibold">
-                        {getLanguageLabel(
-                          featured.language
-                        )}
-                      </span>
-                    )}
-                  </div>
-
-                  <h2 className="line-clamp-2 text-xl font-bold drop-shadow-lg">
-                    {featured.title}
-                  </h2>
-
-                  {featured.description && (
-                    <p className="mt-1 line-clamp-2 text-sm text-white/85 drop-shadow">
-                      {featured.description}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </>
+                  </article>
+                );
+              })}
+            </div>
           ) : (
             <div className="rounded-2xl bg-black/40 p-8 text-center">
               <PlayCircle className="mx-auto mb-3 h-14 w-14 text-islamic-gold" />

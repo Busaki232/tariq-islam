@@ -1,0 +1,956 @@
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import DailyIframe, {
+  type DailyCall,
+} from "@daily-co/daily-js";
+import {
+  DailyAudio,
+  DailyProvider,
+  DailyVideo,
+  useDaily,
+  useDailyEvent,
+  useLocalSessionId,
+  useParticipantIds,
+} from "@daily-co/daily-react";
+import {
+  ArrowLeft,
+  Loader2,
+  Mic,
+  MicOff,
+  PhoneOff,
+  Radio,
+  User,
+  Video,
+  VideoOff,
+} from "lucide-react";
+
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+} from "@/components/ui/card";
+
+type LivestreamStatus =
+  | "draft"
+  | "upcoming"
+  | "live"
+  | "ended"
+  | "cancelled";
+
+type LivestreamRecord = {
+  id: string;
+  scholar_id: string;
+  created_by: string;
+  title: string;
+  description: string | null;
+  daily_room_name: string | null;
+  daily_room_url: string | null;
+  source_language: string;
+  translation_languages: string[];
+  scheduled_for: string | null;
+  started_at: string | null;
+  ended_at: string | null;
+  status: LivestreamStatus;
+  created_at: string;
+};
+
+type ScholarRecord = {
+  id: string;
+  user_id: string;
+  display_name: string;
+  verification_status: string;
+  is_active: boolean;
+};
+
+type TokenResponse = {
+  roomUrl: string;
+  roomName: string;
+  token: string;
+  role: "broadcaster" | "viewer";
+};
+
+type StreamContentProps = {
+  role: "broadcaster" | "viewer";
+  title: string;
+  scholarName: string;
+  status: LivestreamStatus;
+  onLeave: () => void;
+  onStart: () => Promise<void>;
+  onEnd: () => Promise<void>;
+  statusLoading: boolean;
+};
+
+const StreamContent = ({
+  role,
+  title,
+  scholarName,
+  status,
+  onLeave,
+  onStart,
+  onEnd,
+  statusLoading,
+}: StreamContentProps) => {
+  const daily = useDaily();
+  const localSessionId = useLocalSessionId();
+  const remoteParticipantIds = useParticipantIds({
+    filter: "remote",
+  });
+
+  const [joined, setJoined] = useState(false);
+  const [muted, setMuted] = useState(role === "viewer");
+  const [cameraOff, setCameraOff] = useState(
+    role === "viewer"
+  );
+
+  useEffect(() => {
+    if (!daily) return;
+
+    try {
+      const meetingState = daily.meetingState();
+
+      if (meetingState === "joined-meeting") {
+        setJoined(true);
+      }
+    } catch (error) {
+      console.warn(
+        "[ScholarLivestream] Unable to read meeting state:",
+        error
+      );
+    }
+  }, [daily]);
+
+  useDailyEvent(
+    "joined-meeting",
+    useCallback(() => {
+      setJoined(true);
+    }, [])
+  );
+
+  useDailyEvent(
+    "left-meeting",
+    useCallback(() => {
+      setJoined(false);
+    }, [])
+  );
+
+  useDailyEvent(
+    "error",
+    useCallback((event: any) => {
+      console.error(
+        "[ScholarLivestream] Daily error:",
+        event
+      );
+    }, [])
+  );
+
+  const toggleMute = useCallback(() => {
+    if (role !== "broadcaster") return;
+
+    const nextMuted = !muted;
+
+    try {
+      daily?.setLocalAudio(!nextMuted);
+    } catch (error) {
+      console.error(
+        "Unable to change microphone:",
+        error
+      );
+    }
+
+    setMuted(nextMuted);
+  }, [daily, muted, role]);
+
+  const toggleCamera = useCallback(() => {
+    if (role !== "broadcaster") return;
+
+    const nextCameraOff = !cameraOff;
+
+    try {
+      daily?.setLocalVideo(!nextCameraOff);
+    } catch (error) {
+      console.error(
+        "Unable to change camera:",
+        error
+      );
+    }
+
+    setCameraOff(nextCameraOff);
+  }, [cameraOff, daily, role]);
+
+  const handleLeave = useCallback(() => {
+    try {
+      daily?.setLocalAudio(false);
+      daily?.setLocalVideo(false);
+    } catch {}
+
+    void daily?.leave();
+    onLeave();
+  }, [daily, onLeave]);
+
+  const broadcasterRemoteId =
+    remoteParticipantIds.length > 0
+      ? remoteParticipantIds[0]
+      : null;
+
+  const viewerVideoId =
+    broadcasterRemoteId || localSessionId;
+
+  return (
+    <div className="relative h-full min-h-[100dvh] overflow-hidden bg-black">
+      <DailyAudio maxSpeakers={8} />
+
+      <div className="absolute inset-0">
+        {role === "viewer" ? (
+          viewerVideoId ? (
+            <DailyVideo
+              sessionId={viewerVideoId}
+              type="video"
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "contain",
+                backgroundColor: "black",
+              }}
+            />
+          ) : (
+            <div className="flex h-full flex-col items-center justify-center gap-4 text-center text-white">
+              <Radio className="h-14 w-14 text-red-500" />
+              <p className="text-xl font-semibold">
+                Waiting for the scholar
+              </p>
+              <p className="max-w-sm px-6 text-sm text-white/70">
+                The broadcast video will appear when the
+                scholar joins and begins streaming.
+              </p>
+            </div>
+          )
+        ) : localSessionId ? (
+          <DailyVideo
+            sessionId={localSessionId}
+            type="video"
+            automirror
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+          />
+        ) : (
+          <div className="flex h-full flex-col items-center justify-center gap-4 text-white">
+            <Loader2 className="h-12 w-12 animate-spin" />
+            <p>Preparing livestream studio…</p>
+          </div>
+        )}
+      </div>
+
+      <div className="absolute left-0 right-0 top-0 z-20 bg-gradient-to-b from-black/80 to-transparent p-4 pt-[max(1rem,env(safe-area-inset-top))]">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="mb-2 flex items-center gap-2">
+              {status === "live" && (
+                <Badge className="bg-red-600 text-white hover:bg-red-600">
+                  <Radio className="mr-1 h-3 w-3" />
+                  LIVE
+                </Badge>
+              )}
+
+              {status !== "live" && (
+                <Badge variant="secondary">
+                  {status.toUpperCase()}
+                </Badge>
+              )}
+
+              <span className="flex items-center gap-1 text-xs text-white/80">
+                <User className="h-3.5 w-3.5" />
+                {remoteParticipantIds.length +
+                  (joined ? 1 : 0)}
+              </span>
+            </div>
+
+            <h1 className="line-clamp-2 text-lg font-semibold text-white">
+              {title}
+            </h1>
+
+            <p className="text-sm text-white/70">
+              {scholarName}
+            </p>
+          </div>
+
+          <Button
+            type="button"
+            size="icon"
+            variant="secondary"
+            className="shrink-0 rounded-full"
+            onClick={handleLeave}
+            aria-label="Leave livestream"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+        </div>
+      </div>
+
+      <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/90 to-transparent px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-16">
+        {role === "broadcaster" ? (
+          <div className="flex flex-col items-center gap-4">
+            <div className="flex items-center justify-center gap-4">
+              <Button
+                type="button"
+                size="icon"
+                variant="outline"
+                className="h-14 w-14 rounded-full border-white/30 bg-black/40 text-white hover:bg-black/60 hover:text-white"
+                onClick={toggleMute}
+              >
+                {muted ? (
+                  <MicOff className="h-6 w-6" />
+                ) : (
+                  <Mic className="h-6 w-6" />
+                )}
+              </Button>
+
+              <Button
+                type="button"
+                size="icon"
+                variant="outline"
+                className="h-14 w-14 rounded-full border-white/30 bg-black/40 text-white hover:bg-black/60 hover:text-white"
+                onClick={toggleCamera}
+              >
+                {cameraOff ? (
+                  <VideoOff className="h-6 w-6" />
+                ) : (
+                  <Video className="h-6 w-6" />
+                )}
+              </Button>
+
+              <Button
+                type="button"
+                size="icon"
+                variant="destructive"
+                className="h-14 w-14 rounded-full"
+                onClick={handleLeave}
+              >
+                <PhoneOff className="h-6 w-6" />
+              </Button>
+            </div>
+
+            {status === "draft" ||
+            status === "upcoming" ? (
+              <Button
+                type="button"
+                className="w-full max-w-sm bg-red-600 hover:bg-red-700"
+                disabled={statusLoading}
+                onClick={() => void onStart()}
+              >
+                {statusLoading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Radio className="mr-2 h-4 w-4" />
+                )}
+                Go Live
+              </Button>
+            ) : status === "live" ? (
+              <Button
+                type="button"
+                variant="destructive"
+                className="w-full max-w-sm"
+                disabled={statusLoading}
+                onClick={() => void onEnd()}
+              >
+                {statusLoading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <PhoneOff className="mr-2 h-4 w-4" />
+                )}
+                End Livestream
+              </Button>
+            ) : null}
+          </div>
+        ) : (
+          <p className="text-center text-sm text-white/70">
+            {status === "live"
+              ? "You are watching live."
+              : "Waiting for the broadcast to begin."}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const ScholarLivestream = () => {
+  const navigate = useNavigate();
+  const { scholarId, livestreamId } = useParams<{
+    scholarId: string;
+    livestreamId: string;
+  }>();
+
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  const [livestream, setLivestream] =
+    useState<LivestreamRecord | null>(null);
+  const [scholar, setScholar] =
+    useState<ScholarRecord | null>(null);
+  const [tokenData, setTokenData] =
+    useState<TokenResponse | null>(null);
+
+  const [loading, setLoading] = useState(true);
+  const [joining, setJoining] = useState(false);
+  const [statusLoading, setStatusLoading] =
+    useState(false);
+  const [error, setError] = useState<string | null>(
+    null
+  );
+
+  const [callObject, setCallObject] =
+    useState<DailyCall | null>(null);
+
+  const callObjectRef = useRef<DailyCall | null>(null);
+
+  const isOwner =
+    Boolean(user?.id) &&
+    Boolean(scholar?.user_id) &&
+    user?.id === scholar?.user_id;
+
+  const leaveAndDestroy = useCallback(async () => {
+    const currentCall = callObjectRef.current;
+
+    callObjectRef.current = null;
+    setCallObject(null);
+
+    if (!currentCall) return;
+
+    try {
+      currentCall.setLocalAudio(false);
+      currentCall.setLocalVideo(false);
+    } catch {}
+
+    try {
+      await currentCall.leave();
+    } catch {}
+
+    try {
+      await currentCall.destroy();
+    } catch {}
+  }, []);
+
+  const loadLivestream = useCallback(async () => {
+    if (!livestreamId || !scholarId) {
+      setError("Livestream information is missing.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      const { data: streamData, error: streamError } =
+        await supabase
+          .from("scholar_livestreams")
+          .select(
+            `
+              id,
+              scholar_id,
+              created_by,
+              title,
+              description,
+              daily_room_name,
+              daily_room_url,
+              source_language,
+              translation_languages,
+              scheduled_for,
+              started_at,
+              ended_at,
+              status,
+              created_at
+            `
+          )
+          .eq("id", livestreamId)
+          .eq("scholar_id", scholarId)
+          .maybeSingle();
+
+      if (streamError) throw streamError;
+
+      if (!streamData) {
+        setError("Livestream not found.");
+        return;
+      }
+
+      const { data: scholarData, error: scholarError } =
+        await supabase
+          .from("scholar_profiles")
+          .select(
+            `
+              id,
+              user_id,
+              display_name,
+              verification_status,
+              is_active
+            `
+          )
+          .eq("id", scholarId)
+          .eq("verification_status", "approved")
+          .eq("is_active", true)
+          .maybeSingle();
+
+      if (scholarError) throw scholarError;
+
+      if (!scholarData) {
+        setError("Scholar profile not found.");
+        return;
+      }
+
+      setLivestream(
+        streamData as LivestreamRecord
+      );
+      setScholar(scholarData as ScholarRecord);
+    } catch (loadError) {
+      console.error(
+        "Unable to load livestream:",
+        loadError
+      );
+
+      setError("Unable to load this livestream.");
+    } finally {
+      setLoading(false);
+    }
+  }, [livestreamId, scholarId]);
+
+  useEffect(() => {
+    void loadLivestream();
+  }, [loadLivestream]);
+
+  useEffect(() => {
+    if (!livestreamId) return;
+
+    const channel = supabase
+      .channel(
+        `scholar_livestream:${livestreamId}`
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "scholar_livestreams",
+          filter: `id=eq.${livestreamId}`,
+        },
+        (payload) => {
+          const updated =
+            payload.new as LivestreamRecord;
+
+          setLivestream(updated);
+
+          if (
+            updated.status === "ended" ||
+            updated.status === "cancelled"
+          ) {
+            toast({
+              title:
+                updated.status === "ended"
+                  ? "Livestream ended"
+                  : "Livestream cancelled",
+              description:
+                "This broadcast is no longer live.",
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [livestreamId, toast]);
+
+  useEffect(() => {
+    return () => {
+      void leaveAndDestroy();
+    };
+  }, [leaveAndDestroy]);
+
+  const joinLivestream = useCallback(async () => {
+    if (
+      !livestreamId ||
+      !livestream ||
+      !scholar ||
+      joining ||
+      callObjectRef.current
+    ) {
+      return;
+    }
+
+    try {
+      setJoining(true);
+      setError(null);
+
+      const {
+        data,
+        error: functionError,
+      } = await supabase.functions.invoke(
+        "create-daily-livestream-token",
+        {
+          body: {
+            livestreamId,
+          },
+        }
+      );
+
+      if (functionError) throw functionError;
+
+      const tokenResponse = data as TokenResponse;
+
+      if (
+        !tokenResponse?.roomUrl ||
+        !tokenResponse?.token
+      ) {
+        throw new Error(
+          "The Daily room credentials were not returned."
+        );
+      }
+
+      setTokenData(tokenResponse);
+
+      if (tokenResponse.role === "broadcaster") {
+        const { ensureMediaPermissions } =
+          await import("@/utils/permissions");
+
+        const permitted =
+          await ensureMediaPermissions("video");
+
+        if (!permitted) {
+          throw new Error(
+            "Camera and microphone permission is required."
+          );
+        }
+      }
+
+      const call = DailyIframe.createCallObject({
+        startAudioOff:
+          tokenResponse.role !== "broadcaster",
+        startVideoOff:
+          tokenResponse.role !== "broadcaster",
+      });
+
+      callObjectRef.current = call;
+      setCallObject(call);
+
+      if (tokenResponse.role === "broadcaster") {
+        try {
+          await call.startCamera({
+            audioSource: true,
+            videoSource: true,
+          });
+        } catch (cameraError) {
+          console.warn(
+            "Daily startCamera warning:",
+            cameraError
+          );
+        }
+      }
+
+      await call.join({
+        url: tokenResponse.roomUrl,
+        token: tokenResponse.token,
+      });
+
+      if (tokenResponse.role === "broadcaster") {
+        call.setLocalAudio(true);
+        call.setLocalVideo(true);
+      } else {
+        call.setLocalAudio(false);
+        call.setLocalVideo(false);
+      }
+    } catch (joinError) {
+      console.error(
+        "Unable to join scholar livestream:",
+        joinError
+      );
+
+      await leaveAndDestroy();
+
+      const message =
+        joinError instanceof Error
+          ? joinError.message
+          : "Unable to join the livestream.";
+
+      setError(message);
+
+      toast({
+        title: "Unable to join livestream",
+        description: message,
+        variant: "destructive",
+      });
+    } finally {
+      setJoining(false);
+    }
+  }, [
+    joining,
+    leaveAndDestroy,
+    livestream,
+    livestreamId,
+    scholar,
+    toast,
+  ]);
+
+  useEffect(() => {
+    if (
+      loading ||
+      error ||
+      !livestream ||
+      !scholar ||
+      callObjectRef.current
+    ) {
+      return;
+    }
+
+    if (
+      !isOwner &&
+      livestream.status !== "live" &&
+      livestream.status !== "upcoming"
+    ) {
+      return;
+    }
+
+    void joinLivestream();
+  }, [
+    error,
+    isOwner,
+    joinLivestream,
+    livestream,
+    loading,
+    scholar,
+  ]);
+
+  const updateStatus = useCallback(
+    async (action: "start" | "end") => {
+      if (!livestreamId) return;
+
+      try {
+        setStatusLoading(true);
+
+        const {
+          data,
+          error: functionError,
+        } = await supabase.functions.invoke(
+          "update-scholar-livestream-status",
+          {
+            body: {
+              livestreamId,
+              action,
+            },
+          }
+        );
+
+        if (functionError) throw functionError;
+
+        const updated =
+          data?.livestream as
+            | LivestreamRecord
+            | undefined;
+
+        if (updated) {
+          setLivestream(updated);
+        }
+
+        toast({
+          title:
+            action === "start"
+              ? "You are live"
+              : "Livestream ended",
+          description:
+            action === "start"
+              ? "Viewers can now watch your broadcast."
+              : "The broadcast has ended successfully.",
+        });
+
+        if (action === "end") {
+          await leaveAndDestroy();
+
+          navigate(
+            `/scholars/${scholarId}`,
+            { replace: true }
+          );
+        }
+      } catch (statusError) {
+        console.error(
+          "Unable to update livestream status:",
+          statusError
+        );
+
+        toast({
+          title:
+            action === "start"
+              ? "Unable to start livestream"
+              : "Unable to end livestream",
+          description:
+            statusError instanceof Error
+              ? statusError.message
+              : "Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setStatusLoading(false);
+      }
+    },
+    [
+      leaveAndDestroy,
+      livestreamId,
+      navigate,
+      scholarId,
+      toast,
+    ]
+  );
+
+  const handleLeave = useCallback(async () => {
+    await leaveAndDestroy();
+    navigate(`/scholars/${scholarId}`);
+  }, [
+    leaveAndDestroy,
+    navigate,
+    scholarId,
+  ]);
+
+  if (loading) {
+    return (
+      <div className="flex min-h-[100dvh] items-center justify-center bg-black">
+        <div className="flex flex-col items-center gap-3 text-white">
+          <Loader2 className="h-10 w-10 animate-spin" />
+          <p>Loading livestream…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (
+    error ||
+    !livestream ||
+    !scholar
+  ) {
+    return (
+      <div className="min-h-screen bg-background p-4">
+        <div className="mx-auto max-w-lg pt-12">
+          <Card>
+            <CardContent className="flex flex-col items-center gap-4 p-8 text-center">
+              <Radio className="h-12 w-12 text-muted-foreground" />
+
+              <div>
+                <h1 className="text-xl font-semibold">
+                  Livestream unavailable
+                </h1>
+
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {error ||
+                    "This livestream could not be loaded."}
+                </p>
+              </div>
+
+              <Button
+                type="button"
+                onClick={() =>
+                  navigate(
+                    `/scholars/${scholarId}`
+                  )
+                }
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Scholar
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  if (
+    !isOwner &&
+    (livestream.status === "ended" ||
+      livestream.status === "cancelled" ||
+      livestream.status === "draft")
+  ) {
+    return (
+      <div className="min-h-screen bg-background p-4">
+        <div className="mx-auto max-w-lg pt-12">
+          <Card>
+            <CardContent className="flex flex-col items-center gap-4 p-8 text-center">
+              <Radio className="h-12 w-12 text-muted-foreground" />
+
+              <div>
+                <h1 className="text-xl font-semibold">
+                  {livestream.status === "ended"
+                    ? "Livestream ended"
+                    : "Livestream unavailable"}
+                </h1>
+
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {livestream.status === "ended"
+                    ? "This live lecture has already ended."
+                    : "This broadcast is not available yet."}
+                </p>
+              </div>
+
+              <Button
+                type="button"
+                onClick={() =>
+                  navigate(
+                    `/scholars/${scholarId}`
+                  )
+                }
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Scholar
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  if (joining || !callObject || !tokenData) {
+    return (
+      <div className="flex min-h-[100dvh] items-center justify-center bg-black">
+        <div className="flex flex-col items-center gap-4 px-6 text-center text-white">
+          <Loader2 className="h-12 w-12 animate-spin" />
+
+          <div>
+            <p className="text-lg font-semibold">
+              Joining livestream…
+            </p>
+
+            <p className="mt-1 text-sm text-white/60">
+              {livestream.title}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <DailyProvider callObject={callObject}>
+      <StreamContent
+        role={tokenData.role}
+        title={livestream.title}
+        scholarName={scholar.display_name}
+        status={livestream.status}
+        onLeave={() => void handleLeave()}
+        onStart={() => updateStatus("start")}
+        onEnd={() => updateStatus("end")}
+        statusLoading={statusLoading}
+      />
+    </DailyProvider>
+  );
+};
+
+export default ScholarLivestream;

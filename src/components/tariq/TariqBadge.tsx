@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import TariqLogo from "@/components/tariq/TariqLogo";
+import founderBadgeImage from "@/assets/tariq-founder-badge.jpeg";
 
 type TariqBadgeVariant =
   | "creator"
@@ -14,9 +15,10 @@ type TariqBadgeVariant =
   | "scholar"
   | "mosque"
   | "moderator"
-  | "admin";
+  | "admin"
+  | "founder";
 
-type TariqBadgeSize = "sm" | "md";
+type TariqBadgeSize = "sm" | "md" | "lg";
 
 interface TariqBadgeProps {
   variant: TariqBadgeVariant;
@@ -62,6 +64,12 @@ const badgeConfig = {
     className:
       "border-amber-400 bg-gradient-to-r from-amber-50 to-yellow-100 text-amber-950 dark:border-amber-600 dark:from-amber-950/60 dark:to-yellow-950/40 dark:text-amber-100",
   },
+  founder: {
+    label: "Tariq Founder",
+    icon: null,
+    className:
+      "border-amber-400 bg-gradient-to-r from-blue-950 via-indigo-950 to-blue-950 text-amber-300 shadow-amber-500/20 dark:border-amber-400 dark:text-amber-200",
+  },
 } as const;
 
 const sizeClasses = {
@@ -74,6 +82,11 @@ const sizeClasses = {
     wrapper: "gap-1.5 px-2 py-1 text-xs",
     icon: "h-3.5 w-3.5",
     logoSize: "xs" as const,
+  },
+  lg: {
+    wrapper: "gap-2 p-1 text-sm",
+    icon: "h-8 w-8",
+    logoSize: "sm" as const,
   },
 };
 
@@ -103,6 +116,13 @@ export default function TariqBadge({
           size={sizing.logoSize}
           opacity={1}
           className="shrink-0"
+        />
+      ) : variant === "founder" ? (
+        <img
+          src={founderBadgeImage}
+          alt=""
+          aria-hidden="true"
+          className={`${sizing.icon} rounded-full object-cover`}
         />
       ) : (
         Icon && <Icon className={sizing.icon} />

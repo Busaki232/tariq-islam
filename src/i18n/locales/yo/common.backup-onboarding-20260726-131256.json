@@ -1,0 +1,36 @@
+{
+  "loading": "Ń ṣí...",
+  "back": "Padà",
+  "close": "Pa",
+  "settings": {
+    "title": "Àwọn Ètò",
+    "language": {
+      "title": "Èdè",
+      "subtitle": "Yan èdè tí o fẹ́ lò nínú app.",
+      "placeholder": "Yan èdè",
+      "current": "Èdè lọwọlọwọ",
+      "english": "Gẹ̀ẹ́sì",
+      "french": "Faransé",
+      "hausa": "Hausa",
+      "yoruba": "Yorùbá",
+      "arabic": "Lárúbáwá"
+    }
+  },
+  "bottomNav": {
+    "home": "Ilé",
+    "ibadah": "Ìbádah",
+    "messages": "Àwọn Ìfiranṣẹ́",
+    "tariqAI": "Tariq AI",
+    "mosques": "Àwọn Mọ́sálásí",
+    "scholars": "Àwọn Ọ̀mọ̀wé",
+    "myLectures": "Àwọn Ẹ̀kọ́ Mi",
+    "managePlaylists": "Ṣàkóso Àkójọ",
+    "savedLectures": "Àwọn Ẹ̀kọ́ Tí A Fipamọ́",
+    "continueWatching": "Tẹ̀síwájú Ní Wíwò"
+  },
+  "moreMenu": {
+    "quran": "Kúrání",
+    "qibla": "Qiblah",
+    "tasbih": "Tasbih"
+  }
+}

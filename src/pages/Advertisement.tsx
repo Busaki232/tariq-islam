@@ -5,6 +5,7 @@ import { HeroButton } from "@/components/ui/hero-button";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Globe, Mail, MessageCircle, Eye, Store, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { openInAppLink } from "@/utils/openInAppLink";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
@@ -376,14 +377,15 @@ const AdvertisementPage = () => {
                       {ad.website && (
                         <div className="flex items-center gap-2 text-sm">
                           <Globe className="w-4 h-4 text-primary" />
-                          <a
-                            href={ad.website.startsWith("http") ? ad.website : `https://${ad.website}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-primary hover:underline cursor-pointer"
+                          <button
+                            type="button"
+                            onClick={() =>
+                              void openInAppLink(ad.website!)
+                            }
+                            className="cursor-pointer text-left text-primary hover:underline"
                           >
                             {ad.website}
-                          </a>
+                          </button>
                         </div>
                       )}
                     </div>
@@ -400,10 +402,7 @@ const AdvertisementPage = () => {
                           size="sm"
                           className="flex-1"
                           onClick={() =>
-                            window.open(
-                              ad.website?.startsWith("http") ? ad.website : `https://${ad.website}`,
-                              "_blank"
-                            )
+                            void openInAppLink(ad.website!)
                           }
                         >
                           {t("buttons.website")}

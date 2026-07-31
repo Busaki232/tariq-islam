@@ -1089,18 +1089,18 @@ useEffect(() => {
 }, [commentsOpen, selectedVideo]);
 
   return (
-    <main className="min-h-screen bg-black text-white">
-      <div className="fixed left-0 right-0 top-0 z-30 flex items-center justify-between bg-black/60 px-4 py-4 backdrop-blur">
+    <main className="h-dvh overflow-hidden bg-black text-white">
+      <div className="pointer-events-none fixed left-0 right-0 top-0 z-50 flex items-center justify-between bg-gradient-to-b from-black/75 to-transparent px-3 pb-10 pt-[max(0.75rem,env(safe-area-inset-top))] text-white">
         <Button
           variant="ghost"
           onClick={() => navigate(-1)}
-          className="text-white"
+          className="pointer-events-auto text-white hover:bg-white/15 hover:text-white"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           {t("reflections.back")}
         </Button>
 
-        <h1 className="text-lg font-bold">
+        <h1 className="text-lg font-bold drop-shadow-lg">
           {t("reflections.reflectionsTitle")}
         </h1>
 
@@ -1117,7 +1117,7 @@ useEffect(() => {
         </div>
       ) : (
         <div
-          className="h-[100dvh] overflow-y-auto snap-y snap-mandatory overscroll-y-contain pt-16 pb-20"
+          className="h-[calc(100dvh-5rem)] overflow-y-auto snap-y snap-mandatory overscroll-y-contain bg-black"
           style={{
             WebkitOverflowScrolling: "touch",
             scrollSnapType: "y mandatory",
@@ -1162,9 +1162,61 @@ useEffect(() => {
   <section
     id={`reflection-${video.id}`}
     key={video.id}
-    className="flex h-[100dvh] snap-start items-center justify-center px-4 py-4"
+    className="relative flex h-[calc(100dvh-5rem)] snap-start snap-always items-stretch justify-center overflow-hidden bg-black"
   >
-  <div className="relative h-[78dvh] w-full max-w-md overflow-hidden rounded-3xl bg-black shadow-2xl transition-all duration-300">
+  <div className="relative h-full w-full max-w-2xl overflow-hidden bg-black text-white">
+    <button
+      type="button"
+      onClick={() => {
+        if (video.user_id) {
+          navigate(`/creator/${video.user_id}`);
+        }
+      }}
+      className="absolute bottom-32 left-0 right-0 z-40 flex items-center gap-3 border-y border-white/10 bg-islamic-green/80 px-4 py-3 text-left text-white shadow-xl backdrop-blur-md"
+      disabled={!video.user_id}
+    >
+      <TariqLogo
+        size="sm"
+        opacity={0.9}
+        className="shrink-0"
+      />
+
+      <span className="min-w-0 flex-1">
+        <span className="flex items-center gap-2">
+          <span className="truncate font-semibold">
+            {video.creator_profile?.full_name ||
+              video.creator_profile?.username ||
+              t("reflections.tariqIslamCreator", {
+                defaultValue: "Tariq Islam Creator",
+              })}
+          </span>
+
+          <TariqBadge
+            variant={
+              video.creator_profile?.is_creator_verified
+                ? "verified-creator"
+                : "creator"
+            }
+            showLabel={false}
+          />
+        </span>
+
+        <span className="mt-0.5 block text-xs text-white/70">
+          {video.category} • {video.language}
+        </span>
+      </span>
+    </button>
+
+    <div className="relative h-full w-full overflow-hidden bg-black">
+  {video.thumbnail_url && (
+    <img
+      src={video.thumbnail_url}
+      alt=""
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 h-full w-full scale-110 object-cover opacity-45 blur-3xl"
+    />
+  )}
+
   <video
      ref={(el) => {
        videoRefs.current[video.id] = el;
@@ -1176,6 +1228,7 @@ useEffect(() => {
      muted={muted}
      playsInline
      controls={false}
+     controlsList="nodownload noplaybackrate nofullscreen"
      preload="metadata"
      crossOrigin="anonymous"
      disablePictureInPicture
@@ -1254,7 +1307,6 @@ onTimeUpdate={(event) => {
 
   const selectedLanguage =
     selectedCaptionLanguages[video.id] || "original";
-    selectedCaptionLanguages[video.id] || "original";
     if (selectedLanguage === "off") {
       setActiveCaptions((current) => {
         if (!current[video.id]) return current;
@@ -1309,10 +1361,10 @@ onTimeUpdate={(event) => {
     });
   }}
      onClick={() => handleVideoTap(video.id)}
-     className="h-full w-full select-none bg-black object-contain"
+     className="relative z-10 h-full w-full select-none object-contain"
    />
 
-<div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
+<div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/35" />
 
 {heartVideoId === video.id && (
   <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center">
@@ -1322,7 +1374,7 @@ onTimeUpdate={(event) => {
 
 {video.captions_enabled && (
   <div
-    className="absolute bottom-32 left-4 right-20 z-30 max-w-xl"
+    className="absolute left-4 right-20 top-[34%] z-30 max-w-xl"
     style={{
       transform: `translate(
         ${captionPositions[video.id]?.x ?? 0}px,
@@ -1422,7 +1474,7 @@ onTimeUpdate={(event) => {
   </div>
 )}
 
-<div className="absolute bottom-6 left-4 right-20">
+<div className="absolute bottom-5 left-4 right-20 z-30 text-white">
   <div className="mb-2 inline-flex rounded-full bg-islamic-green/90 px-3 py-1 text-xs font-semibold">
     {video.category} • {video.language}
   </div>
@@ -1431,7 +1483,7 @@ onTimeUpdate={(event) => {
   <button
     type="button"
     onClick={() => navigate(`/creator/${video.user_id}`)}
-    className="mb-2 inline-flex items-center gap-2 rounded-full bg-black/25 px-2.5 py-1.5 text-left text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-black/40"
+    className="hidden"
     aria-label={t("reflections.viewCreator", {
       defaultValue: "View creator",
     })}
@@ -1509,11 +1561,11 @@ onTimeUpdate={(event) => {
               )}
                 </div>
 
-           <div className="absolute bottom-16 right-4 flex flex-col items-center gap-5">
+           <div className="absolute bottom-20 right-3 z-40 flex flex-col items-center gap-4">
              <button
                type="button"
                onClick={() => handleLike(video.id)}
-               className="flex flex-col items-center text-white"
+               className="flex min-w-12 flex-col items-center justify-center rounded-full bg-black/45 p-2 text-white shadow-lg backdrop-blur-md"
              >
                <Heart
                  className={`h-8 w-8 ${
@@ -1530,7 +1582,7 @@ onTimeUpdate={(event) => {
              <button
                type="button"
                onClick={() => loadComments(video)}
-               className="flex flex-col items-center text-white"
+               className="flex min-w-12 flex-col items-center justify-center rounded-full bg-black/45 p-2 text-white shadow-lg backdrop-blur-md"
              >
                <MessageCircle className="h-8 w-8" />
                <span className="text-xs">
@@ -1621,7 +1673,7 @@ onTimeUpdate={(event) => {
              <button
                type="button"
                onClick={() => handleShare(video)}
-               className="flex flex-col items-center text-white"
+               className="flex min-w-12 flex-col items-center justify-center rounded-full bg-black/45 p-2 text-white shadow-lg backdrop-blur-md"
              >
                <Share2 className="h-8 w-8" />
                <span className="text-xs">
@@ -1632,7 +1684,7 @@ onTimeUpdate={(event) => {
              <button
                type="button"
                onClick={() => setMuted((value) => !value)}
-               className="flex flex-col items-center text-white"
+               className="flex min-w-12 flex-col items-center justify-center rounded-full bg-black/45 p-2 text-white shadow-lg backdrop-blur-md"
              >
                {muted ? (
                  <VolumeX className="h-8 w-8" />
@@ -1648,7 +1700,8 @@ onTimeUpdate={(event) => {
              </button>
            </div>
            </div>
-           </section>
+         </div>
+       </section>
            ))}
 
           {loadingMore && (

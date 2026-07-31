@@ -1,0 +1,49 @@
+{
+  "prayerTimes": {
+    "title": "Àwọn Àkókò Ṣálátì",
+    "subtitle": "Máa bá àwọn ṣálátì rẹ lọ nípasẹ̀ àkókò tó péye fún ibi tí o wà",
+    "loading": "Ń Kojọpọ̀ àwọn àkókò ṣálátì...",
+    "enableLocationTitle": "Gba Àṣẹ Láti Lo Ibi Tí O Wà",
+    "enableLocationBody": "Gba app láàyè láti rí ibi tí o wà kí o lè rí àkókò ṣálátì tó péye fún agbègbè rẹ",
+    "getPrayerTimes": "Gba Àwọn Àkókò Ṣálátì"
+  },
+  "status": {
+    "currentPrayer": "Ṣálátì Tó Wà Lọ́wọ́lọ́wọ́",
+    "nextPrayer": "Ṣálátì Tó Kàn"
+  },
+  "location": {
+    "unknown": "A Kò Mọ Ibi Náà",
+    "update": "Ṣàtúnṣe Ibi Tí O Wà",
+    "obtained": {
+      "title": "A ti rí ibi tí o wà",
+      "desc": "A ń fi àwọn mọ́sálásí tó wà nítòsí rẹ hàn"
+    },
+    "unavailable": {
+      "title": "A kò lè rí ibi tí o wà",
+      "desc": "A ń fi gbogbo mọ́sálásí tó wà ní agbègbè rẹ hàn"
+    },
+    "requestingTitle": "Ń Béèrè Fún Ibi Tí O Wà",
+    "requestingBody": "Jọ̀wọ́ gba àṣẹ ibi láàyè fún àkókò ṣálátì tó péye.",
+    "failedTitle": "Ìbéèrè Ibi Kọ̀",
+    "failedBody": "A kò lè rí ibi tí o wà. Jọ̀wọ́ ṣàyẹ̀wò àwọn ètò aṣàwákiri rẹ."
+  },
+  "actions": {
+    "refreshTimes": "Tún Àwọn Àkókò Kojọpọ̀"
+  },
+  "errors": {
+    "tryAgain": "Gbìyànjú Lẹ́ẹ̀kan Sí I",
+    "retry": "Tún Gbìyànjú"
+  },
+  "date": {
+    "today": "Òní"
+  },
+  "qibla": {
+    "ariaLabel": "Wa ìtọ́sọ́nà Qiblah",
+    "show": "Fi Kọ́ńpáàsì Qiblah Hàn",
+    "hide": "Fi Kọ́ńpáàsì Pamọ́",
+    "locationRequiredTitle": "A Nílò Ibi Tí O Wà",
+    "locationRequiredBody": "Jọ̀wọ́ gba àṣẹ ibi láàyè láti wa ìtọ́sọ́nà Qiblah.",
+    "toastTitle": "🧭 Kọ́ńpáàsì Qiblah",
+    "toastBody": "Kọ́ńpáàsì alágbékalẹ̀ ti hàn ní ìsàlẹ̀"
+  }
+}

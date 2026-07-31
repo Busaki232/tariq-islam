@@ -237,16 +237,57 @@ const  handleReflectionAction = async (
     setUpdatingReflectionId(reflectionId);
 
     try {
+    const {
+      data: { session },
+      error: sessionError,
+    } = await supabase.auth.getSession();
+
+    if (sessionError || !session?.access_token) {
+      throw new Error(
+        "Your session has expired. Please sign in again."
+      );
+    }
+
     const { data, error } = await supabase.functions.invoke(
       "admin-delete-reflection",
       {
         body: {
           reflectionId,
         },
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
       }
     );
 
-    if (error) throw error;
+    if (error) {
+      let errorMessage =
+        error.message ||
+        "The deletion function could not be completed.";
+
+      const response = (
+        error as {
+          context?: Response;
+        }
+      ).context;
+
+      if (response) {
+        try {
+          const payload = await response.clone().json();
+
+          if (
+            payload &&
+            typeof payload.error === "string"
+          ) {
+            errorMessage = payload.error;
+          }
+        } catch {
+          // Keep the original function error message.
+        }
+      }
+
+      throw new Error(errorMessage);
+    }
 
     if (!data?.success) {
       throw new Error(

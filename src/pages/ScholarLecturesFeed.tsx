@@ -45,12 +45,14 @@ type LectureFeedItem = {
   captions_language: string | null;
   captions_segments: unknown[] | null;
   scholar_name: string;
+  scholar_avatar_url: string | null;
   scholar_city: string | null;
   scholar_country: string | null;
 };
 
 type ScholarRow = {
   id: string;
+  user_id: string;
   display_name: string;
   city: string | null;
   country: string | null;
@@ -129,6 +131,8 @@ const ScholarLecturesFeed = () => {
   const [activeLectureId, setActiveLectureId] =
     useState<string | null>(null);
   const [soundEnabled, setSoundEnabled] = useState(false);
+  const [startedVideoIds, setStartedVideoIds] =
+    useState<Record<string, boolean>>({});
 
   const [captionTimes, setCaptionTimes] =
     useState<Record<string, number>>({});
@@ -236,7 +240,9 @@ const ScholarLecturesFeed = () => {
           scholarIds.length > 0
             ? supabase
                 .from("scholar_profiles")
-                .select("id,display_name,city,country")
+                .select(
+                  "id,user_id,display_name,city,country"
+                )
                 .in("id", scholarIds)
                 .eq("verification_status", "approved")
                 .eq("is_active", true)
@@ -307,10 +313,48 @@ const ScholarLecturesFeed = () => {
 
         setTranslationsByLectureId(translationsMap);
 
-        const scholarsById = new Map(
-          ((scholarsResult.data ?? []) as ScholarRow[]).map(
-            (scholar) => [scholar.id, scholar]
+        const scholarRows =
+          (scholarsResult.data ?? []) as ScholarRow[];
+
+        const scholarUserIds = Array.from(
+          new Set(
+            scholarRows.map((scholar) => scholar.user_id)
           )
+        );
+
+        const {
+          data: profileRows,
+          error: profilesError,
+        } =
+          scholarUserIds.length > 0
+            ? await supabase
+                .from("profiles")
+                .select("user_id,avatar_url")
+                .in("user_id", scholarUserIds)
+            : {
+                data: [],
+                error: null,
+              };
+
+        if (profilesError) {
+          console.error(
+            "Unable to load scholar avatars:",
+            profilesError
+          );
+        }
+
+        const avatarsByUserId = new Map(
+          (profileRows ?? []).map((profile) => [
+            profile.user_id,
+            profile.avatar_url,
+          ])
+        );
+
+        const scholarsById = new Map(
+          scholarRows.map((scholar) => [
+            scholar.id,
+            scholar,
+          ])
         );
 
         const items = (lectureRows ?? [])
@@ -326,6 +370,8 @@ const ScholarLecturesFeed = () => {
             return {
               ...lecture,
               scholar_name: scholar.display_name,
+              scholar_avatar_url:
+                avatarsByUserId.get(scholar.user_id) ?? null,
               scholar_city: scholar.city,
               scholar_country: scholar.country,
             } as LectureFeedItem;
@@ -854,13 +900,14 @@ const ScholarLecturesFeed = () => {
   }
 
   return (
-    <main className="min-h-screen bg-background pb-20">
-      <header className="sticky top-0 z-40 flex items-center gap-3 border-b bg-background/95 px-4 py-3 backdrop-blur">
+    <main className="h-dvh overflow-hidden bg-black text-white">
+      <header className="pointer-events-none fixed left-0 right-0 top-0 z-50 flex items-center gap-3 bg-gradient-to-b from-black/75 to-transparent px-3 pb-10 pt-[max(0.75rem,env(safe-area-inset-top))] text-white">
         <Button
           type="button"
           variant="ghost"
           size="icon"
           onClick={() => navigate(-1)}
+          className="pointer-events-auto text-white hover:bg-white/15 hover:text-white"
           aria-label={t("common.back", {
             defaultValue: "Back",
           })}
@@ -874,7 +921,7 @@ const ScholarLecturesFeed = () => {
               defaultValue: "Scholar Lectures",
             })}
           </h1>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs font-medium text-white/85 drop-shadow-md">
             {t("scholars.lectureFeed.subtitle", {
               defaultValue: "Learn from verified scholars",
             })}
@@ -894,7 +941,7 @@ const ScholarLecturesFeed = () => {
       ) : (
         <div
           ref={feedRef}
-          className="h-[calc(100dvh-7rem)] snap-y snap-mandatory overflow-y-auto overscroll-y-contain"
+          className="h-[calc(100dvh-5rem)] snap-y snap-mandatory overflow-y-auto overscroll-y-contain bg-black"
         >
           {lectures.map((lecture) => {
             const isActive =
@@ -964,40 +1011,58 @@ const ScholarLecturesFeed = () => {
                 id={`lecture-feed-${lecture.id}`}
                 key={lecture.id}
                 data-lecture-id={lecture.id}
-                className="flex min-h-[calc(100dvh-7rem)] snap-start flex-col bg-background pb-6"
+             className="relative h-[calc(100dvh-5rem)] snap-start snap-always overflow-hidden bg-black"
               >
                 <button
                   type="button"
-                  className="flex w-full items-center gap-3 px-4 py-3 text-left"
+                  className="absolute bottom-32 left-0 right-0 z-40 flex items-center gap-3 border-y border-white/10 bg-islamic-green/80 px-4 py-3 text-left text-white shadow-xl backdrop-blur-md"
                   onClick={() =>
                     navigate(
                       `/scholars/${lecture.scholar_id}`
                     )
                   }
                 >
-                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 font-bold text-primary">
-                    {lecture.scholar_name
-                      .split(/\s+/)
-                      .slice(0, 2)
-                      .map((part) =>
-                        part[0]?.toUpperCase()
-                      )
-                      .join("") || "S"}
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/40 bg-black/35 font-bold text-white shadow-md">
+                    {lecture.scholar_avatar_url ? (
+                      <img
+                        src={lecture.scholar_avatar_url}
+                        alt={lecture.scholar_name}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      lecture.scholar_name
+                        .split(/\s+/)
+                        .slice(0, 2)
+                        .map((part) =>
+                          part[0]?.toUpperCase()
+                        )
+                        .join("") || "S"
+                    )}
                   </div>
 
                   <div className="min-w-0 flex-1">
                     <p className="flex items-center gap-1 truncate font-semibold">
                       {lecture.scholar_name}
-                      <BadgeCheck className="h-4 w-4 shrink-0 text-primary" />
+                      <BadgeCheck className="h-4 w-4 shrink-0 text-white" />
                     </p>
-                    <p className="truncate text-xs text-muted-foreground">
-                      {location ||
-                        formatDate(lecture.created_at)}
-                    </p>
+                    {location && (
+                      <p className="truncate text-xs text-white/70">
+                        {location}
+                      </p>
+                    )}
                   </div>
                 </button>
 
-                <div className="relative h-[68dvh] min-h-[520px] overflow-hidden bg-black sm:mx-auto sm:w-full sm:max-w-2xl sm:rounded-2xl">
+                <div className="relative h-full w-full overflow-hidden bg-black sm:mx-auto sm:max-w-2xl">
+                  {lecture.thumbnail_url && (
+                    <img
+                      src={lecture.thumbnail_url}
+                      alt=""
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-0 h-full w-full scale-110 object-cover opacity-45 blur-3xl"
+                    />
+                  )}
+
                   <video
                     ref={(node) => {
                       if (node) {
@@ -1010,13 +1075,23 @@ const ScholarLecturesFeed = () => {
                       }
                     }}
                     src={lecture.video_url}
-                    poster={
-                      lecture.thumbnail_url ?? undefined
-                    }
                     muted={!soundEnabled}
                     playsInline
+                    controls={false}
+                    disablePictureInPicture
+                    controlsList="nodownload noplaybackrate nofullscreen"
                     preload="metadata"
-                    className="h-full w-full select-none bg-black object-contain"
+                    className={`relative z-10 h-full w-full select-none object-contain transition-opacity duration-200 ${
+                      startedVideoIds[lecture.id]
+                        ? "opacity-100"
+                        : "opacity-0"
+                    }`}
+          onPlaying={() => {
+            setStartedVideoIds((current) => ({
+              ...current,
+              [lecture.id]: true,
+            }));
+          }}
           onTimeUpdate={(event) => {
             const currentTime =
               event.currentTarget?.currentTime ?? 0;
@@ -1040,17 +1115,8 @@ const ScholarLecturesFeed = () => {
                     }}
                   />
 
-                  {!lecture.thumbnail_url && !isActive && (
-                    <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-primary/30 via-slate-900 to-black px-8 text-center text-white">
-                      <BookOpen className="mb-3 h-10 w-10" />
-                      <p className="line-clamp-2 text-lg font-bold">
-                        {lecture.title}
-                      </p>
-                      <p className="mt-1 text-sm text-white/75">
-                        {lecture.scholar_name}
-                      </p>
-                    </div>
-                  )}
+
+                  <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-black/90 via-transparent to-black/35" />
 
                   {isActive && hasCaptionChoices && (
                     <div
@@ -1228,7 +1294,7 @@ const ScholarLecturesFeed = () => {
                     </div>
                   )}
 
-                  <div className="absolute right-3 top-1/2 z-30 flex -translate-y-1/2 flex-col items-center gap-4">
+                  <div className="absolute bottom-20 right-3 z-40 flex flex-col items-center gap-4">
                     <button
                       type="button"
                       disabled={isLiking}
@@ -1326,7 +1392,7 @@ const ScholarLecturesFeed = () => {
                     </button>
                   </div>
 
-                  <div className="pointer-events-none absolute bottom-4 left-4 right-20 z-10 text-white">
+                  <div className="pointer-events-none absolute bottom-5 left-4 right-20 z-30 text-white">
                     <div className="mb-2 flex flex-wrap items-center gap-2">
                       {lecture.category && (
                         <span className="rounded-full bg-primary/90 px-3 py-1 text-xs font-semibold text-primary-foreground">

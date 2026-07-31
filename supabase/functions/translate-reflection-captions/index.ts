@@ -35,6 +35,7 @@ const supportedLanguages: Record<string, string> = {
   ar: "Arabic",
   fr: "French",
   ha: "Hausa",
+  yo: "Yoruba",
   
 };
 

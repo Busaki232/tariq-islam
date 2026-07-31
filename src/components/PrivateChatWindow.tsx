@@ -1,6 +1,7 @@
 // src/components/PrivateChatWindow.tsx
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import {
   ArrowLeft,
@@ -9,6 +10,8 @@ import {
   Flag,
   ImagePlus,
   Info,
+  Languages,
+  Loader2,
   Mic,
   MoreVertical,
   Pencil,
@@ -57,8 +60,16 @@ type MsgRow = {
   content: string | null;
   created_at: string;
   is_deleted: boolean | null;
+  deleted_for: string[] | null;
   read_by: any;
   reactions: Record<string, string[]> | null;
+};
+
+type MessageTranslation = {
+  translatedText: string;
+  detectedLanguageName: string;
+  targetLanguageName: string;
+  alreadyTargetLanguage: boolean;
 };
 
 const UUID_RE =
@@ -138,6 +149,7 @@ export default function PrivateChatWindow(props: {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { i18n } = useTranslation();
 
   const userId = user?.id ?? "";
   const otherId = conversation.otherUserId;
@@ -154,6 +166,15 @@ export default function PrivateChatWindow(props: {
   const [reporting, setReporting] = useState(false);
   const [blocking, setBlocking] = useState(false);
   const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
+
+  const [messageTranslations, setMessageTranslations] =
+    useState<Record<string, MessageTranslation>>({});
+  const [translatingMessageIds, setTranslatingMessageIds] =
+    useState<string[]>([]);
+  const [
+    showingTranslatedMessageIds,
+    setShowingTranslatedMessageIds,
+  ] = useState<string[]>([]);
 
   const [selectedMessage, setSelectedMessage] =
     useState<MsgRow | null>(null);
@@ -204,7 +225,7 @@ const load = useCallback(
 
       try {
   const baseSelect =
-    "id, sender_id, recipient_id, content, created_at, is_deleted, read_by, reactions, hidden_after";
+    "id, sender_id, recipient_id, content, created_at, is_deleted, deleted_for, read_by, reactions, hidden_after";
 
         const sentQ = maybeAbortSignal(
           supabase
@@ -240,7 +261,11 @@ const load = useCallback(
         if (recvErr) throw recvErr;
 
         const merged = ([...(sent || []), ...(recv || [])] as MsgRow[])
-          .filter((m) => m.is_deleted !== true)
+          .filter(
+            (m) =>
+              m.is_deleted !== true &&
+              !m.deleted_for?.includes(userId)
+          )
           .sort(
             (a, b) =>
               new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
@@ -353,6 +378,7 @@ const load = useCallback(
 
             if (!isMine && !isTheirs) return;
             if (row.is_deleted === true) return;
+            if (row.deleted_for?.includes(userId)) return;
             if (row.hidden_after && new Date(row.hidden_after).getTime() <= Date.now()) return;
             if (userBlocked && row.sender_id === otherId) return;
 
@@ -396,7 +422,11 @@ const load = useCallback(
 
               let next: MsgRow[];
 
-              if (row.is_deleted === true || (userBlocked && row.sender_id === otherId)) {
+              if (
+                row.is_deleted === true ||
+                row.deleted_for?.includes(userId) ||
+                (userBlocked && row.sender_id === otherId)
+              ) {
                 next = prev.filter((m) => m.id !== row.id);
               } else {
                 next = prev.slice();
@@ -607,34 +637,99 @@ const load = useCallback(
     }
   };
 
- const deleteMessage = async (msg: MsgRow) => {
-   const ok = window.confirm("Delete this message?");
+  const deleteMessageForMe = async (
+    msg: MsgRow
+  ) => {
+    const ok = window.confirm(
+      "Delete this message from your chat?"
+    );
 
-   if (!ok) return;
+    if (!ok) return;
 
-   try {
-     const { error } = await withTimeout(
-       supabase
-         .from("messages")
-         .update({ is_deleted: true })
-         .eq("id", msg.id)
-         .eq("sender_id", userId),
-       15000,
-       "delete timeout"
-     );
+    try {
+      const { error } = await withTimeout(
+        (supabase.rpc as any)(
+          "delete_private_message_for_me",
+          { p_message_id: msg.id }
+        ),
+        15000,
+        "delete for me timeout"
+      );
 
-     if (error) throw error;
+      if (error) throw error;
 
-     setMessages((prev) => {
-       const nextRows = prev.filter((m) => m.id !== msg.id);
-       updateConversationFromMessages(nextRows);
-       return nextRows;
-     });
-   } catch (e) {
-     console.error("[PrivateChatWindow] delete failed:", e);
-     setErrorText("Failed to delete message");
-   }
- };
+      setSelectedMessage(null);
+
+      setMessages((prev) => {
+        const nextRows = prev.filter(
+          (message) => message.id !== msg.id
+        );
+
+        updateConversationFromMessages(nextRows);
+        return nextRows;
+      });
+    } catch (error) {
+      console.error(
+        "[PrivateChatWindow] delete for me failed:",
+        error
+      );
+
+      toast({
+        title: "Unable to delete message",
+        description:
+          "The message could not be removed from your chat.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const deleteMessageForEveryone = async (
+    msg: MsgRow
+  ) => {
+    if (msg.sender_id !== userId) return;
+
+    const ok = window.confirm(
+      "Delete this message for both people?"
+    );
+
+    if (!ok) return;
+
+    try {
+      const { error } = await withTimeout(
+        (supabase.rpc as any)(
+          "delete_private_message_for_everyone",
+          { p_message_id: msg.id }
+        ),
+        15000,
+        "delete for everyone timeout"
+      );
+
+      if (error) throw error;
+
+      setSelectedMessage(null);
+
+      setMessages((prev) => {
+        const nextRows = prev.filter(
+          (message) => message.id !== msg.id
+        );
+
+        updateConversationFromMessages(nextRows);
+        return nextRows;
+      });
+    } catch (error) {
+      console.error(
+        "[PrivateChatWindow] delete for everyone failed:",
+        error
+      );
+
+      toast({
+        title: "Unable to recall message",
+        description:
+          "The message could not be deleted for everyone.",
+        variant: "destructive",
+      });
+    }
+  };
 
 const refreshMessageReactions = async (messageId: string) => {
   try {
@@ -734,7 +829,123 @@ const handleQuickReaction = async (
   }
 };
 
- const copyMessage = async (msg: MsgRow) => {
+  const translateMessage = async (
+    msg: MsgRow
+  ) => {
+    const existing =
+      messageTranslations[msg.id];
+
+    if (existing) {
+      setShowingTranslatedMessageIds((current) =>
+        current.includes(msg.id)
+          ? current.filter((id) => id !== msg.id)
+          : [...current, msg.id]
+      );
+      return;
+    }
+
+    if (translatingMessageIds.includes(msg.id)) {
+      return;
+    }
+
+    const activeLanguage =
+      i18n.resolvedLanguage ||
+      i18n.language ||
+      "en";
+
+    const requestedLanguage =
+      activeLanguage.split("-")[0].toLowerCase();
+
+    const supportedCodes = [
+      "en",
+      "ar",
+      "fr",
+      "ha",
+      "yo",
+      "ur",
+    ];
+
+    const targetLanguageCode =
+      supportedCodes.includes(requestedLanguage)
+        ? requestedLanguage
+        : "en";
+
+    try {
+      setTranslatingMessageIds((current) => [
+        ...current,
+        msg.id,
+      ]);
+
+      const { data, error } =
+        await supabase.functions.invoke(
+          "translate-message",
+          {
+            body: {
+              messageId: msg.id,
+              targetLanguageCode,
+            },
+          }
+        );
+
+      if (error) {
+        throw error;
+      }
+
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
+      if (
+        !data?.translatedText ||
+        typeof data.translatedText !== "string"
+      ) {
+        throw new Error(
+          "The translation response was invalid."
+        );
+      }
+
+      setMessageTranslations((current) => ({
+        ...current,
+        [msg.id]: {
+          translatedText: data.translatedText,
+          detectedLanguageName:
+            data.detectedLanguageName ||
+            "Detected language",
+          targetLanguageName:
+            data.targetLanguageName ||
+            targetLanguageCode.toUpperCase(),
+          alreadyTargetLanguage:
+            Boolean(data.alreadyTargetLanguage),
+        },
+      }));
+
+      setShowingTranslatedMessageIds((current) =>
+        current.includes(msg.id)
+          ? current
+          : [...current, msg.id]
+      );
+    } catch (error) {
+      console.error(
+        "Unable to translate message:",
+        error
+      );
+
+      toast({
+        title: "Unable to translate message",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setTranslatingMessageIds((current) =>
+        current.filter((id) => id !== msg.id)
+      );
+    }
+  };
+
+  const copyMessage = async (msg: MsgRow) => {
   const content = normalizeContent(msg.content);
 
   if (!content) return;
@@ -990,7 +1201,7 @@ const showMessageInfo = (msg: MsgRow) => {
 
 return (
   <div
-    className="flex flex-col bg-background h-[100dvh] overflow-hidden"
+    className="flex h-[calc(100dvh-4.5rem-env(safe-area-inset-bottom))] flex-col overflow-hidden bg-background md:h-[100dvh]"
     style={{
       paddingTop: "env(safe-area-inset-top)",
     }}
@@ -1116,6 +1327,15 @@ return (
           messages.map((m) => {
             const mine = m.sender_id === userId;
             const txt = normalizeContent(m.content);
+            const translation =
+              messageTranslations[m.id];
+            const showingTranslation =
+              !mine &&
+              showingTranslatedMessageIds.includes(
+                m.id
+              );
+            const isTranslating =
+              translatingMessageIds.includes(m.id);
 
             if (!txt) return null;
 
@@ -1141,7 +1361,55 @@ return (
       <div className="flex items-start gap-2">
         <div className="flex-1">
           {!isOnlyMedia && (
-            <div className="whitespace-pre-wrap break-words">{txt}</div>
+            <>
+              <div className="whitespace-pre-wrap break-words">
+                {showingTranslation && translation
+                  ? translation.translatedText
+                  : txt}
+              </div>
+
+              <button
+                type="button"
+                disabled={mine || isTranslating}
+                onClick={() =>
+                  void translateMessage(m)
+                }
+                className={
+                  mine
+                    ? "hidden"
+                    : "mt-1.5 flex items-center gap-1 text-[11px] font-medium text-primary hover:underline"
+                }
+              >
+                {isTranslating ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : (
+                  <Languages className="h-3 w-3" />
+                )}
+
+                {isTranslating
+                  ? "Translating..."
+                  : showingTranslation &&
+                      translation
+                    ? "See original"
+                    : translation
+                      ? "See translation"
+                      : "Translate"}
+              </button>
+
+              {showingTranslation && translation && (
+                <p
+                  className={`mt-1 text-[10px] ${
+                    mine
+                      ? "text-white/65"
+                      : "text-muted-foreground"
+                  }`}
+                >
+                  {translation.alreadyTargetLanguage
+                    ? `Already in ${translation.targetLanguageName}`
+                    : `${translation.detectedLanguageName} → ${translation.targetLanguageName}`}
+                </p>
+              )}
+            </>
           )}
 
           {attachments.map((attachment) => (
@@ -1263,7 +1531,9 @@ return (
       <div className="grid grid-cols-2 gap-2 p-3">
         <button
           type="button"
-          onClick={() => void copyMessage(selectedMessage)}
+          onClick={() =>
+            void copyMessage(selectedMessage)
+          }
           className="flex items-center gap-3 rounded-2xl border p-4 text-left transition hover:bg-muted"
         >
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-islamic-green/10 text-islamic-green">
@@ -1275,7 +1545,9 @@ return (
 
         <button
           type="button"
-          onClick={() => showMessageInfo(selectedMessage)}
+          onClick={() =>
+            showMessageInfo(selectedMessage)
+          }
           className="flex items-center gap-3 rounded-2xl border p-4 text-left transition hover:bg-muted"
         >
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-islamic-green/10 text-islamic-green">
@@ -1283,6 +1555,22 @@ return (
           </span>
 
           <span className="font-medium">Info</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() =>
+            void deleteMessageForMe(selectedMessage)
+          }
+          className="flex items-center gap-3 rounded-2xl border p-4 text-left transition hover:bg-muted"
+        >
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-foreground">
+            <Trash2 className="h-5 w-5" />
+          </span>
+
+          <span className="font-medium">
+            Delete for me
+          </span>
         </button>
 
         {selectedMessage.sender_id === userId && (
@@ -1300,23 +1588,27 @@ return (
                 <Pencil className="h-5 w-5" />
               </span>
 
-              <span className="font-medium">Edit</span>
+              <span className="font-medium">
+                Edit
+              </span>
             </button>
 
             <button
               type="button"
-              onClick={() => {
-                const message = selectedMessage;
-                setSelectedMessage(null);
-                void deleteMessage(message);
-              }}
-              className="flex items-center gap-3 rounded-2xl border border-destructive/30 p-4 text-left text-destructive transition hover:bg-destructive/5"
+              onClick={() =>
+                void deleteMessageForEveryone(
+                  selectedMessage
+                )
+              }
+              className="col-span-2 flex items-center gap-3 rounded-2xl border border-destructive/30 p-4 text-left text-destructive transition hover:bg-destructive/5"
             >
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10">
                 <Trash2 className="h-5 w-5" />
               </span>
 
-              <span className="font-medium">Delete</span>
+              <span className="font-medium">
+                Delete for everyone
+              </span>
             </button>
           </>
         )}

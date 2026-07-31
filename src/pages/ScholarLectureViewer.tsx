@@ -7,29 +7,40 @@ import {
 } from "react";
 import {
   ArrowLeft,
-  Bookmark,
   BadgeCheck,
+  Bookmark,
   BookOpen,
-  CalendarDays,
+  Heart,
   Loader2,
   MapPin,
-  Play,
-  Share2,
-  Heart,
   MessageCircle,
   Send,
+  Share2,
   Trash2,
+  X,
+  ChevronDown,
+  ChevronUp,
+  GripVertical,
+  Volume2,
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Capacitor } from "@capacitor/core";
+import { Share } from "@capacitor/share";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
+
+type CaptionPosition = {
+  x: number;
+  y: number;
+};
 
 type LectureRecord = {
   id: string;
@@ -42,6 +53,10 @@ type LectureRecord = {
   language: string | null;
   status: string;
   created_at: string;
+  captions_enabled: boolean;
+  captions_language: string | null;
+  captions_text: string | null;
+  captions_segments: CaptionSegment[] | null;
 };
 
 type ScholarRecord = {
@@ -66,6 +81,7 @@ type RelatedLecture = {
   language: string | null;
   created_at: string;
 };
+
 type LectureComment = {
   id: string;
   lecture_id: string;
@@ -81,17 +97,70 @@ type LectureComment = {
 };
 
 const ScholarLectureViewer = () => {
+  const { t } = useTranslation("common");
   const navigate = useNavigate();
   const { scholarId, lectureId } = useParams<{
     scholarId: string;
     lectureId: string;
   }>();
   const { toast } = useToast();
-const { user } = useAuth();
+  const { user } = useAuth();
 
   const [lecture, setLecture] = useState<LectureRecord | null>(null);
   const [scholar, setScholar] = useState<ScholarRecord | null>(null);
-  const [relatedLectures, setRelatedLectures] = useState<RelatedLecture[]>([]);
+  
+type CaptionSegment = {
+  id: number;
+  start: number;
+  end: number;
+  text: string;
+};
+
+type CaptionTranslation = {
+  language_code: string;
+  language_name: string;
+  translated_segments: CaptionSegment[] | null;
+};
+
+type LectureAudioTranslation = {
+  id: string;
+  lecture_id: string;
+  language_code: string;
+  language_name: string;
+  status:
+    | "queued"
+    | "processing"
+    | "ready"
+    | "failed"
+    | "cancelled";
+  storage_path: string | null;
+  audio_url: string | null;
+  error_message: string | null;
+};
+
+
+const [relatedLectures, setRelatedLectures] = useState<RelatedLecture[]>([]);
+
+const [captionTranslations, setCaptionTranslations] =
+  useState<CaptionTranslation[]>([]);
+
+const [selectedCaptionLanguage, setSelectedCaptionLanguage] =
+  useState("original");
+
+const [
+  audioTranslations,
+  setAudioTranslations,
+] = useState<LectureAudioTranslation[]>([]);
+
+const [
+  selectedAudioLanguage,
+  setSelectedAudioLanguage,
+] = useState("original");
+
+  const [currentVideoTime, setCurrentVideoTime] =
+    useState(0);
+
+
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
@@ -99,10 +168,16 @@ const { user } = useAuth();
   const [viewRecorded, setViewRecorded] = useState(false);
 
   const viewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const commentsSectionRef = useRef<HTMLDivElement | null>(null);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
+ const videoRef = useRef<HTMLVideoElement | null>(null);
+ const translatedAudioRef =
+   useRef<HTMLAudioElement | null>(null);
+ const originalMutedStateRef = useRef(false);
+ const commentInputRef = useRef<HTMLTextAreaElement | null>(null);
+ const swipeStartXRef = useRef<number | null>(null);
+ const swipeStartYRef = useRef<number | null>(null);
   const lastProgressSaveRef = useRef(0);
   const progressLoadedRef = useRef(false);
+  const initialLectureLoadedRef = useRef(false);
 
   const [likeCount, setLikeCount] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
@@ -113,11 +188,14 @@ const { user } = useAuth();
   const [newComment, setNewComment] = useState("");
   const [commentsLoading, setCommentsLoading] = useState(false);
   const [submittingComment, setSubmittingComment] = useState(false);
+  const [commentsOpen, setCommentsOpen] = useState(false);
+  const [isPortraitVideo, setIsPortraitVideo] = useState(false);
+  const [showNextVideoNotice, setShowNextVideoNotice] = useState(false);
+
   const [scholarAvatarUrl, setScholarAvatarUrl] = useState<string | null>(null);
 
   const [isSaved, setIsSaved] = useState(false);
   const [saving, setSaving] = useState(false);
-
   const saveLectureProgress = useCallback(
     async (
       currentTime: number,
@@ -157,58 +235,60 @@ const { user } = useAuth();
     [lectureId, user?.id]
   );
 
-const restoreLectureProgress = useCallback(
-  async (video: HTMLVideoElement) => {
-    if (!user?.id || !lectureId || progressLoadedRef.current) {
-      return;
-    }
+  const restoreLectureProgress = useCallback(
+    async (video: HTMLVideoElement) => {
+      if (!user?.id || !lectureId || progressLoadedRef.current) {
+        return;
+      }
 
-    progressLoadedRef.current = true;
+      progressLoadedRef.current = true;
 
-    const { data, error } = await supabase
-      .from("scholar_lecture_progress")
-      .select(
-        `
-          current_time_seconds,
-          duration_seconds,
-          completed
-        `
-      )
-      .eq("lecture_id", lectureId)
-      .eq("user_id", user.id)
-      .maybeSingle();
+      const { data, error } = await supabase
+        .from("scholar_lecture_progress")
+        .select(
+          `
+            current_time_seconds,
+            duration_seconds,
+            completed
+          `
+        )
+        .eq("lecture_id", lectureId)
+        .eq("user_id", user.id)
+        .maybeSingle();
 
-    if (error) {
-      console.error("Unable to restore lecture progress:", error);
-      return;
-    }
+      if (error) {
+        console.error("Unable to restore lecture progress:", error);
+        return;
+      }
 
-    if (
-      data &&
-      !data.completed &&
-      data.current_time_seconds > 5 &&
-      data.current_time_seconds < video.duration - 5
-    ) {
-      video.currentTime = data.current_time_seconds;
-      lastProgressSaveRef.current = data.current_time_seconds;
-    }
-  },
-  [lectureId, user?.id]
-);
+      if (
+        data &&
+        !data.completed &&
+        data.current_time_seconds > 5 &&
+        data.current_time_seconds < video.duration - 5
+      ) {
+        video.currentTime = data.current_time_seconds;
+        lastProgressSaveRef.current = data.current_time_seconds;
+      }
+    },
+    [lectureId, user?.id]
+  );
+const loadLecture = useCallback(async () => {
+  if (!scholarId || !lectureId) {
+    setNotFound(true);
+    setLoading(false);
+    return;
+  }
 
-
-  const loadLecture = useCallback(async () => {
-    if (!scholarId || !lectureId) {
-      setNotFound(true);
-      setLoading(false);
-      return;
-    }
-
-    try {
+  try {
+    if (!initialLectureLoadedRef.current) {
       setLoading(true);
-      setNotFound(false);
+    }
 
-      const { data: lectureData, error: lectureError } = await supabase
+    setNotFound(false);
+
+    const { data: lectureData, error: lectureError } =
+      await supabase
         .from("scholar_lectures")
         .select(
           `
@@ -221,9 +301,15 @@ const restoreLectureProgress = useCallback(
             category,
             language,
             status,
-            created_at
+            created_at,
+            captions_enabled,
+            captions_language,
+            captions_text,
+            captions_segments
           `
         )
+
+
         .eq("id", lectureId)
         .eq("scholar_id", scholarId)
         .eq("status", "approved")
@@ -239,69 +325,157 @@ const restoreLectureProgress = useCallback(
       }
 
       setLecture(lectureData as LectureRecord);
- const { count: lectureViewCount, error: viewCountError } =
-   await supabase
-     .from("scholar_lecture_views")
-     .select("id", { count: "exact", head: true })
-     .eq("lecture_id", lectureData.id);
+      initialLectureLoadedRef.current = true;
 
- console.log("Lecture view count check:", {
-   lectureIdFromUrl: lectureId,
-   lectureIdFromDatabase: lectureData.id,
-   count: lectureViewCount,
-   error: viewCountError,
- });
+      const {
+        data: lectureTranslationRows,
+        error: lectureTranslationsError,
+      } = await supabase
+        .from("scholar_lecture_caption_translations")
+        .select(
+          "language_code,language_name,translated_segments"
+        )
+        .eq("lecture_id", lectureData.id)
+        .order("language_name", { ascending: true });
 
- if (viewCountError) {
-   console.error("Unable to load lecture view count:", viewCountError);
- } else {
-   setViewCount(lectureViewCount ?? 0);
- }
-if (user?.id) {
-  const { data: savedRow, error: savedError } = await supabase
-    .from("scholar_lecture_saves")
-    .select("id")
-    .eq("lecture_id", lectureData.id)
-    .eq("user_id", user.id)
-    .maybeSingle();
+      if (lectureTranslationsError) {
+        console.error(
+          "Unable to load scholar lecture translations:",
+          lectureTranslationsError
+        );
 
-  if (savedError) {
-    console.error("Unable to load saved lecture status:", savedError);
-  }
+        setCaptionTranslations([]);
+      } else {
+        const loadedTranslations = (
+          lectureTranslationRows ?? []
+        ).map((row) => ({
+          language_code: row.language_code,
+          language_name: row.language_name,
+          translated_segments: Array.isArray(
+            row.translated_segments
+          )
+            ? (row.translated_segments as CaptionSegment[])
+            : null,
+        }));
 
-  setIsSaved(Boolean(savedRow));
-} else {
-  setIsSaved(false);
-}
-const { count: lectureLikeCount, error: likeCountError } =
-  await supabase
-    .from("scholar_lecture_likes")
-    .select("id", { count: "exact", head: true })
-    .eq("lecture_id", lectureData.id);
+        setCaptionTranslations(loadedTranslations);
+      }
 
-if (likeCountError) {
-  console.error("Unable to load lecture like count:", likeCountError);
-} else {
-  setLikeCount(lectureLikeCount ?? 0);
-}
+      const {
+        data: audioTranslationRows,
+        error: audioTranslationsError,
+      } = await supabase
+        .from("scholar_lecture_audio_translations")
+        .select(
+          "id,lecture_id,language_code,language_name,status,storage_path,error_message"
+        )
+        .eq("lecture_id", lectureData.id)
+        .order("language_name", {
+          ascending: true,
+        });
 
-if (user?.id) {
-  const { data: existingLike, error: existingLikeError } =
-    await supabase
-      .from("scholar_lecture_likes")
-      .select("id")
-      .eq("lecture_id", lectureData.id)
-      .eq("user_id", user.id)
-      .maybeSingle();
+      if (audioTranslationsError) {
+        console.error(
+          "Unable to load translated lecture audio:",
+          audioTranslationsError
+        );
+        setAudioTranslations([]);
+      } else {
+        const loadedAudioTranslations = (
+          audioTranslationRows ?? []
+        ).map((row) => {
+          let audioUrl: string | null = null;
 
-  if (existingLikeError) {
-    console.error("Unable to check lecture like:", existingLikeError);
-  } else {
-    setIsLiked(Boolean(existingLike));
-  }
-} else {
-  setIsLiked(false);
-}
+          if (
+            row.status === "ready" &&
+            row.storage_path
+          ) {
+            if (
+              row.storage_path.startsWith("http://") ||
+              row.storage_path.startsWith("https://")
+            ) {
+              audioUrl = row.storage_path;
+            } else {
+              const { data: publicUrlData } =
+                supabase.storage
+                  .from(
+                    "scholar-lecture-translated-audio"
+                  )
+                  .getPublicUrl(row.storage_path);
+
+              audioUrl = publicUrlData.publicUrl;
+            }
+          }
+
+          return {
+            ...row,
+            audio_url: audioUrl,
+          } as LectureAudioTranslation;
+        });
+
+        setAudioTranslations(
+          loadedAudioTranslations
+        );
+      }
+
+      const { count: lectureViewCount, error: viewCountError } =
+        await supabase
+          .from("scholar_lecture_views")
+          .select("id", { count: "exact", head: true })
+          .eq("lecture_id", lectureData.id);
+
+      if (viewCountError) {
+        console.error("Unable to load lecture view count:", viewCountError);
+      } else {
+        setViewCount(lectureViewCount ?? 0);
+      }
+
+      if (user?.id) {
+        const { data: savedRow, error: savedError } = await supabase
+          .from("scholar_lecture_saves")
+          .select("id")
+          .eq("lecture_id", lectureData.id)
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (savedError) {
+          console.error("Unable to load saved lecture status:", savedError);
+        }
+
+        setIsSaved(Boolean(savedRow));
+      } else {
+        setIsSaved(false);
+      }
+
+      const { count: lectureLikeCount, error: likeCountError } =
+        await supabase
+          .from("scholar_lecture_likes")
+          .select("id", { count: "exact", head: true })
+          .eq("lecture_id", lectureData.id);
+
+      if (likeCountError) {
+        console.error("Unable to load lecture like count:", likeCountError);
+      } else {
+        setLikeCount(lectureLikeCount ?? 0);
+      }
+
+      if (user?.id) {
+        const { data: existingLike, error: existingLikeError } =
+          await supabase
+            .from("scholar_lecture_likes")
+            .select("id")
+            .eq("lecture_id", lectureData.id)
+            .eq("user_id", user.id)
+            .maybeSingle();
+
+        if (existingLikeError) {
+          console.error("Unable to check lecture like:", existingLikeError);
+        } else {
+          setIsLiked(Boolean(existingLike));
+        }
+      } else {
+        setIsLiked(false);
+      }
 
       const [scholarResult, relatedResult] = await Promise.all([
         supabase
@@ -338,11 +512,10 @@ if (user?.id) {
               created_at
             `
           )
-          .eq("scholar_id", scholarId)
-          .eq("status", "approved")
-          .neq("id", lectureId)
-          .order("created_at", { ascending: false })
-          .limit(6),
+      .eq("status", "approved")
+      .neq("id", lectureId)
+      .order("created_at", { ascending: false })
+      .limit(50),
       ]);
 
       if (scholarResult.error) {
@@ -353,74 +526,411 @@ if (user?.id) {
         throw relatedResult.error;
       }
 
-    const scholarData =
-      (scholarResult.data as ScholarRecord | null) ?? null;
+      const scholarData =
+        (scholarResult.data as ScholarRecord | null) ?? null;
 
-    setScholar(scholarData);
-    setRelatedLectures((relatedResult.data ?? []) as RelatedLecture[]);
+      setScholar(scholarData);
 
-    if (scholarData?.user_id) {
-      const { data: scholarUserProfile, error: scholarProfileError } =
-        await supabase
-          .from("profiles")
-          .select("avatar_url")
-          .eq("user_id", scholarData.user_id)
-          .maybeSingle();
+      const relatedRows =
+        (relatedResult.data ?? []) as RelatedLecture[];
 
-      if (scholarProfileError) {
+   const lectureQueueKey = "scholar_lecture_queue_all";
+
+      let savedQueueIds: string[] = [];
+
+      try {
+        const savedQueue =
+          sessionStorage.getItem(lectureQueueKey);
+
+        if (savedQueue) {
+          const parsedQueue = JSON.parse(savedQueue);
+
+          if (Array.isArray(parsedQueue)) {
+            savedQueueIds = parsedQueue.filter(
+              (value): value is string =>
+                typeof value === "string"
+            );
+          }
+        }
+      } catch (queueError) {
         console.error(
-          "Unable to load scholar profile picture:",
-          scholarProfileError
-        );
-
-        setScholarAvatarUrl(null);
-      } else {
-        setScholarAvatarUrl(
-          scholarUserProfile?.avatar_url ?? null
+          "Unable to restore lecture queue:",
+          queueError
         );
       }
-    } else {
-      setScholarAvatarUrl(null);
-    }
+
+      const orderedRelatedLectures = [...relatedRows].sort(
+        (firstLecture, secondLecture) => {
+          const firstIndex = savedQueueIds.indexOf(
+            firstLecture.id
+          );
+
+          const secondIndex = savedQueueIds.indexOf(
+            secondLecture.id
+          );
+
+          if (firstIndex === -1 && secondIndex === -1) {
+            return 0;
+          }
+
+          if (firstIndex === -1) {
+            return 1;
+          }
+
+          if (secondIndex === -1) {
+            return -1;
+          }
+
+          return firstIndex - secondIndex;
+        }
+      );
+
+      setRelatedLectures(orderedRelatedLectures);
+
+      if (scholarData?.user_id) {
+        const { data: scholarUserProfile, error: scholarProfileError } =
+          await supabase
+            .from("profiles")
+            .select("avatar_url")
+            .eq("user_id", scholarData.user_id)
+            .maybeSingle();
+
+        if (scholarProfileError) {
+          console.error(
+            "Unable to load scholar profile picture:",
+            scholarProfileError
+          );
+          setScholarAvatarUrl(null);
+        } else {
+          setScholarAvatarUrl(scholarUserProfile?.avatar_url ?? null);
+        }
+      } else {
+        setScholarAvatarUrl(null);
+      }
     } catch (error: any) {
       console.error("Unable to load scholar lecture:", error);
 
       toast({
-        title: "Unable to load lecture",
+        title: t("scholars.lectureViewer.loadError"),
         description:
-          error?.message || "The lecture could not be opened.",
+          error?.message ||
+          t("scholars.lectureViewer.loadErrorDescription"),
         variant: "destructive",
       });
     } finally {
       setLoading(false);
     }
-  }, [lectureId, scholarId, toast]);
+  }, [lectureId, scholarId, t, toast, user?.id]);
 
 
+  const [captionPosition, setCaptionPosition] =
+    useState<CaptionPosition>({
+      x: 0,
+      y: 0,
+    });
 
-useEffect(() => {
-  setViewRecorded(false);
-  setViewCount(0);
-  setLikeCount(0);
-  setIsLiked(false);
-  setIsSaved(false);
-  setScholarAvatarUrl(null);
+  const [captionCollapsed, setCaptionCollapsed] =
+    useState(false);
+
+  const captionDragRef = useRef<{
+    startPointerX: number;
+    startPointerY: number;
+    startPositionX: number;
+    startPositionY: number;
+  } | null>(null);
+
+  const handleCaptionPointerDown = (
+    event: React.PointerEvent<HTMLButtonElement>
+  ) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    captionDragRef.current = {
+      startPointerX: event.clientX,
+      startPointerY: event.clientY,
+      startPositionX: captionPosition.x,
+      startPositionY: captionPosition.y,
+    };
+
+    event.currentTarget.setPointerCapture(
+      event.pointerId
+    );
+  };
+
+  const handleCaptionPointerMove = (
+    event: React.PointerEvent<HTMLButtonElement>
+  ) => {
+    const drag = captionDragRef.current;
+
+    if (!drag) {
+      return;
+    }
+
+    const nextX =
+      drag.startPositionX +
+      (event.clientX - drag.startPointerX);
+
+    const nextY =
+      drag.startPositionY +
+      (event.clientY - drag.startPointerY);
+
+    setCaptionPosition({
+      x: nextX,
+      y: nextY,
+    });
+  };
+
+  const handleCaptionPointerUp = (
+    event: React.PointerEvent<HTMLButtonElement>
+  ) => {
+    captionDragRef.current = null;
+
+    if (
+      event.currentTarget.hasPointerCapture(
+        event.pointerId
+      )
+    ) {
+      event.currentTarget.releasePointerCapture(
+        event.pointerId
+      );
+    }
+  };
+
+  useEffect(() => {
+    setViewRecorded(false);
+    setViewCount(0);
+    setLikeCount(0);
+    setIsLiked(false);
+    setIsSaved(false);
+    setScholarAvatarUrl(null);
+    setCommentsOpen(false);
+    setNewComment("");
+    setCaptionTranslations([]);
+    setSelectedCaptionLanguage("original");
+    setIsPortraitVideo(false);
+    setShowNextVideoNotice(false);
     progressLoadedRef.current = false;
     lastProgressSaveRef.current = 0;
 
-  if (viewTimerRef.current) {
-    clearTimeout(viewTimerRef.current);
-    viewTimerRef.current = null;
-  }
-}, [lectureId]);
-
-useEffect(() => {
-  return () => {
     if (viewTimerRef.current) {
       clearTimeout(viewTimerRef.current);
+      viewTimerRef.current = null;
     }
-  };
-}, []);
+  }, [lectureId]);
+
+  useEffect(() => {
+    return () => {
+      if (viewTimerRef.current) {
+        clearTimeout(viewTimerRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!commentsOpen) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      commentInputRef.current?.focus();
+    }, 150);
+
+    return () => window.clearTimeout(timer);
+  }, [commentsOpen]);
+
+  useEffect(() => {
+    if (!commentsOpen) {
+      return;
+    }
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setCommentsOpen(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [commentsOpen]);
+
+
+  useEffect(() => {
+    const nextLecture = relatedLectures[0];
+
+    if (!nextLecture?.video_url) {
+      return;
+    }
+
+    const preloadVideo = document.createElement("video");
+
+    preloadVideo.preload = "auto";
+    preloadVideo.src = nextLecture.video_url;
+    preloadVideo.muted = true;
+    preloadVideo.playsInline = true;
+    preloadVideo.load();
+
+    return () => {
+      preloadVideo.pause();
+      preloadVideo.removeAttribute("src");
+      preloadVideo.load();
+    };
+  }, [relatedLectures]);
+
+
+  const originalCaptionSegments = useMemo<CaptionSegment[]>(() => {
+    if (!Array.isArray(lecture?.captions_segments)) {
+      return [];
+    }
+
+    return lecture.captions_segments
+      .map((segment, index) => ({
+        id:
+          typeof segment.id === "number"
+            ? segment.id
+            : index,
+        start: Number(segment.start),
+        end: Number(segment.end),
+        text:
+          typeof segment.text === "string"
+            ? segment.text.trim()
+            : "",
+      }))
+      .filter(
+        (segment) =>
+          segment.text &&
+          Number.isFinite(segment.start) &&
+          Number.isFinite(segment.end) &&
+          segment.end > segment.start
+      );
+  }, [lecture?.captions_segments]);
+
+  const selectedReadyAudio = useMemo(
+    () =>
+      audioTranslations.find(
+        (track) =>
+          track.language_code ===
+            selectedAudioLanguage &&
+          track.status === "ready" &&
+          Boolean(track.audio_url)
+      ) ?? null,
+    [audioTranslations, selectedAudioLanguage]
+  );
+
+  useEffect(() => {
+    const video = videoRef.current;
+    const audio = translatedAudioRef.current;
+
+    if (!video || !audio) {
+      return;
+    }
+
+    if (!selectedReadyAudio) {
+      audio.pause();
+      audio.removeAttribute("src");
+      audio.load();
+
+      if (selectedAudioLanguage !== "original") {
+        setSelectedAudioLanguage("original");
+      }
+
+      video.muted = originalMutedStateRef.current;
+      return;
+    }
+
+    originalMutedStateRef.current = video.muted;
+    video.muted = true;
+
+    audio.src = selectedReadyAudio.audio_url ?? "";
+    audio.currentTime = video.currentTime;
+    audio.playbackRate = video.playbackRate;
+    audio.load();
+
+    if (!video.paused) {
+      void audio.play().catch((error) => {
+        console.error(
+          "Unable to play translated audio:",
+          error
+        );
+
+        setSelectedAudioLanguage("original");
+
+        toast({
+          title: t(
+            "scholars.lectureViewer.audioPlaybackError",
+            {
+              defaultValue:
+                "Translated audio unavailable",
+            }
+          ),
+          description: t(
+            "scholars.lectureViewer.audioPlaybackErrorDescription",
+            {
+              defaultValue:
+                "The original lecture audio has been restored.",
+            }
+          ),
+          variant: "destructive",
+        });
+      });
+    }
+
+    return () => {
+      audio.pause();
+    };
+  }, [
+    selectedAudioLanguage,
+    selectedReadyAudio,
+    t,
+    toast,
+  ]);
+
+  useEffect(() => {
+    setSelectedAudioLanguage("original");
+    setAudioTranslations([]);
+  }, [lectureId]);
+
+  const activeCaptionSegments = useMemo<CaptionSegment[]>(() => {
+    if (selectedCaptionLanguage === "off") {
+      return [];
+    }
+
+    if (selectedCaptionLanguage === "original") {
+      return originalCaptionSegments;
+    }
+
+    const selectedTranslation = captionTranslations.find(
+      (translation) =>
+        translation.language_code === selectedCaptionLanguage
+    );
+
+    return Array.isArray(
+      selectedTranslation?.translated_segments
+    )
+      ? selectedTranslation.translated_segments
+      : [];
+  }, [
+    captionTranslations,
+    originalCaptionSegments,
+    selectedCaptionLanguage,
+  ]);
+
+  const activeCaption = useMemo(() => {
+    return (
+      activeCaptionSegments.find(
+        (segment) =>
+          currentVideoTime >= segment.start &&
+          currentVideoTime < segment.end
+      )?.text ?? ""
+    );
+  }, [activeCaptionSegments, currentVideoTime]);
+
+  const hasCaptionChoices =
+    originalCaptionSegments.length > 0 ||
+    captionTranslations.some(
+      (translation) =>
+        Array.isArray(translation.translated_segments) &&
+        translation.translated_segments.length > 0
+    );
 
   const scholarInitials = useMemo(() => {
     if (!scholar?.display_name) {
@@ -435,6 +945,60 @@ useEffect(() => {
       .join("");
   }, [scholar?.display_name]);
 
+const navigateToQueuedLecture = (
+  direction: "next" | "previous"
+) => {
+  if (!lecture || relatedLectures.length === 0) {
+    return;
+  }
+
+  const targetLecture =
+    direction === "next"
+      ? relatedLectures[0]
+      : relatedLectures[relatedLectures.length - 1];
+
+  if (!targetLecture) {
+    return;
+  }
+
+  const reorderedQueueIds =
+    direction === "next"
+      ? [
+          ...relatedLectures.map((item) => item.id),
+          lecture.id,
+        ]
+      : [
+          targetLecture.id,
+          lecture.id,
+          ...relatedLectures
+            .slice(0, -1)
+            .map((item) => item.id),
+        ];
+
+  sessionStorage.setItem(
+    "scholar_lecture_queue_all",
+    JSON.stringify(reorderedQueueIds)
+  );
+
+  sessionStorage.setItem(
+    "scholar_lecture_autoplay",
+    "true"
+  );
+
+  videoRef.current?.pause();
+
+  navigate(
+    `/scholars/${targetLecture.scholar_id}/lectures/${targetLecture.id}`
+  );
+
+  window.setTimeout(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, 50);
+};
+
   const formatDate = (value: string) => {
     return new Intl.DateTimeFormat(undefined, {
       year: "numeric",
@@ -443,347 +1007,387 @@ useEffect(() => {
     }).format(new Date(value));
   };
 
-  const handleShare = async () => {
-    if (!lecture) {
+const handleShare = async () => {
+  if (!lecture) {
+    return;
+  }
+
+  const shareUrl = window.location.href;
+  const shareText = `${lecture.title}${
+    scholar?.display_name ? ` by ${scholar.display_name}` : ""
+  }`;
+
+  try {
+    if (Capacitor.isNativePlatform()) {
+      await Share.share({
+        title: lecture.title,
+        text: shareText,
+        url: shareUrl,
+        dialogTitle: t("scholars.lectureViewer.shareLecture", {
+          defaultValue: "Share Lecture",
+        }),
+      });
+
       return;
     }
 
-    const shareUrl = window.location.href;
-    const shareText = `${lecture.title}${
-      scholar?.display_name ? ` by ${scholar.display_name}` : ""
-    }`;
-
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: lecture.title,
-          text: shareText,
-          url: shareUrl,
-        });
-
-        return;
-      }
-
-      await navigator.clipboard.writeText(shareUrl);
-
-      toast({
-        title: "Lecture link copied",
-        description: "The lecture link was copied to your clipboard.",
+    if (navigator.share) {
+      await navigator.share({
+        title: lecture.title,
+        text: shareText,
+        url: shareUrl,
       });
-    } catch (error) {
-      if (
-        error instanceof DOMException &&
-        error.name === "AbortError"
-      ) {
-        return;
-      }
 
-      console.error("Unable to share lecture:", error);
-
-      toast({
-        title: "Unable to share",
-        description: "The lecture link could not be shared.",
-        variant: "destructive",
-      });
-    }
-  };
-const recordLectureView = useCallback(async () => {
-  if (!lectureId || !user?.id || viewRecorded) {
-    return;
-  }
-
-  const { data, error } = await supabase
-    .from("scholar_lecture_views")
-    .upsert(
-      {
-        lecture_id: lectureId,
-        user_id: user.id,
-      },
-      {
-        onConflict: "lecture_id,user_id",
-        ignoreDuplicates: true,
-      }
-    )
-    .select("id");
-
-  if (error) {
-    console.error("Unable to record lecture view:", error);
-    return;
-  }
-
-  setViewRecorded(true);
-
-  // A returned row means this was a new view.
-  // An empty array means this user already viewed the lecture.
-  if (data && data.length > 0) {
-    setViewCount((current) => current + 1);
-  }
-}, [lectureId, user?.id, viewRecorded]);
-
-const loadComments = useCallback(async () => {
-  if (!lectureId) {
-    return;
-  }
-
-  setCommentsLoading(true);
-
-  try {
-    const { data: commentRows, error: commentsError } = await supabase
-      .from("scholar_lecture_comments")
-      .select("id, lecture_id, user_id, content, created_at")
-      .eq("lecture_id", lectureId)
-      .order("created_at", { ascending: true });
-
-    if (commentsError) {
-      throw commentsError;
+      return;
     }
 
-    const userIds = [
-      ...new Set((commentRows ?? []).map((comment) => comment.user_id)),
-    ];
+    await navigator.clipboard.writeText(shareUrl);
 
-    let profileRows: Array<{
-      user_id: string;
-      full_name: string | null;
-      username: string | null;
-      avatar_url: string | null;
-    }> = [];
-
-    if (userIds.length > 0) {
-      const { data: profilesData, error: profilesError } = await supabase
-        .from("profiles")
-        .select("user_id, full_name, username, avatar_url")
-        .in("user_id", userIds);
-
-      if (profilesError) {
-        console.error("Unable to load comment profiles:", profilesError);
-      } else {
-        profileRows = profilesData ?? [];
-      }
-    }
-
-    const commentsWithProfiles = (commentRows ?? []).map((comment) => ({
-      ...comment,
-      profiles:
-        profileRows.find(
-          (profile) => profile.user_id === comment.user_id
-        ) ?? null,
-    }));
-
-    setComments(commentsWithProfiles as LectureComment[]);
-    setCommentCount(commentsWithProfiles.length);
+    toast({
+      title: t("scholars.lectureViewer.linkCopied"),
+      description: t(
+        "scholars.lectureViewer.linkCopiedDescription"
+      ),
+    });
   } catch (error) {
-    console.error("Unable to load lecture comments:", error);
-  } finally {
-    setCommentsLoading(false);
-  }
-}, [lectureId]);
-useEffect(() => {
-  void loadLecture();
-}, [loadLecture]);
+    const message =
+      error instanceof Error ? error.message.toLowerCase() : "";
 
-useEffect(() => {
-  void loadComments();
-}, [loadComments]);
-
-const handleLike = async () => {
-  if (!lectureId) {
-    return;
-  }
-
-  if (!user?.id) {
-    navigate("/auth");
-    return;
-  }
-
-  if (liking) {
-    return;
-  }
-
-  setLiking(true);
-
-  try {
-    if (isLiked) {
-      const { error } = await supabase
-        .from("scholar_lecture_likes")
-        .delete()
-        .eq("lecture_id", lectureId)
-        .eq("user_id", user.id);
-
-      if (error) {
-        throw error;
-      }
-
-      setIsLiked(false);
-      setLikeCount((current) => Math.max(0, current - 1));
-    } else {
-      const { error } = await supabase
-        .from("scholar_lecture_likes")
-        .insert({
-          lecture_id: lectureId,
-          user_id: user.id,
-        });
-
-      if (error) {
-        throw error;
-      }
-
-      setIsLiked(true);
-      setLikeCount((current) => current + 1);
+    if (
+      (error instanceof DOMException &&
+        error.name === "AbortError") ||
+      message.includes("cancel")
+    ) {
+      return;
     }
-  } catch (error: any) {
-    console.error("Unable to update lecture like:", error);
+
+    console.error("Unable to share lecture:", error);
 
     toast({
-      title: "Unable to update like",
-      description: error?.message || "Please try again.",
+      title: t("scholars.lectureViewer.shareError"),
+      description: t(
+        "scholars.lectureViewer.shareErrorDescription"
+      ),
       variant: "destructive",
     });
-  } finally {
-    setLiking(false);
-  }
-};
-const handleSave = async () => {
-  if (!lectureId) {
-    return;
-  }
-
-  if (!user?.id) {
-    navigate("/auth");
-    return;
-  }
-
-  if (saving) {
-    return;
-  }
-
-  setSaving(true);
-
-  try {
-    if (isSaved) {
-      const { error } = await supabase
-        .from("scholar_lecture_saves")
-        .delete()
-        .eq("lecture_id", lectureId)
-        .eq("user_id", user.id);
-
-      if (error) {
-        throw error;
-      }
-
-      setIsSaved(false);
-
-      toast({
-        title: "Removed from saved lectures",
-      });
-    } else {
-      const { error } = await supabase
-        .from("scholar_lecture_saves")
-        .insert({
-          lecture_id: lectureId,
-          user_id: user.id,
-        });
-
-      if (error) {
-        throw error;
-      }
-
-      setIsSaved(true);
-
-      toast({
-        title: "Lecture saved",
-      });
-    }
-  } catch (error: any) {
-    console.error("Unable to update saved lecture:", error);
-
-    toast({
-      title: "Unable to update saved lecture",
-      description: error?.message || "Please try again.",
-      variant: "destructive",
-    });
-  } finally {
-    setSaving(false);
   }
 };
 
-const handleCommentSubmit = async () => {
-  if (!lectureId) {
-    return;
-  }
 
-  if (!user?.id) {
-    navigate("/auth");
-    return;
-  }
+  const recordLectureView = useCallback(async () => {
+    if (!lectureId || !user?.id || viewRecorded) {
+      return;
+    }
 
-  const trimmedComment = newComment.trim();
-
-  if (!trimmedComment || submittingComment) {
-    return;
-  }
-
-  setSubmittingComment(true);
-
-  try {
-    const { error } = await supabase
-      .from("scholar_lecture_comments")
-      .insert({
-        lecture_id: lectureId,
-        user_id: user.id,
-        content: trimmedComment,
-      });
+    const { data, error } = await supabase
+      .from("scholar_lecture_views")
+      .upsert(
+        {
+          lecture_id: lectureId,
+          user_id: user.id,
+        },
+        {
+          onConflict: "lecture_id,user_id",
+          ignoreDuplicates: true,
+        }
+      )
+      .select("id");
 
     if (error) {
-      throw error;
+      console.error("Unable to record lecture view:", error);
+      return;
     }
 
-    setNewComment("");
+    setViewRecorded(true);
+
+    if (data && data.length > 0) {
+      setViewCount((current) => current + 1);
+    }
+  }, [lectureId, user?.id, viewRecorded]);
+
+  const loadComments = useCallback(async () => {
+    if (!lectureId) {
+      return;
+    }
+
+    setCommentsLoading(true);
+
+    try {
+      const { data: commentRows, error: commentsError } = await supabase
+        .from("scholar_lecture_comments")
+        .select("id, lecture_id, user_id, content, created_at")
+        .eq("lecture_id", lectureId)
+        .order("created_at", { ascending: true });
+
+      if (commentsError) {
+        throw commentsError;
+      }
+
+      const userIds = [
+        ...new Set(
+          (commentRows ?? []).map((comment) => comment.user_id)
+        ),
+      ];
+
+      let profileRows: Array<{
+        user_id: string;
+        full_name: string | null;
+        username: string | null;
+        avatar_url: string | null;
+      }> = [];
+
+      if (userIds.length > 0) {
+        const { data: profilesData, error: profilesError } =
+          await supabase
+            .from("profiles")
+            .select("user_id, full_name, username, avatar_url")
+            .in("user_id", userIds);
+
+        if (profilesError) {
+          console.error(
+            "Unable to load comment profiles:",
+            profilesError
+          );
+        } else {
+          profileRows = profilesData ?? [];
+        }
+      }
+
+      const commentsWithProfiles = (commentRows ?? []).map(
+        (comment) => ({
+          ...comment,
+          profiles:
+            profileRows.find(
+              (profile) => profile.user_id === comment.user_id
+            ) ?? null,
+        })
+      );
+
+      setComments(commentsWithProfiles as LectureComment[]);
+      setCommentCount(commentsWithProfiles.length);
+    } catch (error) {
+      console.error("Unable to load lecture comments:", error);
+    } finally {
+      setCommentsLoading(false);
+    }
+  }, [lectureId]);
+
+  useEffect(() => {
+    void loadLecture();
+  }, [loadLecture]);
+
+  useEffect(() => {
+    void loadComments();
+  }, [loadComments]);
+
+  const handleLike = async () => {
+    if (!lectureId) {
+      return;
+    }
+
+    if (!user?.id) {
+      navigate("/auth");
+      return;
+    }
+
+    if (liking) {
+      return;
+    }
+
+    setLiking(true);
+
+    try {
+      if (isLiked) {
+        const { error } = await supabase
+          .from("scholar_lecture_likes")
+          .delete()
+          .eq("lecture_id", lectureId)
+          .eq("user_id", user.id);
+
+        if (error) {
+          throw error;
+        }
+
+        setIsLiked(false);
+        setLikeCount((current) => Math.max(0, current - 1));
+      } else {
+        const { error } = await supabase
+          .from("scholar_lecture_likes")
+          .insert({
+            lecture_id: lectureId,
+            user_id: user.id,
+          });
+
+        if (error) {
+          throw error;
+        }
+
+        setIsLiked(true);
+        setLikeCount((current) => current + 1);
+      }
+    } catch (error: any) {
+      console.error("Unable to update lecture like:", error);
+
+      toast({
+        title: t("scholars.lectureViewer.likeError"),
+        description:
+          error?.message || t("scholars.lectureViewer.tryAgain"),
+        variant: "destructive",
+      });
+    } finally {
+      setLiking(false);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!lectureId) {
+      return;
+    }
+
+    if (!user?.id) {
+      navigate("/auth");
+      return;
+    }
+
+    if (saving) {
+      return;
+    }
+
+    setSaving(true);
+
+    try {
+      if (isSaved) {
+        const { error } = await supabase
+          .from("scholar_lecture_saves")
+          .delete()
+          .eq("lecture_id", lectureId)
+          .eq("user_id", user.id);
+
+        if (error) {
+          throw error;
+        }
+
+        setIsSaved(false);
+
+        toast({
+          title: t("scholars.lectureViewer.saveRemoved"),
+        });
+      } else {
+        const { error } = await supabase
+          .from("scholar_lecture_saves")
+          .insert({
+            lecture_id: lectureId,
+            user_id: user.id,
+          });
+
+        if (error) {
+          throw error;
+        }
+
+        setIsSaved(true);
+
+        toast({
+          title: t("scholars.lectureViewer.saveAdded"),
+        });
+      }
+    } catch (error: any) {
+      console.error("Unable to update saved lecture:", error);
+
+      toast({
+        title: t("scholars.lectureViewer.saveError"),
+        description:
+          error?.message || t("scholars.lectureViewer.tryAgain"),
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleOpenComments = () => {
+    setCommentsOpen(true);
+  };
+
+  const handleCommentSubmit = async () => {
+    if (!lectureId) {
+      return;
+    }
+
+    if (!user?.id) {
+      setCommentsOpen(false);
+      navigate("/auth");
+      return;
+    }
+
+    const trimmedComment = newComment.trim();
+
+    if (!trimmedComment || submittingComment) {
+      return;
+    }
+
+    setSubmittingComment(true);
+
+    try {
+      const { error } = await supabase
+        .from("scholar_lecture_comments")
+        .insert({
+          lecture_id: lectureId,
+          user_id: user.id,
+          content: trimmedComment,
+        });
+
+      if (error) {
+        throw error;
+      }
+
+      setNewComment("");
+      await loadComments();
+      setCommentsOpen(false);
+    } catch (error: any) {
+      console.error("Unable to add lecture comment:", error);
+
+      toast({
+        title: t("scholars.lectureViewer.commentAddError"),
+        description:
+          error?.message || t("scholars.lectureViewer.tryAgain"),
+        variant: "destructive",
+      });
+    } finally {
+      setSubmittingComment(false);
+    }
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    if (!user?.id) {
+      return;
+    }
+
+    const { error } = await supabase
+      .from("scholar_lecture_comments")
+      .delete()
+      .eq("id", commentId)
+      .eq("user_id", user.id);
+
+    if (error) {
+      console.error("Unable to delete lecture comment:", error);
+
+      toast({
+        title: t("scholars.lectureViewer.commentDeleteError"),
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
     await loadComments();
-  } catch (error: any) {
-    console.error("Unable to add lecture comment:", error);
-
-    toast({
-      title: "Unable to add comment",
-      description: error?.message || "Please try again.",
-      variant: "destructive",
-    });
-  } finally {
-    setSubmittingComment(false);
-  }
-};
-const handleDeleteComment = async (commentId: string) => {
-  if (!user?.id) {
-    return;
-  }
-
-  const { error } = await supabase
-    .from("scholar_lecture_comments")
-    .delete()
-    .eq("id", commentId)
-    .eq("user_id", user.id);
-
-  if (error) {
-    console.error("Unable to delete lecture comment:", error);
-
-    toast({
-      title: "Unable to delete comment",
-      description: error.message,
-      variant: "destructive",
-    });
-
-    return;
-  }
-
-  await loadComments();
-};
+  };
 
   if (loading) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-background">
         <div className="flex items-center gap-3 text-muted-foreground">
           <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Loading lecture...</span>
+          <span>{t("scholars.lectureViewer.loading")}</span>
         </div>
       </main>
     );
@@ -797,11 +1401,13 @@ const handleDeleteComment = async (commentId: string) => {
             <BookOpen className="mb-4 h-12 w-12 text-muted-foreground" />
 
             <h1 className="text-xl font-semibold">
-              Lecture unavailable
+              {t("scholars.lectureViewer.unavailable")}
             </h1>
 
             <p className="mt-2 text-sm text-muted-foreground">
-              This lecture may be unavailable, removed, or awaiting approval.
+              {t(
+                "scholars.lectureViewer.unavailableDescription"
+              )}
             </p>
 
             <Button
@@ -809,11 +1415,13 @@ const handleDeleteComment = async (commentId: string) => {
               className="mt-6"
               onClick={() =>
                 navigate(
-                  scholarId ? `/scholars/${scholarId}` : "/scholars"
+                  scholarId
+                    ? `/scholars/${scholarId}`
+                    : "/scholars"
                 )
               }
             >
-              Return to Scholar
+              {t("scholars.lectureViewer.returnToScholar")}
             </Button>
           </CardContent>
         </Card>
@@ -822,489 +1430,1062 @@ const handleDeleteComment = async (commentId: string) => {
   }
 
   return (
-    <main className="min-h-screen bg-background">
-      <div className="mx-auto max-w-6xl space-y-6 px-4 py-6 pb-24 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between gap-3">
+    <main
+      className="min-h-screen scroll-smooth bg-background pb-24"
+      onTouchStart={(event) => {
+        if (commentsOpen) {
+          return;
+        }
+
+        const touch = event.touches[0];
+
+        swipeStartXRef.current = touch.clientX;
+        swipeStartYRef.current = touch.clientY;
+      }}
+      onTouchEndCapture={(event) => {
+        if (
+          swipeStartXRef.current === null ||
+          swipeStartYRef.current === null ||
+          commentsOpen
+        ) {
+          swipeStartXRef.current = null;
+          swipeStartYRef.current = null;
+          return;
+        }
+
+        const touch = event.changedTouches[0];
+        const horizontalDistance =
+          touch.clientX - swipeStartXRef.current;
+        const verticalDistance =
+          touch.clientY - swipeStartYRef.current;
+
+        swipeStartXRef.current = null;
+        swipeStartYRef.current = null;
+
+        const isVerticalSwipe =
+          Math.abs(verticalDistance) >= 80 &&
+          Math.abs(verticalDistance) >
+            Math.abs(horizontalDistance) * 1.25;
+
+        if (!isVerticalSwipe) {
+          return;
+        }
+
+        if (verticalDistance < 0) {
+          navigateToQueuedLecture("next");
+        } else {
+          navigateToQueuedLecture("previous");
+        }
+      }}
+    >
+      <div className="mx-auto w-full max-w-5xl px-0 sm:px-4">
+        <header className="sticky top-0 z-50 flex items-center justify-between gap-3 border-b bg-background/95 px-3 py-2 shadow-sm backdrop-blur sm:px-3 sm:py-3">
           <Button
             type="button"
             variant="ghost"
-            onClick={() => navigate(`/scholars/${lecture.scholar_id}`)}
+            size="sm"
+            onClick={() => {
+              if (window.history.length > 1) {
+                navigate(-1);
+                return;
+              }
+
+              navigate("/scholar/lectures");
+            }}
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
+            {t("scholars.lectureViewer.back")}
           </Button>
 
           <Button
             type="button"
-            variant={isSaved ? "default" : "outline"}
+            variant="ghost"
+            size="sm"
             onClick={() => void handleSave()}
             disabled={saving}
+            className={isSaved ? "text-primary" : ""}
           >
             <Bookmark
               className={`mr-2 h-4 w-4 ${
                 isSaved ? "fill-current" : ""
               }`}
             />
-
-            {isSaved ? "Saved" : "Save"}
+            {isSaved
+              ? t("scholars.lectureViewer.saved")
+              : t("scholars.lectureViewer.save")}
           </Button>
+        </header>
 
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => void handleShare()}
-          >
-            <Share2 className="mr-2 h-4 w-4" />
-            Share
-          </Button>
-        </div>
-<div className="overflow-hidden rounded-2xl border bg-black shadow-sm">
-  <video
-  ref={videoRef}
-    key={lecture.id}
-    src={lecture.video_url}
-    poster={lecture.thumbnail_url ?? undefined}
-    controls
-    playsInline
-    preload="metadata"
-    onLoadedMetadata={(event) => {
-      void restoreLectureProgress(event.currentTarget);
-    }}
+        {scholar && (
+          <div className="sticky top-0 z-30 border-y bg-background/95 px-4 py-3 shadow-sm backdrop-blur sm:rounded-xl sm:border">
+            <button
+              type="button"
+              className="flex w-full items-center gap-3 text-left"
+              onClick={() => navigate(`/scholars/${scholar.id}`)}
+            >
+              <Avatar className="h-11 w-11 shrink-0">
+                <AvatarImage
+                  src={scholarAvatarUrl ?? undefined}
+                  alt={scholar.display_name}
+                  className="object-cover"
+                />
+                <AvatarFallback>{scholarInitials}</AvatarFallback>
+              </Avatar>
 
-    onTimeUpdate={(event) => {
-      const video = event.currentTarget;
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  <p className="truncate font-semibold">
+                    {scholar.display_name}
+                  </p>
+                  <BadgeCheck className="h-4 w-4 shrink-0 text-primary" />
+                </div>
 
-      if (!user?.id || !Number.isFinite(video.duration)) {
-        return;
-      }
+                {(scholar.city || scholar.country) && (
+                  <p className="mt-0.5 flex items-center gap-1 truncate text-xs text-muted-foreground">
+                    <MapPin className="h-3.5 w-3.5 shrink-0" />
+                    {[scholar.city, scholar.country]
+                      .filter(Boolean)
+                      .join(", ")}
+                  </p>
+                )}
+              </div>
 
-      if (
-        video.currentTime - lastProgressSaveRef.current >= 10
-      ) {
-        lastProgressSaveRef.current = video.currentTime;
-
-        void saveLectureProgress(
-          video.currentTime,
-          video.duration,
-          false
-        );
-      }
-    }}
-    onPlay={() => {
-      if (viewRecorded || viewTimerRef.current) {
-        return;
-      }
-
-      viewTimerRef.current = setTimeout(() => {
-        void recordLectureView();
-        viewTimerRef.current = null;
-      }, 3000);
-    }}
-onPause={(event) => {
-  if (viewTimerRef.current) {
-    clearTimeout(viewTimerRef.current);
-    viewTimerRef.current = null;
-  }
-
-  const video = event.currentTarget;
-
-  if (video.currentTime > 0 && video.currentTime < video.duration) {
-    void saveLectureProgress(
-      video.currentTime,
-      video.duration,
-      false
-    );
-  }
-}}
-   onEnded={(event) => {
-     if (viewTimerRef.current) {
-       clearTimeout(viewTimerRef.current);
-       viewTimerRef.current = null;
-     }
-
-     void saveLectureProgress(
-       event.currentTarget.duration,
-       event.currentTarget.duration,
-       true
-     );
-   }}
-    className="aspect-video w-full bg-black object-contain"
-  >
-    Your browser does not support video playback.
-  </video>
-</div>
-
-<div className="flex flex-wrap items-center gap-3">
-  <Button
-    type="button"
-    variant={isLiked ? "default" : "outline"}
-    onClick={() => void handleLike()}
-    disabled={liking}
-  >
-    <Heart
-      className={`mr-2 h-4 w-4 ${
-        isLiked ? "fill-current" : ""
-      }`}
-    />
-
-    {likeCount.toLocaleString()}{" "}
-    {likeCount === 1 ? "Like" : "Likes"}
-  </Button>
-
-  <Button
-    type="button"
-    variant="outline"
-    onClick={() =>
-      commentsSectionRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      })
-    }
-  >
-    <MessageCircle className="mr-2 h-4 w-4" />
-
-    {commentCount.toLocaleString()}{" "}
-    {commentCount === 1 ? "Comment" : "Comments"}
-  </Button>
-
-  <Button
-    type="button"
-    variant="outline"
-    onClick={() => void handleShare()}
-  >
-    <Share2 className="mr-2 h-4 w-4" />
-    Share
-  </Button>
-</div>
-
-<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-  <section className="space-y-6">
-    <Card>
-      <CardContent className="space-y-5 p-5 sm:p-6">
-        <div>
-          <h1 className="text-2xl font-bold sm:text-3xl">
-            {lecture.title}
-          </h1>
-
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            {lecture.category && (
-              <Badge variant="secondary">
-                {lecture.category}
-              </Badge>
-            )}
-
-            {lecture.language && (
-              <Badge variant="outline">
-                {lecture.language}
-              </Badge>
-            )}
-
-            <span className="text-sm text-muted-foreground">
-              {viewCount.toLocaleString()}{" "}
-              {viewCount === 1 ? "view" : "views"}
-            </span>
-
-            <span className="flex items-center gap-1 text-sm text-muted-foreground">
-              <CalendarDays className="h-4 w-4" />
-              {formatDate(lecture.created_at)}
-            </span>
+              <span className="shrink-0 text-xs font-medium text-primary sm:text-sm">
+                {t("scholars.lectureViewer.viewProfile")}
+              </span>
+            </button>
           </div>
-        </div>
-
-        {lecture.description ? (
-          <p className="whitespace-pre-wrap text-sm leading-7 text-muted-foreground sm:text-base">
-            {lecture.description}
-          </p>
-        ) : (
-          <p className="text-sm text-muted-foreground">
-            No description was provided for this lecture.
-          </p>
         )}
-      </CardContent>
-    </Card>
 
-    <div ref={commentsSectionRef} className="scroll-mt-24">
-      <Card>
-        <CardContent className="space-y-5 p-5 sm:p-6">
+    <section
+          className="relative bg-black sm:mt-2 sm:overflow-hidden sm:rounded-xl"
+          style={{ touchAction: "pan-x" }}
+          onTouchStartCapture={(event) => {
+            const touch = event.touches[0];
+
+            swipeStartXRef.current = touch.clientX;
+            swipeStartYRef.current = touch.clientY;
+          }}
+          onTouchEndCapture={(event) => {
+            if (
+              swipeStartXRef.current === null ||
+              swipeStartYRef.current === null ||
+              commentsOpen
+            ) {
+              swipeStartXRef.current = null;
+              swipeStartYRef.current = null;
+              return;
+            }
+
+            const touch = event.changedTouches[0];
+            const horizontalDistance =
+              touch.clientX - swipeStartXRef.current;
+            const verticalDistance =
+              touch.clientY - swipeStartYRef.current;
+
+            swipeStartXRef.current = null;
+            swipeStartYRef.current = null;
+
+            const isVerticalSwipe =
+              Math.abs(verticalDistance) >= 60 &&
+              Math.abs(verticalDistance) >
+                Math.abs(horizontalDistance) * 1.2;
+
+            if (!isVerticalSwipe) {
+              return;
+            }
+
+            event.preventDefault();
+
+            if (verticalDistance < 0) {
+              navigateToQueuedLecture("next");
+            } else {
+              navigateToQueuedLecture("previous");
+            }
+          }}
+        >
+          {showNextVideoNotice && relatedLectures[0] && (
+            <div className="pointer-events-none absolute left-1/2 top-3 z-20 w-[calc(100%-24px)] max-w-md -translate-x-1/2 rounded-xl border border-white/15 bg-black/75 px-4 py-2.5 text-center text-white shadow-xl backdrop-blur-md">
+              <p className="text-sm font-semibold">
+                {t("scholars.lectureViewer.nextVideoComing")}
+              </p>
+
+            </div>
+          )}
+
+          <video
+            ref={videoRef}
+            key={lecture.id}
+            src={lecture.video_url}
+            poster={lecture.thumbnail_url ?? undefined}
+            controls={false}
+            playsInline
+            preload="metadata"
+            disablePictureInPicture
+            controlsList="nodownload noplaybackrate nofullscreen"
+            onClick={(event) => {
+              const video = event.currentTarget;
+
+              if (video.paused) {
+                void video.play().catch((error) => {
+                  console.error(
+                    "Unable to play lecture:",
+                    error
+                  );
+                });
+              } else {
+                video.pause();
+              }
+            }}
+            onLoadedMetadata={(event) => {
+              const video = event.currentTarget;
+
+              setIsPortraitVideo(
+                video.videoHeight > video.videoWidth
+              );
+
+              void restoreLectureProgress(video);
+
+              const shouldAutoplay =
+                sessionStorage.getItem(
+                  "scholar_lecture_autoplay"
+                ) === "true";
+
+              if (shouldAutoplay) {
+                sessionStorage.removeItem(
+                  "scholar_lecture_autoplay"
+                );
+
+                window.setTimeout(() => {
+                  void video.play().catch((playError) => {
+                    console.error(
+                      "Unable to autoplay next lecture:",
+                      playError
+                    );
+                  });
+                }, 150);
+              }
+            }}
+            onSeeking={(event) => {
+              const audio =
+                translatedAudioRef.current;
+
+              if (selectedReadyAudio && audio) {
+                audio.currentTime =
+                  event.currentTarget.currentTime;
+              }
+            }}
+            onRateChange={(event) => {
+              const audio =
+                translatedAudioRef.current;
+
+              if (selectedReadyAudio && audio) {
+                audio.playbackRate =
+                  event.currentTarget.playbackRate;
+              }
+            }}
+            onTimeUpdate={(event) => {
+              const video = event.currentTarget;
+
+                setCurrentVideoTime(video.currentTime);
+
+              const translatedAudio =
+                translatedAudioRef.current;
+
+              if (
+                selectedReadyAudio &&
+                translatedAudio &&
+                Math.abs(
+                  translatedAudio.currentTime -
+                    video.currentTime
+                ) > 0.4
+              ) {
+                translatedAudio.currentTime =
+                  video.currentTime;
+              }
+
+              if (Number.isFinite(video.duration)) {
+                const secondsRemaining =
+                  video.duration - video.currentTime;
+
+                setShowNextVideoNotice(
+                  relatedLectures.length > 0 &&
+                    secondsRemaining > 0 &&
+                    secondsRemaining <= 5
+                );
+              }
+
+              if (!user?.id || !Number.isFinite(video.duration)) {
+                return;
+              }
+
+              if (
+                video.currentTime - lastProgressSaveRef.current >=
+                10
+              ) {
+                lastProgressSaveRef.current = video.currentTime;
+
+                void saveLectureProgress(
+                  video.currentTime,
+                  video.duration,
+                  false
+                );
+              }
+            }}
+            onPlay={() => {
+              const video = videoRef.current;
+              const audio =
+                translatedAudioRef.current;
+
+              if (
+                selectedReadyAudio &&
+                video &&
+                audio
+              ) {
+                audio.currentTime = video.currentTime;
+                audio.playbackRate = video.playbackRate;
+
+                void audio.play().catch((error) => {
+                  console.error(
+                    "Unable to resume translated audio:",
+                    error
+                  );
+                  setSelectedAudioLanguage(
+                    "original"
+                  );
+                });
+              }
+
+              if (viewRecorded || viewTimerRef.current) {
+                return;
+              }
+
+              viewTimerRef.current = setTimeout(() => {
+                void recordLectureView();
+                viewTimerRef.current = null;
+              }, 3000);
+            }}
+            onPause={(event) => {
+              translatedAudioRef.current?.pause();
+              setShowNextVideoNotice(false);
+
+              if (viewTimerRef.current) {
+                clearTimeout(viewTimerRef.current);
+                viewTimerRef.current = null;
+              }
+
+              const video = event.currentTarget;
+
+              if (
+                video.currentTime > 0 &&
+                video.currentTime < video.duration
+              ) {
+                void saveLectureProgress(
+                  video.currentTime,
+                  video.duration,
+                  false
+                );
+              }
+            }}
+            onEnded={(event) => {
+              translatedAudioRef.current?.pause();
+              setShowNextVideoNotice(false);
+
+              if (viewTimerRef.current) {
+                clearTimeout(viewTimerRef.current);
+                viewTimerRef.current = null;
+              }
+
+              void saveLectureProgress(
+                event.currentTarget.duration,
+                event.currentTarget.duration,
+                true
+              );
+
+              if (
+                !lecture ||
+                relatedLectures.length === 0
+              ) {
+                return;
+              }
+
+              const nextLecture = relatedLectures[0];
+
+              const currentQueueIds = [
+                lecture.id,
+                ...relatedLectures.map(
+                  (relatedLecture) =>
+                    relatedLecture.id
+                ),
+              ];
+
+              const rotatedQueueIds = [
+                ...currentQueueIds.slice(1),
+                currentQueueIds[0],
+              ];
+
+              const lectureQueueKey =
+                `scholar_lecture_queue_${lecture.scholar_id}`;
+
+              sessionStorage.setItem(
+                lectureQueueKey,
+                JSON.stringify(rotatedQueueIds)
+              );
+
+              sessionStorage.setItem(
+                "scholar_lecture_autoplay",
+                "true"
+              );
+
+              navigate(
+                `/scholars/${nextLecture.scholar_id}/lectures/${nextLecture.id}`
+              );
+
+              window.setTimeout(() => {
+                window.scrollTo({
+                  top: 0,
+                  behavior: "smooth",
+                });
+              }, 50);
+            }}
+            className={
+              isPortraitVideo
+                ? "h-[68vh] min-h-[520px] max-h-[820px] w-full bg-black object-contain"
+                : "aspect-video w-full bg-black object-contain"
+            }
+          >
+            {t("scholars.lectureViewer.videoUnsupported")}
+          </video>
+
+          <audio
+            ref={translatedAudioRef}
+            preload="metadata"
+            className="hidden"
+            onError={() => {
+              if (
+                selectedAudioLanguage !== "original"
+              ) {
+                setSelectedAudioLanguage("original");
+
+                toast({
+                  title: t(
+                    "scholars.lectureViewer.audioPlaybackError",
+                    {
+                      defaultValue:
+                        "Translated audio unavailable",
+                    }
+                  ),
+                  description: t(
+                    "scholars.lectureViewer.audioPlaybackErrorDescription",
+                    {
+                      defaultValue:
+                        "The original lecture audio has been restored.",
+                    }
+                  ),
+                  variant: "destructive",
+                });
+              }
+            }}
+          />
+
+          {audioTranslations.length > 0 && (
+            <div className="absolute left-3 top-3 z-30 max-w-[calc(100%-6rem)] rounded-xl border border-white/15 bg-black/75 p-2 text-white shadow-xl backdrop-blur-md">
+              <div className="flex items-center gap-2">
+                <Volume2 className="h-4 w-4 shrink-0" />
+
+                <label
+                  htmlFor="lecture-audio-language"
+                  className="sr-only"
+                >
+                  Audio language
+                </label>
+
+                <select
+                  id="lecture-audio-language"
+                  value={selectedAudioLanguage}
+                  onChange={(event) =>
+                    setSelectedAudioLanguage(
+                      event.target.value
+                    )
+                  }
+                  onClick={(event) =>
+                    event.stopPropagation()
+                  }
+                  className="min-w-0 flex-1 rounded-lg border border-white/15 bg-black/70 px-2 py-1.5 text-xs font-semibold text-white"
+                >
+                  <option value="original">
+                    Original Audio
+                  </option>
+
+                  {audioTranslations.map((track) => (
+                    <option
+                      key={track.id}
+                      value={track.language_code}
+                      disabled={
+                        track.status !== "ready" ||
+                        !track.audio_url
+                      }
+                    >
+                      {track.language_name}
+                      {track.status === "ready"
+                        ? ""
+                        : ` (${track.status})`}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {audioTranslations.some(
+                (track) =>
+                  track.status === "queued" ||
+                  track.status === "processing"
+              ) && (
+                <p className="mt-1 px-1 text-[10px] text-white/60">
+                  Some translated audio is still being
+                  prepared.
+                </p>
+              )}
+            </div>
+          )}
+
+          {hasCaptionChoices && (
+            <div
+              className="absolute bottom-32 left-4 right-20 z-30 max-w-xl"
+              style={{
+                transform: `translate(
+                  ${captionPosition.x}px,
+                  ${captionPosition.y}px
+                )`,
+              }}
+            >
+              <div className="overflow-hidden rounded-xl border border-white/20 bg-black/80 text-white shadow-xl backdrop-blur-md">
+                <div className="flex items-center gap-2 border-b border-white/10 p-2">
+                  <button
+                    type="button"
+                    onPointerDown={
+                      handleCaptionPointerDown
+                    }
+                    onPointerMove={
+                      handleCaptionPointerMove
+                    }
+                    onPointerUp={handleCaptionPointerUp}
+                    onPointerCancel={
+                      handleCaptionPointerUp
+                    }
+                    className="touch-none cursor-grab rounded-md p-1 text-white/70 hover:bg-white/10 active:cursor-grabbing"
+                    aria-label={t(
+                      "scholars.lectureViewer.moveCaptions",
+                      {
+                        defaultValue: "Move captions",
+                      }
+                    )}
+                  >
+                    <GripVertical className="h-5 w-5" />
+                  </button>
+
+                  <label
+                    htmlFor="lecture-caption-language"
+                    className="sr-only"
+                  >
+                    {t(
+                      "scholars.lectureViewer.captionLanguage",
+                      {
+                        defaultValue: "Caption language",
+                      }
+                    )}
+                  </label>
+
+                  <select
+                    id="lecture-caption-language"
+                    value={selectedCaptionLanguage}
+                    onChange={(event) => {
+                      setSelectedCaptionLanguage(
+                        event.target.value
+                      );
+                    }}
+                    onClick={(event) =>
+                      event.stopPropagation()
+                    }
+                    className="min-w-0 flex-1 rounded-full border border-white/20 bg-black/70 px-3 py-1.5 text-xs font-semibold text-white"
+                    aria-label={t(
+                      "scholars.lectureViewer.captionLanguage",
+                      {
+                        defaultValue: "Caption language",
+                      }
+                    )}
+                  >
+                    <option value="off">
+                      {t(
+                        "scholars.lectureViewer.captionsOff",
+                        {
+                          defaultValue: "Captions Off",
+                        }
+                      )}
+                    </option>
+
+                    {originalCaptionSegments.length > 0 && (
+                      <option value="original">
+                        {t(
+                          "scholars.lectureViewer.originalCaptions",
+                          {
+                            defaultValue: "Original",
+                          }
+                        )}
+                      </option>
+                    )}
+
+                    {captionTranslations.map(
+                      (translation) => (
+                        <option
+                          key={
+                            translation.language_code
+                          }
+                          value={
+                            translation.language_code
+                          }
+                        >
+                          {translation.language_name}
+                        </option>
+                      )
+                    )}
+                  </select>
+
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+
+                      setCaptionCollapsed(
+                        (current) => !current
+                      );
+                    }}
+                    className="rounded-md p-1 text-white/80 hover:bg-white/10"
+                    aria-label={
+                      captionCollapsed
+                        ? t(
+                            "scholars.lectureViewer.expandCaptions",
+                            {
+                              defaultValue:
+                                "Expand captions",
+                            }
+                          )
+                        : t(
+                            "scholars.lectureViewer.collapseCaptions",
+                            {
+                              defaultValue:
+                                "Collapse captions",
+                            }
+                          )
+                    }
+                  >
+                    {captionCollapsed ? (
+                      <ChevronUp className="h-5 w-5" />
+                    ) : (
+                      <ChevronDown className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
+
+                {!captionCollapsed &&
+                  selectedCaptionLanguage !== "off" && (
+                    <div
+                      dir={
+                        selectedCaptionLanguage === "ar" ||
+                        selectedCaptionLanguage === "ur"
+                          ? "rtl"
+                          : "auto"
+                      }
+                      className="max-h-32 overflow-y-auto px-3 py-2 text-center text-sm font-medium leading-relaxed sm:text-base"
+                    >
+                      {activeCaption || (
+                        <span className="text-white/50">
+                          {t(
+                            "scholars.lectureViewer.captionsWillAppear",
+                            {
+                              defaultValue:
+                                "Captions will appear here",
+                            }
+                          )}
+                        </span>
+                      )}
+                    </div>
+                  )}
+              </div>
+            </div>
+          )}
+
+        <div className="absolute right-2 top-1/2 z-10 flex -translate-y-1/2 flex-col gap-3 sm:right-4">
+            <button
+              type="button"
+              onClick={() => void handleLike()}
+              disabled={liking}
+              className={`flex h-14 min-w-14 flex-col items-center justify-center rounded-full border border-white/10 bg-black/65 px-2 text-white shadow-xl backdrop-blur-md transition duration-200 hover:scale-105 hover:bg-black/80 active:scale-95 ${
+                isLiked ? "text-primary" : ""
+              }`}
+              aria-label={t("scholars.lectureViewer.like", {
+                count: likeCount,
+              })}
+            >
+              <Heart
+                className={`h-6 w-6 ${
+                  isLiked ? "fill-current" : ""
+                }`}
+              />
+              <span className="mt-1 text-xs font-bold leading-none">
+                {likeCount}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleOpenComments}
+              className="flex h-14 min-w-14 flex-col items-center justify-center rounded-full border border-white/10 bg-black/65 px-2 text-white shadow-xl backdrop-blur-md transition duration-200 hover:scale-105 hover:bg-black/80 active:scale-95"
+              aria-label={t("scholars.lectureViewer.comment", {
+                count: commentCount,
+              })}
+            >
+              <MessageCircle className="h-6 w-6" />
+              <span className="mt-1 text-xs font-bold leading-none">
+                {commentCount}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => void handleShare()}
+              className="flex h-14 min-w-14 items-center justify-center rounded-full border border-white/10 bg-black/65 text-white shadow-xl backdrop-blur-md transition duration-200 hover:scale-105 hover:bg-black/80 active:scale-95"
+              aria-label={t("scholars.lectureViewer.share")}
+            >
+              <Share2 className="h-6 w-6" />
+            </button>
+          </div>
+        </section>
+
+        <section className="space-y-2 px-4 pb-0 pt-3 sm:px-1">
           <div>
-            <h2 className="flex items-center gap-2 text-lg font-semibold">
-              <MessageCircle className="h-5 w-5" />
-              Comments
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+              {lecture.category && (
+                <Badge variant="secondary">
+                  {lecture.category}
+                </Badge>
+              )}
+
+              {lecture.language && (
+                <Badge variant="outline">
+                  {lecture.language}
+                </Badge>
+              )}
+
+              <span className="text-xs text-muted-foreground sm:text-sm">
+                {t("scholars.lectureViewer.view", {
+                  count: viewCount,
+                })}
+              </span>
+
+            </div>
+          </div>
+
+          {lecture.description ? (
+            <p className="whitespace-pre-wrap text-sm leading-6 text-muted-foreground">
+              {lecture.description}
+            </p>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              {t("scholars.lectureViewer.noDescription")}
+            </p>
+          )}
+
+        </section>
+
+        <section className="px-4 pt-1 sm:px-1">
+          <div className="mb-4 border-t pt-4">
+            <h2 className="text-lg font-bold">
+              {t("scholars.lectureViewer.moreFromScholar")}
             </h2>
 
-            <p className="text-sm text-muted-foreground">
-              {commentCount.toLocaleString()}{" "}
-              {commentCount === 1 ? "comment" : "comments"}
+            <p className="mt-0.5 text-sm text-muted-foreground">
+              {t("scholars.lectureViewer.continueLearning")}
             </p>
           </div>
 
-          <div className="flex gap-2">
-            <textarea
-              value={newComment}
-              onChange={(event) =>
-                setNewComment(event.target.value)
-              }
-              placeholder={
-                user?.id
-                  ? "Write a comment..."
-                  : "Sign in to comment"
-              }
-              disabled={!user?.id || submittingComment}
-              maxLength={1000}
-              rows={3}
-              className="min-h-[88px] flex-1 resize-none rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
-            />
-
-            <Button
-              type="button"
-              size="icon"
-              onClick={() => void handleCommentSubmit()}
-              disabled={
-                !user?.id ||
-                !newComment.trim() ||
-                submittingComment
-              }
-              aria-label="Post comment"
-            >
-              <Send className="h-4 w-4" />
-            </Button>
-          </div>
-
-          {commentsLoading ? (
-            <div className="flex items-center justify-center py-8 text-muted-foreground">
-              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-              Loading comments...
-            </div>
-          ) : comments.length === 0 ? (
+          {relatedLectures.length === 0 ? (
             <div className="rounded-lg border border-dashed py-8 text-center">
-              <MessageCircle className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
+              <BookOpen className="mx-auto mb-2 h-9 w-9 text-muted-foreground" />
 
               <p className="text-sm text-muted-foreground">
-                No comments yet. Start the discussion.
+                {t("scholars.lectureViewer.noOtherLectures")}
               </p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {comments.map((comment) => {
-                const commenterName =
-                  comment.profiles?.full_name ||
-                  comment.profiles?.username ||
-                  "Tariq Islam Member";
-
-                const commenterInitials = commenterName
-                  .split(/\s+/)
-                  .filter(Boolean)
-                  .slice(0, 2)
-                  .map((part) => part[0]?.toUpperCase())
-                  .join("");
-
-                return (
-                  <div
-                    key={comment.id}
-                    className="flex items-start gap-3 rounded-lg border p-3"
-                  >
-                    <Avatar className="h-9 w-9 shrink-0">
-                      <AvatarImage
-                        src={
-                          comment.profiles?.avatar_url ??
-                          undefined
-                        }
-                        alt={commenterName}
-                      />
-
-                      <AvatarFallback>
-                        {commenterInitials || "T"}
-                      </AvatarFallback>
-                    </Avatar>
-
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <p className="text-sm font-semibold">
-                            {commenterName}
-                          </p>
-
-                          {comment.profiles?.username && (
-                            <p className="text-xs text-muted-foreground">
-                              @{comment.profiles.username}
-                            </p>
-                          )}
-                        </div>
-
-                        {comment.user_id === user?.id && (
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-destructive"
-                            onClick={() =>
-                              void handleDeleteComment(
-                                comment.id
-                              )
+            <div className="space-y-7">
+              {relatedLectures.map((relatedLecture) => (
+                <article
+                  key={relatedLecture.id}
+                  className="overflow-hidden border-b border-border/80 pb-7 pt-3 first:pt-0 last:border-b-0 last:pb-0"
+                >
+                  <div className="overflow-hidden rounded-xl border bg-black shadow-sm">
+                    <video
+                      src={relatedLecture.video_url}
+                      poster={relatedLecture.thumbnail_url ?? undefined}
+                      controls={false}
+                      playsInline
+                      preload="metadata"
+                      onPlay={(event) => {
+                        document
+                          .querySelectorAll<HTMLVideoElement>("video")
+                          .forEach((video) => {
+                            if (video !== event.currentTarget) {
+                              video.pause();
                             }
-                            aria-label="Delete comment"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
-
-                      <p className="mt-2 whitespace-pre-wrap break-words text-sm">
-                        {comment.content}
-                      </p>
-
-                      <p className="mt-2 text-xs text-muted-foreground">
-                        {formatDate(comment.created_at)}
-                      </p>
-                    </div>
+                          });
+                      }}
+                      className="aspect-video w-full bg-black object-contain"
+                    >
+                      {t("scholars.lectureViewer.videoUnsupported")}
+                    </video>
                   </div>
-                );
-              })}
+
+                  <button
+                    type="button"
+                    className="block w-full px-1 pt-3 text-left"
+                    onClick={() => {
+                      navigate(
+                        `/scholars/${relatedLecture.scholar_id}/lectures/${relatedLecture.id}`
+                      );
+
+                      window.setTimeout(() => {
+                        window.scrollTo({
+                          top: 0,
+                          behavior: "smooth",
+                        });
+                      }, 50);
+                    }}
+                  >
+                    <h3 className="text-lg font-bold leading-snug">
+                      {relatedLecture.title}
+                    </h3>
+
+                    <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1.5">
+                      {relatedLecture.category && (
+                        <Badge variant="secondary">
+                          {relatedLecture.category}
+                        </Badge>
+                      )}
+
+                      {relatedLecture.language && (
+                        <Badge variant="outline">
+                          {relatedLecture.language}
+                        </Badge>
+                      )}
+
+                    </div>
+
+                    {relatedLecture.description && (
+                      <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">
+                        {relatedLecture.description}
+                      </p>
+                    )}
+                  </button>
+                </article>
+              ))}
             </div>
           )}
-        </CardContent>
-      </Card>
-    </div>
+        </section>
+      </div>
 
-    {scholar && (
-      <Card>
-        <CardContent className="p-5 sm:p-6">
-          <button
-            type="button"
-            className="flex w-full items-start gap-4 text-left"
-            onClick={() =>
-              navigate(`/scholars/${scholar.id}`)
-            }
+       {commentsOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/45 px-0 sm:items-center sm:px-4"
+          onPointerDown={() => setCommentsOpen(false)}
+          role="presentation"
+        >
+          <section
+            className="max-h-[55dvh] w-full max-w-2xl overflow-hidden rounded-t-2xl bg-background shadow-2xl sm:rounded-2xl"
+            onPointerDown={(event) => event.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-label={t("scholars.lectureViewer.comments")}
           >
-      <Avatar className="h-16 w-16 shrink-0">
-        <AvatarImage
-          src={scholarAvatarUrl ?? undefined}
-          alt={scholar.display_name}
-          className="object-cover"
-        />
-
-        <AvatarFallback>
-          {scholarInitials}
-        </AvatarFallback>
-      </Avatar>
-
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <h2 className="font-semibold">
-                  {scholar.display_name}
+            <div className="flex items-center justify-between border-b px-4 py-3">
+              <div>
+                <h2 className="flex items-center gap-2 font-semibold">
+                  <MessageCircle className="h-5 w-5" />
+                  {t("scholars.lectureViewer.comments")}
                 </h2>
-
-                <BadgeCheck className="h-5 w-5 text-primary" />
+                <p className="text-xs text-muted-foreground">
+                  {t("scholars.lectureViewer.commentCount", {
+                    count: commentCount,
+                  })}
+                </p>
               </div>
 
-              {(scholar.city || scholar.country) && (
-                <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
-                  <MapPin className="h-4 w-4 shrink-0" />
-
-                  {[scholar.city, scholar.country]
-                    .filter(Boolean)
-                    .join(", ")}
-                </p>
-              )}
-
-              {scholar.biography && (
-                <p className="mt-3 line-clamp-3 text-sm text-muted-foreground">
-                  {scholar.biography}
-                </p>
-              )}
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => setCommentsOpen(false)}
+                aria-label="Close comments"
+              >
+                <X className="h-5 w-5" />
+              </Button>
             </div>
-          </button>
-        </CardContent>
-      </Card>
-    )}
-  </section>
 
-          <aside>
-            <Card>
-              <CardContent className="space-y-4 p-4">
-                <div>
-                  <h2 className="font-semibold">
-                    More from this Scholar
-                  </h2>
-
+          <div className="max-h-[28dvh] overflow-y-auto px-4 py-2">
+              {commentsLoading ? (
+                <div className="flex items-center justify-center py-10 text-muted-foreground">
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  {t(
+                    "scholars.lectureViewer.loadingComments"
+                  )}
+                </div>
+              ) : comments.length === 0 ? (
+                <div className="py-10 text-center">
+                  <MessageCircle className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
                   <p className="text-sm text-muted-foreground">
-                    Continue learning from this scholar.
+                    {t("scholars.lectureViewer.noComments")}
                   </p>
                 </div>
+              ) : (
+                <div className="space-y-3">
+                  {comments.map((comment) => {
+                    const commenterName =
+                      comment.profiles?.full_name ||
+                      comment.profiles?.username ||
+                      t(
+                        "scholars.lectureViewer.memberFallback"
+                      );
 
-                {relatedLectures.length === 0 ? (
-                  <div className="rounded-lg border border-dashed py-8 text-center">
-                    <BookOpen className="mx-auto mb-2 h-9 w-9 text-muted-foreground" />
+                    const commenterInitials = commenterName
+                      .split(/\s+/)
+                      .filter(Boolean)
+                      .slice(0, 2)
+                      .map((part) => part[0]?.toUpperCase())
+                      .join("");
 
-                    <p className="text-sm text-muted-foreground">
-                      No other approved lectures yet.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {relatedLectures.map((relatedLecture) => (
-                      <button
-                        key={relatedLecture.id}
-                        type="button"
-                        className="w-full overflow-hidden rounded-xl border text-left transition hover:bg-muted/50"
-                        onClick={() =>
-                          navigate(
-                            `/scholars/${relatedLecture.scholar_id}/lectures/${relatedLecture.id}`
-                          )
-                        }
+                    return (
+                      <div
+                        key={comment.id}
+                        className="flex items-start gap-3"
                       >
-                        <div className="relative aspect-video bg-muted">
-                     {relatedLecture.thumbnail_url ? (
-                       <img
-                         src={relatedLecture.thumbnail_url}
-                         alt={relatedLecture.title}
-                         className="h-full w-full object-cover"
-                       />
-                     ) : (
-                       <video
-                         src={relatedLecture.video_url}
-                         preload="metadata"
-                         muted
-                         playsInline
-                         className="h-full w-full object-cover"
-                       />
-                     )}
+                        <Avatar className="h-9 w-9 shrink-0">
+                          <AvatarImage
+                            src={
+                              comment.profiles?.avatar_url ??
+                              undefined
+                            }
+                            alt={commenterName}
+                          />
+                          <AvatarFallback>
+                            {commenterInitials || "T"}
+                          </AvatarFallback>
+                        </Avatar>
 
-                     <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                       <div className="rounded-full bg-background/90 p-3 shadow">
-                         <Play className="h-6 w-6 fill-current" />
-                       </div>
-                     </div>
-                        </div>
+                        <div className="min-w-0 flex-1 rounded-xl bg-muted/60 px-3 py-2">
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <p className="text-sm font-semibold">
+                                {commenterName}
+                              </p>
 
-                        <div className="space-y-2 p-3">
-                          <p className="line-clamp-2 text-sm font-medium">
-                            {relatedLecture.title}
-                          </p>
+                              {comment.profiles?.username && (
+                                <p className="text-xs text-muted-foreground">
+                                  @{comment.profiles.username}
+                                </p>
+                              )}
+                            </div>
 
-                          <div className="flex flex-wrap gap-2">
-                            {relatedLecture.category && (
-                              <Badge variant="secondary">
-                                {relatedLecture.category}
-                              </Badge>
-                            )}
-
-                            {relatedLecture.language && (
-                              <Badge variant="outline">
-                                {relatedLecture.language}
-                              </Badge>
+                            {comment.user_id === user?.id && (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 shrink-0 text-destructive"
+                                onClick={() =>
+                                  void handleDeleteComment(
+                                    comment.id
+                                  )
+                                }
+                                aria-label={t(
+                                  "scholars.lectureViewer.deleteComment"
+                                )}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
                             )}
                           </div>
+
+                          <p className="mt-1 whitespace-pre-wrap break-words text-sm">
+                            {comment.content}
+                          </p>
+
+                          <p className="mt-1 text-[11px] text-muted-foreground">
+                            {formatDate(comment.created_at)}
+                          </p>
                         </div>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </aside>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div className="border-t bg-background p-3">
+              <div className="flex items-end gap-2">
+                <textarea
+                  ref={commentInputRef}
+                  value={newComment}
+                  onChange={(event) =>
+                    setNewComment(event.target.value)
+                  }
+                  onKeyDown={(event) => {
+                    if (
+                      event.key === "Enter" &&
+                      !event.shiftKey
+                    ) {
+                      event.preventDefault();
+                      void handleCommentSubmit();
+                    }
+                  }}
+                  placeholder={
+                    user?.id
+                      ? t(
+                          "scholars.lectureViewer.writeComment"
+                        )
+                      : t(
+                          "scholars.lectureViewer.signInToComment"
+                        )
+                  }
+                  disabled={!user?.id || submittingComment}
+                  maxLength={1000}
+              rows={1}
+              className="max-h-20 min-h-[42px] flex-1 resize-none rounded-xl border bg-background px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring"
+                />
+
+                <Button
+                  type="button"
+                  size="icon"
+                 className="h-[42px] w-[42px] shrink-0 rounded-xl"
+                  onClick={() => void handleCommentSubmit()}
+                  disabled={
+                    !user?.id ||
+                    !newComment.trim() ||
+                    submittingComment
+                  }
+                  aria-label={t(
+                    "scholars.lectureViewer.postComment"
+                  )}
+                >
+                  {submittingComment ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Send className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
+          </section>
         </div>
-      </div>
+      )}
     </main>
   );
 };

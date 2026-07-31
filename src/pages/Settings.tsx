@@ -52,6 +52,7 @@ const SUPPORTED_LANGS = [
   { code: "en" },
   { code: "fr" },
   { code: "ha" },
+  { code: "yo" },
   { code: "ar" },
 ] as const;
 
@@ -88,6 +89,7 @@ function normalizeToSupported(code: string): SupportedLang {
   const c = (code || "").toLowerCase();
   if (c.startsWith("fr")) return "fr";
   if (c.startsWith("ha")) return "ha";
+  if (c.startsWith("yo")) return "yo";
   if (c.startsWith("ar")) return "ar";
   return "en";
 }
@@ -175,7 +177,11 @@ const LanguageSection = () => {
         ? t("settings.language.french")
         : lang === "ha"
           ? t("settings.language.hausa")
-          : t("settings.language.arabic");
+          : lang === "yo"
+            ? t("settings.language.yoruba", {
+                defaultValue: "Yorùbá",
+              })
+            : t("settings.language.arabic");
 
   return (
     <div className="rounded-xl border bg-card">
@@ -215,7 +221,11 @@ const LanguageSection = () => {
                       ? t("settings.language.french")
                       : l.code === "ha"
                         ? t("settings.language.hausa")
-                        : t("settings.language.arabic");
+                        : l.code === "yo"
+                          ? t("settings.language.yoruba", {
+                              defaultValue: "Yorùbá",
+                            })
+                          : t("settings.language.arabic");
 
                 return (
                   <SelectItem key={l.code} value={l.code}>
@@ -1283,6 +1293,30 @@ const doSignOut = async () => {
             </div>
           )}
         </div>
+
+        {/* How to use Tariq Islam */}
+        <button
+          type="button"
+          onClick={() => {
+            window.dispatchEvent(
+              new CustomEvent("tariq:open-onboarding")
+            );
+          }}
+          className="w-full rounded-xl border p-4 text-left hover:bg-muted"
+        >
+          <div className="font-medium">
+            {t("settings.how_to_use_title", {
+              defaultValue: "How to Use Tariq Islam",
+            })}
+          </div>
+
+          <div className="mt-1 text-sm text-muted-foreground">
+            {t("settings.how_to_use_subtitle", {
+              defaultValue:
+                "Reopen the app guide and learn about Ibadah, Reflections, scholars, mosques, Tariq AI, and community features.",
+            })}
+          </div>
+        </button>
 
         {/* Language */}
         <LanguageSection />

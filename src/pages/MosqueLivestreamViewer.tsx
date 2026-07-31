@@ -1,9 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import {
+  ArrowLeft,
+  ExternalLink,
+  Languages,
+  Volume2,
+  X,
+} from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { openInAppLink } from "@/utils/openInAppLink";
 
 type MosqueLivestream = {
   id: string;
@@ -17,6 +24,28 @@ type MosqueLivestream = {
   created_at: string;
   updated_at: string;
 };
+
+const LIVESTREAM_TRANSLATION_LANGUAGES = [
+  { code: "en", label: "English", available: true },
+  { code: "ar", label: "Arabic", available: true },
+  { code: "fr", label: "French", available: true },
+  { code: "es", label: "Spanish", available: true },
+  { code: "de", label: "German", available: true },
+  { code: "pt", label: "Portuguese", available: true },
+  { code: "tr", label: "Turkish", available: true },
+  { code: "ur", label: "Urdu", available: true },
+  { code: "sw", label: "Swahili", available: true },
+  {
+    code: "yo",
+    label: "Yorùbá",
+    available: false,
+  },
+  {
+    code: "ha",
+    label: "Hausa",
+    available: false,
+  },
+] as const;
 
 const getYouTubeVideoId = (
   streamUrl: string
@@ -71,6 +100,12 @@ const MosqueLivestreamViewer = () => {
 
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
+
+  const [translationMenuOpen, setTranslationMenuOpen] =
+    useState(false);
+
+  const [selectedTranslationLanguage, setSelectedTranslationLanguage] =
+    useState("en");
 
   useEffect(() => {
     const loadLivestream = async () => {
@@ -184,7 +219,7 @@ const MosqueLivestreamViewer = () => {
 
       <section className="overflow-hidden rounded-2xl border bg-card">
         {youtubeEmbedUrl ? (
-          <div className="aspect-video w-full bg-black">
+          <div className="relative aspect-video w-full bg-black">
             <iframe
               src={youtubeEmbedUrl}
               title={livestream.title}
@@ -192,6 +227,102 @@ const MosqueLivestreamViewer = () => {
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
             />
+
+            <div className="absolute right-3 top-3 z-20">
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                className="rounded-full border border-white/20 bg-black/75 text-white shadow-xl backdrop-blur-md hover:bg-black/90 hover:text-white"
+                onClick={() =>
+                  setTranslationMenuOpen((current) => !current)
+                }
+              >
+                <Languages className="mr-2 h-4 w-4" />
+                Translate
+              </Button>
+            </div>
+
+            {translationMenuOpen && (
+              <div className="absolute inset-x-3 bottom-3 z-30 mx-auto max-w-sm rounded-2xl border border-white/15 bg-black/90 p-4 text-white shadow-2xl backdrop-blur-xl">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <Volume2 className="h-5 w-5" />
+
+                      <h2 className="font-semibold">
+                        Live Translation
+                      </h2>
+                    </div>
+
+                    <p className="mt-1 text-xs text-white/65">
+                      Choose the language you would like to hear.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="rounded-full p-1 text-white/70 hover:bg-white/10 hover:text-white"
+                    onClick={() =>
+                      setTranslationMenuOpen(false)
+                    }
+                    aria-label="Close translation menu"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+
+                <label
+                  htmlFor="livestream-translation-language"
+                  className="sr-only"
+                >
+                  Translation language
+                </label>
+
+                <select
+                  id="livestream-translation-language"
+                  value={selectedTranslationLanguage}
+                  onChange={(event) =>
+                    setSelectedTranslationLanguage(
+                      event.target.value
+                    )
+                  }
+                  className="mt-4 h-11 w-full rounded-xl border border-white/15 bg-white/10 px-3 text-sm text-white outline-none"
+                >
+                  {LIVESTREAM_TRANSLATION_LANGUAGES.map(
+                    (language) => (
+                      <option
+                        key={language.code}
+                        value={language.code}
+                        className="text-black"
+                      >
+                        {language.label}
+                        {language.available
+                          ? ""
+                          : " — coming soon"}
+                      </option>
+                    )
+                  )}
+                </select>
+
+                <div className="mt-3 rounded-xl border border-amber-300/20 bg-amber-400/10 p-3">
+                  <p className="text-xs leading-5 text-amber-100">
+                    This YouTube livestream cannot yet send its
+                    internal audio directly to Tariq Islam for
+                    translation. The language selector is ready for
+                    native Tariq Islam livestreams.
+                  </p>
+                </div>
+
+                {(selectedTranslationLanguage === "yo" ||
+                  selectedTranslationLanguage === "ha") && (
+                  <p className="mt-3 text-xs leading-5 text-white/65">
+                    Yorùbá and Hausa will use the Tariq Islam fallback
+                    translation pipeline.
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         ) : (
           <div className="flex aspect-video items-center justify-center bg-muted p-6 text-center">
@@ -209,10 +340,8 @@ const MosqueLivestreamViewer = () => {
                 type="button"
                 className="mt-4"
                 onClick={() =>
-                  window.open(
-                    livestream.stream_url,
-                    "_blank",
-                    "noopener,noreferrer"
+                  void openInAppLink(
+                    livestream.stream_url
                   )
                 }
               >

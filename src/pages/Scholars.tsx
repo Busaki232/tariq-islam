@@ -6,6 +6,7 @@ import {
   Globe2,
   Languages,
   MapPin,
+  Play,
   Search,
   Star,
   UserRound,
@@ -286,6 +287,30 @@ const filteredScholars = useMemo(() => {
     </p>
           </div>
         </div>
+        <Button
+          type="button"
+          className="mb-6 h-auto w-full justify-start gap-4 rounded-xl px-4 py-4 text-left"
+          onClick={() => navigate("/scholar/lectures")}
+        >
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/15">
+            <Play className="h-5 w-5 fill-current" />
+          </span>
+
+          <span className="min-w-0">
+            <span className="block font-semibold">
+              {t("scholars.directory.watchLectures", {
+                defaultValue: "Watch Scholar Lectures",
+              })}
+            </span>
+
+            <span className="mt-0.5 block text-sm font-normal text-primary-foreground/80">
+              {t("scholars.directory.watchLecturesDescription", {
+                defaultValue:
+                  "Browse the latest lectures from verified scholars.",
+              })}
+            </span>
+          </span>
+        </Button>
 
         <Card className="mb-6">
           <CardContent className="space-y-4 pt-6">
@@ -301,6 +326,7 @@ const filteredScholars = useMemo(() => {
                 className="pl-9"
               />
             </div>
+
 
 <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               <Select
@@ -445,7 +471,9 @@ const filteredScholars = useMemo(() => {
                 className="mt-4"
                 onClick={clearFilters}
               >
-                Clear filters
+                {t("scholars.directory.clearFilters", {
+                  defaultValue: "Clear filters",
+                })}
               </Button>
             </CardContent>
           </Card>

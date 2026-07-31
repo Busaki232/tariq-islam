@@ -3,9 +3,17 @@ import { useUsers, User } from '@/hooks/useUsers';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, UserPlus, Shield, Trash2 } from 'lucide-react';
+import {
+  Award,
+  Loader2,
+  UserPlus,
+  Shield,
+  Trash2,
+} from 'lucide-react';
 import { CreateUserDialog } from './CreateUserDialog';
 import { ManageRolesDialog } from './ManageRolesDialog';
+import { ManageBadgesDialog } from './ManageBadgesDialog';
+import { MonthlyBadgeCandidatesPanel } from './MonthlyBadgeCandidatesPanel';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,6 +31,8 @@ export const UserManagementTab = () => {
   const { user: currentUser } = useAuth();
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [rolesDialogOpen, setRolesDialogOpen] = useState(false);
+  const [badgesDialogOpen, setBadgesDialogOpen] =
+    useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
@@ -34,6 +44,11 @@ export const UserManagementTab = () => {
   const handleManageRoles = (user: User) => {
     setSelectedUser(user);
     setRolesDialogOpen(true);
+  };
+
+  const handleManageBadges = (user: User) => {
+    setSelectedUser(user);
+    setBadgesDialogOpen(true);
   };
 
   const handleDeleteClick = (user: User) => {
@@ -67,6 +82,8 @@ export const UserManagementTab = () => {
         </Button>
       </div>
 
+      <MonthlyBadgeCandidatesPanel />
+
       <div className="space-y-4">
         {users.map((user) => (
           <Card key={user.id}>
@@ -99,6 +116,17 @@ export const UserManagementTab = () => {
                   <Button
                     variant="outline"
                     size="sm"
+                    onClick={() =>
+                      handleManageBadges(user)
+                    }
+                  >
+                    <Award className="mr-2 h-4 w-4 text-amber-500" />
+                    Manage Badges
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={() => handleManageRoles(user)}
                   >
                     <Shield className="mr-2 h-4 w-4" />
@@ -126,11 +154,19 @@ export const UserManagementTab = () => {
       />
 
       {selectedUser && (
-        <ManageRolesDialog
-          open={rolesDialogOpen}
-          onOpenChange={setRolesDialogOpen}
-          user={selectedUser}
-        />
+        <>
+          <ManageRolesDialog
+            open={rolesDialogOpen}
+            onOpenChange={setRolesDialogOpen}
+            user={selectedUser}
+          />
+
+          <ManageBadgesDialog
+            open={badgesDialogOpen}
+            onOpenChange={setBadgesDialogOpen}
+            user={selectedUser}
+          />
+        </>
       )}
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

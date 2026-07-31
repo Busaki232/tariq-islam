@@ -1,0 +1,307 @@
+{
+  "loading": "Ń ṣí...",
+  "back": "Padà",
+  "close": "Pa",
+  "settings": {
+    "title": "Àwọn Ètò",
+    "language": {
+      "title": "Èdè",
+      "subtitle": "Yan èdè tí o fẹ́ lò nínú app.",
+      "placeholder": "Yan èdè",
+      "current": "Èdè lọwọlọwọ",
+      "english": "Gẹ̀ẹ́sì",
+      "french": "Faransé",
+      "hausa": "Hausa",
+      "yoruba": "Yorùbá",
+      "arabic": "Lárúbáwá"
+    },
+    "how_to_use_title": "Bí A Ṣe N Lo Tariq Islam",
+    "how_to_use_subtitle": "Ṣí ìtọ́sọ́nà app náà lẹ́ẹ̀kan sí i láti kọ́ nípa Ìbádah, àwọn ìránnilétí, àwọn ọ̀mọ̀wé, mọ́sálásí, Tariq AI àti àwùjọ.",
+    "profile": "Prófáìlì",
+    "profile_title": "Prófáìlì rẹ",
+    "profile_alt": "Prófáìlì",
+    "no_photo": "Kò sí fọ́tò",
+    "uploading": "Ń Gbé Sókè...",
+    "change_photo": "Yí Fọ́tò Padà",
+    "username_label": "Orúkọ Olùmúlò",
+    "username_help": "A máa lò ó fún ìpè Ìjíròrò Aládàáni. Má fi àlàfo sí i. Ohun tí a gbà láàyè: lẹ́tà, nọ́mbà, àmì ìdákẹ́jẹ àti àmì abẹ́lẹ̀.",
+    "username_placeholder": "Àpẹẹrẹ: @taofikbusari",
+    "saving": "Ń Fipamọ́...",
+    "save": "Fipamọ́",
+    "saved": "A Ti Fipamọ́",
+    "username_saved_hint": "A ti fipamọ́",
+    "username_saved_title": "A ti fipamọ́ orúkọ olùmúlò",
+    "username_invalid_short": "Kò tọ́",
+    "username_invalid_title": "Orúkọ olùmúlò kò tọ́",
+    "username_invalid_desc": "Lo àmì mẹ́ta sí ogún. Lẹ́tà, nọ́mbà, àmì ìdákẹ́jẹ àti àmì abẹ́lẹ̀ nìkan. Má fi àlàfo sí i.",
+    "username_save_failed_title": "A kò lè fipamọ́ orúkọ olùmúlò",
+    "username_taken": "Ẹlòmíràn ti ń lo orúkọ olùmúlò yẹn. Yan èyí mìíràn.",
+    "username_preview": "Àwòkọ́ṣe",
+    "none": "Kò Sí",
+    "appearance": "Ìrísí",
+    "theme": "Àkòrí Àwọ̀",
+    "online_visibility": "Bí a ṣe rí ọ lórí ayelujara",
+    "online_hidden": "Fífarapamọ́ (a ó rí ọ bí ẹni tí kò sí lórí ayelujara)",
+    "online_visible": "Hàn (a ó rí ọ bí ẹni tí ó wà lórí ayelujara)",
+    "show_online": "Fi Hàn Pé Mo Wà Lórí Ayelujara",
+    "hide_online": "Fi Mi Pamọ́ Lórí Ayelujara",
+    "stored_on_device": "A fipamọ́ èyí sínú ẹ̀rọ yìí. O lè fipamọ́ rẹ sínú dátábésì nígbà míì.",
+    "notifications": "Àwọn Ìkìlọ̀",
+    "messages": "Àwọn Ìfiranṣẹ́",
+    "calls": "Àwọn Ìpè",
+    "local_toggles_note": "Àwọn yíyàn wọ̀nyí wà lórí ẹ̀rọ yìí fún báyìí.",
+    "adhan": "Adhān",
+    "adhan_enabled": "Adhān ti ṣiṣẹ́",
+    "adhan_disabled": "Adhān kò ṣiṣẹ́",
+    "adhan_note": "O lè tan-an tàbí pa á nígbàkigbà.",
+    "adhan_location_title": "Ibi fún Adhān",
+    "adhan_location_subtitle": "Lo ibi tí ẹ̀rọ rẹ wà tàbí tẹ latitude àti longitude sí i fúnra rẹ.",
+    "adhan_location_device": "Lo Ẹ̀rọ",
+    "adhan_location_manual": "Tẹ̀ Ẹ́ Sí I Fúnra Rẹ",
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "latitude_placeholder": "41.8781",
+    "longitude_placeholder": "-87.6298",
+    "save_location": "Fipamọ́ Ibi",
+    "invalid_location": "Ibi náà kò tọ́",
+    "invalid_location_desc": "Jọ̀wọ́ tẹ latitude àti longitude tó tọ́ sí i.",
+    "location_saved": "A ti fipamọ́ ibi náà",
+    "location_up_to_date": "Ibi náà ti pé",
+    "device_location_captured": "A ti fipamọ́ ibi tí ẹ̀rọ wà",
+    "device_location_saved": "A ti fipamọ́ ibi tí ẹ̀rọ wà",
+    "device_location_not_saved": "A kò tíì fipamọ́ ibi tí ẹ̀rọ wà",
+    "could_not_get_location": "A kò lè rí ibi tí o wà",
+    "location_unavailable": "Ibi tí o wà kò sí",
+    "location_unavailable_desc": "Ẹ̀rọ tàbí aṣàwákiri yìí kò ṣe àtìlẹ́yìn fún geolocation.",
+    "permission_needed": "A nílò àṣẹ",
+    "permission_needed_desc": "Jọ̀wọ́ gba app láàyè láti rí ibi tí ẹ̀rọ rẹ wà.",
+    "account_deletion": "Pípa Àkọọ́lẹ̀ Rẹ́",
+    "deletion_intro": "O lè béèrè pé kí a pa àkọọ́lẹ̀ rẹ àti dátà tó bá a ṣe pọ̀ rẹ́.",
+    "deletion_note": "A máa ń ṣiṣẹ́ lórí ìbéèrè pípa àkọọ́lẹ̀ láàárín ọjọ́ 30. Bí o kò bá lè wọ app, o lè lo ọna asopọ tó wà ní ìsàlẹ̀.",
+    "request_deletion": "Béèrè Fún Pípa Àkọọ́lẹ̀",
+    "email_support_instead": "Fi Ímeèlì Ránṣẹ́ Sí Ẹgbẹ́ Àtìlẹ́yìn",
+    "deletion_email_subject": "Ìbéèrè pípa àkọọ́lẹ̀",
+    "deletion_email_hello": "Ẹ kú iṣẹ́, Ẹgbẹ́ Àtìlẹ́yìn,",
+    "deletion_email_line1": "Mo fẹ́ kí ẹ pa àkọọ́lẹ̀ mi àti gbogbo dátà tó bá a ṣe pọ̀.",
+    "deletion_email_account": "Ímeèlì àkọọ́lẹ̀",
+    "deletion_email_user_id": "ID olùmúlò",
+    "deletion_email_thanks": "Ẹ ṣé.",
+    "blocked_users": "Àwọn Olùmúlò Tí A Dina",
+    "no_blocked_users": "O kò tíì dina ẹnikẹ́ni.",
+    "blocked_fallback_name": "Olùmúlò tí a dina",
+    "unblock": "Yọ Ìdènà Kúrò",
+    "signout": "Jáde Kúrò",
+    "not_signed_in": "O kò wọlé."
+  },
+  "bottomNav": {
+    "home": "Ilé",
+    "ibadah": "Ìbádah",
+    "messages": "Àwọn Ìfiranṣẹ́",
+    "tariqAI": "Tariq AI",
+    "mosques": "Àwọn Mọ́sálásí",
+    "scholars": "Àwọn Ọ̀mọ̀wé",
+    "myLectures": "Àwọn Ẹ̀kọ́ Mi",
+    "managePlaylists": "Ṣàkóso Àkójọ",
+    "savedLectures": "Àwọn Ẹ̀kọ́ Tí A Fipamọ́",
+    "continueWatching": "Tẹ̀síwájú Ní Wíwò",
+    "calls": "Àwọn Ìpè",
+    "profile": "Prófáìlì"
+  },
+  "moreMenu": {
+    "quran": "Kúrání",
+    "qibla": "Qiblah",
+    "tasbih": "Tasbih"
+  },
+  "appOnboarding": {
+    "progress": "Ìgbésẹ̀ {{current}} nínú {{total}}",
+    "skip": "Fò ó",
+    "back": "Padà",
+    "next": "Tẹ̀síwájú",
+    "done": "Parí",
+    "openIbadah": "Ṣí Ìbádah",
+    "steps": {
+      "welcome": {
+        "title": "Káàbọ̀ sí Tariq Islam",
+        "body": "Tariq Islam kó ìjọsìn, ẹ̀kọ́, àwọn ọ̀mọ̀wé, mọ́sálásí, àwùjọ àti irinṣẹ́ AI Islam jọ sí ibi kan."
+      },
+      "ibadah": {
+        "title": "Bẹ̀rẹ̀ Pẹ̀lú Ìbádah",
+        "body": "Ṣí Ìbádah láti wọ Kúrání, Qiblah, Tasbih, àwọn mọ́sálásí, àwọn ọ̀mọ̀wé, ẹ̀kọ́ tí a fipamọ́ àti Tariq AI."
+      },
+      "reflections": {
+        "title": "Ṣàwárí Àwọn Ìránnilétí",
+        "body": "Wo àwọn ìránnilétí Islam kúkúrú pẹ̀lú àkọlé àti ìtumọ̀ ní àwọn èdè tí a ṣe àtìlẹ́yìn fún."
+      },
+      "scholars": {
+        "title": "Kọ́ Lọ́wọ́ Àwọn Ọ̀mọ̀wé",
+        "body": "Tẹ̀lé àwọn ọ̀mọ̀wé tí a fìdí múlẹ̀, wo ẹ̀kọ́, fipamọ́ wọn, kí o sì tẹ̀síwájú nígbà mìíràn."
+      },
+      "mosques": {
+        "title": "Sopọ̀ Pẹ̀lú Àwọn Mọ́sálásí",
+        "body": "Ṣàwárí profaili mọ́sálásí, ìkéde, ìṣẹ̀lẹ̀ àti ìgbóhùnsáfẹ́fẹ́ tààrà."
+      },
+      "ai": {
+        "title": "Lo Tariq AI",
+        "body": "Béèrè ìbéèrè Islam, lo olùrànlọ́wọ́ Hajj, àkójọ du’a, ìtumọ̀ àti àkótán."
+      },
+      "community": {
+        "title": "Darapọ̀ Mọ́ Àwùjọ",
+        "body": "Sopọ̀ pẹ̀lú àwọn Musulumi nípasẹ̀ àwùjọ, ìfiranṣẹ́ aládàáni, ẹgbẹ́ àti ìpè."
+      },
+      "scholarWelcome": {
+        "title": "Káàbọ̀ sí Pẹpẹ Àwọn Ọ̀mọ̀wé",
+        "body": "Àkọọ́lẹ̀ ọ̀mọ̀wé tí a fọwọ́ sí ní irinṣẹ́ fún kíkọ́ni, fífi ẹ̀kọ́ jáde àti ṣíṣètò àkójọ."
+      },
+      "scholarProfile": {
+        "title": "Ṣàkóso Profaili Ọ̀mọ̀wé",
+        "body": "Mú ìtàn ara ẹni, ọ̀nà amọ̀ja, èdè àti ìsọfúnni gbogbogbòò ṣe."
+      },
+      "scholarLectures": {
+        "title": "Gbé Àwọn Ẹ̀kọ́ Sórí",
+        "body": "Ṣẹ̀dá àwòkọ́ṣe, fi àkọlé àti àlàyé kun, kí o sì gbé fídíò ẹ̀kọ́ sórí."
+      },
+      "scholarCaptions": {
+        "title": "Àkọlé àti Ìtumọ̀",
+        "body": "Ṣẹ̀dá àkọlé tó bá àkókò mu àti ìtumọ̀ fún àwọn ẹ̀kọ́."
+      },
+      "scholarReview": {
+        "title": "Firanṣẹ́ Fún Àyẹ̀wò",
+        "body": "Firanṣẹ́ àwọn ẹ̀kọ́ tí o parí fún àyẹ̀wò, kí o sì tọpinpin ipò wọn."
+      },
+      "scholarManage": {
+        "title": "Ṣàkóso Ẹ̀kọ́ àti Àkójọ",
+        "body": "Ṣètò àwọn ẹ̀kọ́ tí a fọwọ́ sí sínú àkójọ fún àwọn ọmọlẹ́yìn."
+      }
+    }
+  },
+  "callsPage": {
+    "back": "Padà",
+    "title": "Àwọn Ìpè",
+    "noHistory": "Kò sí ìtàn ìpè kankan síbẹ̀.",
+    "callBack": "Pe Padà"
+  },
+  "contact": {
+    "title": "Kàn Sí Wa",
+    "subtitle": "Pín èrò rẹ, jabo àṣìṣe, tàbí béèrè fún àfikún tuntun. A mọrírì èrò rẹ, a ó sì dáhùn ní kíákíá bí ó ti ṣeé ṣe.",
+    "close": "Pa Dé"
+  },
+  "errors": {
+    "timeout": "Àkókò ìbéèrè ti parí"
+  },
+  "presence": {
+    "online": "Wà Lórí Ayelujara",
+    "offline": "Kò Sí Lórí Ayelujara",
+    "seenMinutes": "A rí i ní ìṣẹ́jú {{count}} sẹ́yìn",
+    "seenHours": "A rí i ní wákàtí {{count}} sẹ́yìn",
+    "seenDate": "A rí i ní {{date}}"
+  },
+  "home": {
+    "hero": {
+      "bgAlt": "Àwòrán àbẹ́lẹ̀ oníṣirò Islam fún àwùjọ Mùsùlùmí kárí ayé",
+      "greetingTranslation": "Kí àlàáfíà, àánú àti ìbùkún Allah wà lórí yín",
+      "title": "Dúró ní ìsopọ̀ pẹ̀lú ìgbàgbọ́ àti àwùjọ rẹ kárí ayé",
+      "subtitle": "Wa àkókò ṣálátì, rí àwọn mọ́sálásí, kí o sì bá àwọn Mùsùlùmí kárí ayé sopọ̀."
+    },
+    "cta": {
+      "joinChat": "Darapọ̀ Mọ́ Yàrá Ìjíròrò",
+      "joinChatAria": "Darapọ̀ mọ́ ìjíròrò àwùjọ",
+      "findMosques": "Wa Mọ́sálásí Tó Wà Nítòsí",
+      "findMosquesAria": "Wa àwọn mọ́sálásí tó wà nítòsí",
+      "gettingLocation": "Ń Wa Ibi Tí O Wà...",
+      "qibla": "Wa Qiblah",
+      "qiblaAria": "Ṣí Qiblah",
+      "qiblaDirectionAria": "Wa ìtọ́sọ́nà Qiblah",
+      "joinNow": "Darapọ̀ Nísinsìnyí — Ọ̀fẹ́ Ni",
+      "joinNowAria": "Forúkọsílẹ̀ láti darapọ̀ mọ́ àwùjọ",
+      "islamicCalendar": "Kàlẹ́ńdà Islam",
+      "islamicCalendarAria": "Ṣí Kàlẹ́ńdà Islam"
+    },
+    "location": {
+      "obtained": {
+        "title": "A ti rí ibi tí o wà",
+        "desc": "A ń fi àwọn mọ́sálásí tó wà nítòsí rẹ hàn"
+      },
+      "unavailable": {
+        "title": "A kò lè rí ibi tí o wà",
+        "desc": "A ń fi gbogbo mọ́sálásí tó wà ní agbègbè rẹ hàn"
+      }
+    },
+    "why": {
+      "title": "Kí Ló Dé Tí O Fi Yẹ Kí O Darapọ̀ Mọ́ Tariq Islam?",
+      "bullet1": "Pàdé àwọn Mùsùlùmí kárí ayé ní àkókò gidi",
+      "bullet2": "Wa àwọn mọ́sálásí àti ìṣẹ̀lẹ̀ tó wà nítòsí",
+      "bullet3": "Lo Al-Qur’an, àkókò ṣálátì àti àwọn ohun mìíràn"
+    },
+    "privacy": "A dáàbò bo àṣírí àti dátà rẹ. A kì í pín ìsọfúnni rẹ pẹ̀lú ẹlòmíràn."
+  },
+  "dailyCompanion": {
+    "blessYourDay": "Kí Allah bù kún ọjọ́ rẹ.",
+    "currentPrayer": "Ṣálátì Tó Wà Lọ́wọ́lọ́wọ́",
+    "nextPrayer": "Ṣálátì Tó Kàn",
+    "loading": "Ń Kojọpọ̀...",
+    "loadingPrayerTime": "Ń Kojọpọ̀ àkókò ṣálátì...",
+    "gettingLocation": "Ń Wa ibi tí o wà...",
+    "findMosques": "Wa Àwọn Mọ́sálásí Tó Wà Nítòsí Rẹ",
+    "todaysReminder": "Ìránnilétí Òní",
+    "todaysHadith": "Hadith Òní",
+    "community": "Àwùjọ",
+    "greeting": "As-salāmu ʿalaykum",
+    "prayerIn": "{{prayer}} yóò wọlé lẹ́yìn {{time}}",
+    "openCommunityMessages": "Ṣí àwọn ìfiranṣẹ́ àwùjọ",
+    "description": "Dúró ní ìsopọ̀ pẹ̀lú àwọn ṣálátì rẹ nípasẹ̀ àkókò tó péye fún ibi tí o wà.",
+    "reminders": {
+      "1": {
+        "text": "Dájúdájú, ṣálátì ń dá ènìyàn dúró kúrò nínú ìwà àìmọ́ àti ìwà búburú.",
+        "source": "Al-Qur’an 29:45"
+      },
+      "2": {
+        "text": "Nítorí náà, ẹ rántí Mi; Èmi náà yóò rántí yín.",
+        "source": "Al-Qur’an 2:152"
+      },
+      "3": {
+        "text": "Dájúdájú, nínú rírántí Allah ni ọkàn ti ń rí ìtùnú.",
+        "source": "Al-Qur’an 13:28"
+      },
+      "4": {
+        "text": "Ẹnikẹ́ni tí ó bá gbẹ́kẹ̀ lé Allah, Ó tó fún un.",
+        "source": "Al-Qur’an 65:3"
+      }
+    },
+    "hadith": {
+      "text": "Ẹni tó dára jù lọ láàárín yín ni ẹni tó kọ́ Al-Qur’an tí ó sì kọ́ ọ fún ẹlòmíràn."
+    }
+  },
+  "quran": {
+    "playerTitle": "Ẹ̀rọ Ìgbọ́ Ohùn Al-Qur’an",
+    "getStartedTitle": "Bẹ̀rẹ̀",
+    "getStartedSubtitle": "Yan olùka Al-Qur’an àti surah kan ní ìsàlẹ̀ láti bẹ̀rẹ̀ sí í gbọ́ Al-Qur’an Mímọ́.",
+    "howToListenTitle": "🎧 Bí a ṣe ń gbọ́",
+    "howToListenSteps": {
+      "1": "Yan olùka Al-Qur’an tí o fẹ́ ní ìsàlẹ̀",
+      "2": "Yan surah kan nínú àkójọ tàbí tẹ káàdì surah tí a mọ̀ sí rere",
+      "3": "Dúró kí ohùn náà kojọpọ̀, lẹ́yìn náà tẹ Bẹ̀rẹ̀"
+    },
+    "recitedBy": "Olùkà rẹ̀ ni",
+    "versesCount": "Àwọn āyah {{count}}",
+    "revelation": {
+      "meccan": "Makki",
+      "medinan": "Madani"
+    }
+  },
+  "islamicCalendar": {
+    "months": {
+      "muharram": "Muharram",
+      "safar": "Safar",
+      "rabiAlAwwal": "Rabi al-Awwal",
+      "rabiAlThani": "Rabi al-Thani",
+      "jumadaAlUla": "Jumada al-Ula",
+      "jumadaAlAkhirah": "Jumada al-Akhirah",
+      "rajab": "Rajab",
+      "shaban": "Sha‘ban",
+      "ramadan": "Ramadan",
+      "shawwal": "Shawwal",
+      "dhuAlQidah": "Dhul-Qi‘dah",
+      "dhuAlHijjah": "Dhul-Hijjah"
+    }
+  }
+}

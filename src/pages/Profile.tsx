@@ -4,6 +4,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft } from "lucide-react";
+import TariqBadge from "@/components/tariq/TariqBadge";
+import UserAchievementBadge, {
+  type UserAchievementBadgeData,
+} from "@/components/tariq/UserAchievementBadge";
 
 type FollowStatus = "none" | "pending" | "accepted" | "follow_back";
 
@@ -11,7 +15,7 @@ export default function Profile() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { userId } = useParams();
-  const { t } = useTranslation("common");
+  const { t, i18n } = useTranslation("common");
 
   const profileUserId = useMemo(
     () => userId || user?.id || "",
@@ -29,6 +33,27 @@ export default function Profile() {
   const [location, setLocation] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [bio, setBio] = useState("");
+  const [earnedBadges, setEarnedBadges] =
+    useState<UserAchievementBadgeData[]>([]);
+
+  const profileLanguage = (
+    i18n.resolvedLanguage ||
+    i18n.language ||
+    "en"
+  ).split("-")[0];
+
+  const isOfficialAdminProfile =
+    fullName.trim().toLowerCase() === "tariq islam admin" &&
+    bio.toLowerCase().includes(
+      "management and moderation system"
+    );
+
+  const displayedBio = isOfficialAdminProfile
+    ? t("profilePage.adminBio", {
+        defaultValue: bio,
+        lng: profileLanguage,
+      })
+    : bio;
 
   const [connectionsCount, setConnectionsCount] = useState(0);
   const [followersCount, setFollowersCount] = useState(0);
@@ -66,6 +91,105 @@ export default function Profile() {
     }
 
     void loadProfile();
+
+    return () => {
+      alive = false;
+    };
+  }, [profileUserId]);
+
+  useEffect(() => {
+    let alive = true;
+
+    async function loadBadges() {
+      if (!profileUserId) {
+        setEarnedBadges([]);
+        return;
+      }
+
+      try {
+        const now = new Date().toISOString();
+
+        const { data, error } = await supabase
+          .from("user_badges")
+          .select(
+            `
+              id,
+              awarded_at,
+              reason,
+              expires_at,
+              is_featured,
+              badges!inner (
+                slug,
+                name,
+                description,
+                icon_key,
+                color_scheme,
+                category,
+                sort_order,
+                is_active
+              )
+            `
+          )
+          .eq("user_id", profileUserId)
+          .eq("is_featured", true)
+          .or(
+            `expires_at.is.null,expires_at.gt.${now}`
+          );
+
+        if (error) {
+          throw error;
+        }
+
+        if (!alive) return;
+
+        const mapped = (data ?? [])
+          .map((row) => {
+            const badge = Array.isArray(row.badges)
+              ? row.badges[0]
+              : row.badges;
+
+            if (!badge || !badge.is_active) {
+              return null;
+            }
+
+            return {
+              awardId: row.id,
+              slug: badge.slug,
+              name: badge.name,
+              description: badge.description,
+              iconKey: badge.icon_key,
+              colorScheme: badge.color_scheme,
+              category: badge.category,
+              awardedAt: row.awarded_at,
+              reason: row.reason,
+              sortOrder: badge.sort_order,
+            } satisfies UserAchievementBadgeData;
+          })
+          .filter(
+            (
+              badge
+            ): badge is UserAchievementBadgeData =>
+              badge !== null
+          )
+          .sort(
+            (first, second) =>
+              first.sortOrder - second.sortOrder
+          );
+
+        setEarnedBadges(mapped);
+      } catch (error) {
+        console.error(
+          "[Profile] Failed to load badges:",
+          error
+        );
+
+        if (alive) {
+          setEarnedBadges([]);
+        }
+      }
+    }
+
+    void loadBadges();
 
     return () => {
       alive = false;
@@ -425,6 +549,33 @@ return (
               </div>
             )}
 
+            {earnedBadges
+              .slice(0, 3)
+              .map((badge, index) => (
+                <span
+                  key={badge.awardId}
+                  className="absolute -right-3 z-10"
+                  style={{
+                    top: `${index * 34}px`,
+                  }}
+                >
+                  <UserAchievementBadge
+                    badge={badge}
+                    iconOnly
+                  />
+                </span>
+              ))}
+
+            {earnedBadges.length === 0 &&
+              isOfficialAdminProfile && (
+                <TariqBadge
+                  variant="founder"
+                  size="lg"
+                  showLabel={false}
+                  className="absolute -right-3 top-0 z-10 h-11 w-11 justify-center rounded-full border-2 border-amber-400 bg-blue-950 p-1 shadow-lg shadow-amber-500/30"
+                />
+              )}
+
             {isOwnProfile && (
               <>
                 <input
@@ -449,7 +600,11 @@ return (
                   disabled={uploadingAvatar}
                   className="absolute bottom-0 right-0 rounded-full border bg-background px-2.5 py-1 text-xs font-medium shadow-sm disabled:opacity-60"
                 >
-                  {uploadingAvatar ? "..." : "Edit"}
+                  {uploadingAvatar
+                    ? "..."
+                    : t("profilePage.edit", {
+                        defaultValue: "Edit",
+                      })}
                 </button>
               </>
             )}
@@ -464,9 +619,29 @@ return (
               {location || "Location not set"}
             </div>
 
-            {bio && (
-              <div className="mx-auto mt-3 max-w-md whitespace-pre-wrap text-sm leading-6">
-                {bio}
+            {displayedBio && (
+              <div
+                className="mx-auto mt-3 max-w-md whitespace-pre-wrap text-sm leading-6"
+                dir={profileLanguage === "ar" ? "rtl" : "ltr"}
+              >
+                {displayedBio}
+              </div>
+            )}
+
+            {earnedBadges.length > 0 && (
+              <div className="mt-4">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Achievements
+                </p>
+
+                <div className="flex flex-wrap justify-center gap-2">
+                  {earnedBadges.map((badge) => (
+                    <UserAchievementBadge
+                      key={badge.awardId}
+                      badge={badge}
+                    />
+                  ))}
+                </div>
               </div>
             )}
           </div>

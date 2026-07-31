@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "13.0.5"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       admin_audit_log: {
@@ -176,6 +201,51 @@ export type Database = {
           request_count?: number | null
           user_id?: string | null
           window_start?: string | null
+        }
+        Relationships: []
+      }
+      badges: {
+        Row: {
+          category: string
+          color_scheme: string
+          created_at: string
+          criteria: Json
+          description: string
+          icon_key: string
+          id: string
+          is_active: boolean
+          name: string
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          color_scheme?: string
+          created_at?: string
+          criteria?: Json
+          description: string
+          icon_key: string
+          id?: string
+          is_active?: boolean
+          name: string
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          color_scheme?: string
+          created_at?: string
+          criteria?: Json
+          description?: string
+          icon_key?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          slug?: string
+          sort_order?: number
+          updated_at?: string
         }
         Relationships: []
       }
@@ -1610,6 +1680,7 @@ export type Database = {
         Row: {
           content: string
           created_at: string
+          deleted_for: string[]
           edited_at: string | null
           forwarded_from: string | null
           group_id: string | null
@@ -1633,6 +1704,7 @@ export type Database = {
         Insert: {
           content: string
           created_at?: string
+          deleted_for?: string[]
           edited_at?: string | null
           forwarded_from?: string | null
           group_id?: string | null
@@ -1656,6 +1728,7 @@ export type Database = {
         Update: {
           content?: string
           created_at?: string
+          deleted_for?: string[]
           edited_at?: string | null
           forwarded_from?: string | null
           group_id?: string | null
@@ -1763,6 +1836,119 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "reports"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      monthly_activity_scores: {
+        Row: {
+          active_days: number
+          calculated_at: string
+          community_points: number
+          community_posts: number
+          disqualification_reason: string | null
+          eligible: boolean
+          helpful_comments: number
+          id: string
+          knowledge_points: number
+          lecture_engagements: number
+          month_start: string
+          mosque_follows: number
+          mosque_points: number
+          positive_reactions: number
+          reflection_views: number
+          scholar_follows: number
+          total_points: number
+          user_id: string
+          volunteer_signups: number
+        }
+        Insert: {
+          active_days?: number
+          calculated_at?: string
+          community_points?: number
+          community_posts?: number
+          disqualification_reason?: string | null
+          eligible?: boolean
+          helpful_comments?: number
+          id?: string
+          knowledge_points?: number
+          lecture_engagements?: number
+          month_start: string
+          mosque_follows?: number
+          mosque_points?: number
+          positive_reactions?: number
+          reflection_views?: number
+          scholar_follows?: number
+          total_points?: number
+          user_id: string
+          volunteer_signups?: number
+        }
+        Update: {
+          active_days?: number
+          calculated_at?: string
+          community_points?: number
+          community_posts?: number
+          disqualification_reason?: string | null
+          eligible?: boolean
+          helpful_comments?: number
+          id?: string
+          knowledge_points?: number
+          lecture_engagements?: number
+          month_start?: string
+          mosque_follows?: number
+          mosque_points?: number
+          positive_reactions?: number
+          reflection_views?: number
+          scholar_follows?: number
+          total_points?: number
+          user_id?: string
+          volunteer_signups?: number
+        }
+        Relationships: []
+      }
+      monthly_badge_candidates: {
+        Row: {
+          badge_slug: string
+          created_at: string
+          id: string
+          month_start: string
+          rank: number
+          reviewed_at: string | null
+          reviewed_by: string | null
+          score: number
+          status: string
+          user_id: string
+        }
+        Insert: {
+          badge_slug: string
+          created_at?: string
+          id?: string
+          month_start: string
+          rank: number
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          score: number
+          status?: string
+          user_id: string
+        }
+        Update: {
+          badge_slug?: string
+          created_at?: string
+          id?: string
+          month_start?: string
+          rank?: number
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          score?: number
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "monthly_badge_candidates_badge_slug_fkey"
+            columns: ["badge_slug"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["slug"]
           },
         ]
       }
@@ -3298,6 +3484,588 @@ export type Database = {
           },
         ]
       }
+      scholar_followers: {
+        Row: {
+          created_at: string
+          id: string
+          scholar_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          scholar_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          scholar_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scholar_followers_scholar_id_fkey"
+            columns: ["scholar_id"]
+            isOneToOne: false
+            referencedRelation: "scholar_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scholar_lecture_audio_translations: {
+        Row: {
+          caption_translation_id: string | null
+          created_at: string
+          duration_seconds: number | null
+          error_message: string | null
+          generated_at: string | null
+          id: string
+          language_code: string
+          language_name: string
+          lecture_id: string
+          provider: string | null
+          provider_model: string | null
+          requested_by: string
+          scholar_id: string
+          segment_manifest: Json
+          source_translation_updated_at: string | null
+          status: string
+          storage_path: string | null
+          updated_at: string
+          voice_profile_id: string
+        }
+        Insert: {
+          caption_translation_id?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          error_message?: string | null
+          generated_at?: string | null
+          id?: string
+          language_code: string
+          language_name: string
+          lecture_id: string
+          provider?: string | null
+          provider_model?: string | null
+          requested_by: string
+          scholar_id: string
+          segment_manifest?: Json
+          source_translation_updated_at?: string | null
+          status?: string
+          storage_path?: string | null
+          updated_at?: string
+          voice_profile_id: string
+        }
+        Update: {
+          caption_translation_id?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          error_message?: string | null
+          generated_at?: string | null
+          id?: string
+          language_code?: string
+          language_name?: string
+          lecture_id?: string
+          provider?: string | null
+          provider_model?: string | null
+          requested_by?: string
+          scholar_id?: string
+          segment_manifest?: Json
+          source_translation_updated_at?: string | null
+          status?: string
+          storage_path?: string | null
+          updated_at?: string
+          voice_profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scholar_lecture_audio_translations_caption_translation_id_fkey"
+            columns: ["caption_translation_id"]
+            isOneToOne: false
+            referencedRelation: "scholar_lecture_caption_translations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scholar_lecture_audio_translations_lecture_id_fkey"
+            columns: ["lecture_id"]
+            isOneToOne: false
+            referencedRelation: "scholar_lectures"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scholar_lecture_audio_translations_scholar_id_fkey"
+            columns: ["scholar_id"]
+            isOneToOne: false
+            referencedRelation: "scholar_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scholar_lecture_audio_translations_voice_profile_id_fkey"
+            columns: ["voice_profile_id"]
+            isOneToOne: false
+            referencedRelation: "scholar_voice_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scholar_lecture_caption_translations: {
+        Row: {
+          created_at: string
+          id: string
+          language_code: string
+          language_name: string
+          lecture_id: string
+          translated_segments: Json
+          translated_text: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          language_code: string
+          language_name: string
+          lecture_id: string
+          translated_segments?: Json
+          translated_text: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          language_code?: string
+          language_name?: string
+          lecture_id?: string
+          translated_segments?: Json
+          translated_text?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scholar_lecture_caption_translations_lecture_id_fkey"
+            columns: ["lecture_id"]
+            isOneToOne: false
+            referencedRelation: "scholar_lectures"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scholar_lecture_comments: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          lecture_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          lecture_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          lecture_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scholar_lecture_comments_lecture_id_fkey"
+            columns: ["lecture_id"]
+            isOneToOne: false
+            referencedRelation: "scholar_lectures"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scholar_lecture_likes: {
+        Row: {
+          created_at: string
+          id: string
+          lecture_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lecture_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lecture_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scholar_lecture_likes_lecture_id_fkey"
+            columns: ["lecture_id"]
+            isOneToOne: false
+            referencedRelation: "scholar_lectures"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scholar_lecture_progress: {
+        Row: {
+          completed: boolean
+          current_time_seconds: number
+          duration_seconds: number | null
+          id: string
+          lecture_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          current_time_seconds?: number
+          duration_seconds?: number | null
+          id?: string
+          lecture_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          current_time_seconds?: number
+          duration_seconds?: number | null
+          id?: string
+          lecture_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scholar_lecture_progress_lecture_id_fkey"
+            columns: ["lecture_id"]
+            isOneToOne: false
+            referencedRelation: "scholar_lectures"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scholar_lecture_saves: {
+        Row: {
+          created_at: string
+          id: string
+          lecture_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lecture_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lecture_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scholar_lecture_saves_lecture_id_fkey"
+            columns: ["lecture_id"]
+            isOneToOne: false
+            referencedRelation: "scholar_lectures"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scholar_lecture_views: {
+        Row: {
+          created_at: string
+          id: string
+          lecture_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lecture_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lecture_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scholar_lecture_views_lecture_id_fkey"
+            columns: ["lecture_id"]
+            isOneToOne: false
+            referencedRelation: "scholar_lectures"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scholar_lectures: {
+        Row: {
+          captions_enabled: boolean
+          captions_language: string | null
+          captions_segments: Json | null
+          captions_text: string | null
+          category: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_featured: boolean
+          language: string | null
+          scholar_id: string
+          status: string
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          video_url: string
+          view_count: number
+        }
+        Insert: {
+          captions_enabled?: boolean
+          captions_language?: string | null
+          captions_segments?: Json | null
+          captions_text?: string | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_featured?: boolean
+          language?: string | null
+          scholar_id: string
+          status?: string
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          video_url: string
+          view_count?: number
+        }
+        Update: {
+          captions_enabled?: boolean
+          captions_language?: string | null
+          captions_segments?: Json | null
+          captions_text?: string | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_featured?: boolean
+          language?: string | null
+          scholar_id?: string
+          status?: string
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          video_url?: string
+          view_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scholar_lectures_scholar_id_fkey"
+            columns: ["scholar_id"]
+            isOneToOne: false
+            referencedRelation: "scholar_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scholar_livestream_translation_tracks: {
+        Row: {
+          created_at: string
+          daily_track_name: string | null
+          error_message: string | null
+          id: string
+          language_code: string
+          language_name: string
+          livestream_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          daily_track_name?: string | null
+          error_message?: string | null
+          id?: string
+          language_code: string
+          language_name: string
+          livestream_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          daily_track_name?: string | null
+          error_message?: string | null
+          id?: string
+          language_code?: string
+          language_name?: string
+          livestream_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scholar_livestream_translation_tracks_livestream_id_fkey"
+            columns: ["livestream_id"]
+            isOneToOne: false
+            referencedRelation: "scholar_livestreams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scholar_livestreams: {
+        Row: {
+          created_at: string
+          created_by: string
+          daily_room_name: string | null
+          daily_room_url: string | null
+          description: string | null
+          ended_at: string | null
+          id: string
+          scheduled_for: string | null
+          scholar_id: string
+          source_language: string
+          started_at: string | null
+          status: string
+          title: string
+          translation_languages: string[]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          daily_room_name?: string | null
+          daily_room_url?: string | null
+          description?: string | null
+          ended_at?: string | null
+          id?: string
+          scheduled_for?: string | null
+          scholar_id: string
+          source_language?: string
+          started_at?: string | null
+          status?: string
+          title: string
+          translation_languages?: string[]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          daily_room_name?: string | null
+          daily_room_url?: string | null
+          description?: string | null
+          ended_at?: string | null
+          id?: string
+          scheduled_for?: string | null
+          scholar_id?: string
+          source_language?: string
+          started_at?: string | null
+          status?: string
+          title?: string
+          translation_languages?: string[]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scholar_livestreams_scholar_id_fkey"
+            columns: ["scholar_id"]
+            isOneToOne: false
+            referencedRelation: "scholar_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scholar_playlist_items: {
+        Row: {
+          created_at: string
+          id: string
+          lecture_id: string
+          playlist_id: string
+          position: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lecture_id: string
+          playlist_id: string
+          position?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lecture_id?: string
+          playlist_id?: string
+          position?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scholar_playlist_items_lecture_id_fkey"
+            columns: ["lecture_id"]
+            isOneToOne: false
+            referencedRelation: "scholar_lectures"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scholar_playlist_items_playlist_id_fkey"
+            columns: ["playlist_id"]
+            isOneToOne: false
+            referencedRelation: "scholar_playlists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scholar_playlists: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_published: boolean
+          scholar_id: string
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_published?: boolean
+          scholar_id: string
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_published?: boolean
+          scholar_id?: string
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scholar_playlists_scholar_id_fkey"
+            columns: ["scholar_id"]
+            isOneToOne: false
+            referencedRelation: "scholar_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       scholar_profiles: {
         Row: {
           biography: string | null
@@ -3367,6 +4135,68 @@ export type Database = {
         }
         Relationships: []
       }
+      scholar_voice_profiles: {
+        Row: {
+          consent_granted_at: string | null
+          consent_recording_storage_path: string | null
+          consent_revoked_at: string | null
+          consent_text_version: string
+          created_at: string
+          enrollment_language_code: string
+          error_message: string | null
+          id: string
+          provider: string | null
+          provider_voice_id: string | null
+          scholar_id: string
+          status: string
+          updated_at: string
+          user_id: string
+          voice_sample_storage_path: string | null
+        }
+        Insert: {
+          consent_granted_at?: string | null
+          consent_recording_storage_path?: string | null
+          consent_revoked_at?: string | null
+          consent_text_version?: string
+          created_at?: string
+          enrollment_language_code?: string
+          error_message?: string | null
+          id?: string
+          provider?: string | null
+          provider_voice_id?: string | null
+          scholar_id: string
+          status?: string
+          updated_at?: string
+          user_id: string
+          voice_sample_storage_path?: string | null
+        }
+        Update: {
+          consent_granted_at?: string | null
+          consent_recording_storage_path?: string | null
+          consent_revoked_at?: string | null
+          consent_text_version?: string
+          created_at?: string
+          enrollment_language_code?: string
+          error_message?: string | null
+          id?: string
+          provider?: string | null
+          provider_voice_id?: string | null
+          scholar_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          voice_sample_storage_path?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scholar_voice_profiles_scholar_id_fkey"
+            columns: ["scholar_id"]
+            isOneToOne: true
+            referencedRelation: "scholar_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       security_logs: {
         Row: {
           details: Json | null
@@ -3417,6 +4247,53 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_badges: {
+        Row: {
+          award_key: string
+          awarded_at: string
+          awarded_by: string | null
+          badge_id: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          is_featured: boolean
+          reason: string | null
+          user_id: string
+        }
+        Insert: {
+          award_key?: string
+          awarded_at?: string
+          awarded_by?: string | null
+          badge_id: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_featured?: boolean
+          reason?: string | null
+          user_id: string
+        }
+        Update: {
+          award_key?: string
+          awarded_at?: string
+          awarded_by?: string | null
+          badge_id?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_featured?: boolean
+          reason?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_connections: {
         Row: {
@@ -3753,6 +4630,19 @@ export type Database = {
         Args: { _action_type: string; _record_id: string; _table_name: string }
         Returns: undefined
       }
+      award_user_badge: {
+        Args: {
+          p_award_key?: string
+          p_badge_slug: string
+          p_reason?: string
+          p_user_id: string
+        }
+        Returns: string
+      }
+      calculate_monthly_badge_scores: {
+        Args: { p_month_start?: string }
+        Returns: number
+      }
       calculate_risk_score: {
         Args: { _advertisement_id: string; _user_id: string }
         Returns: number
@@ -3803,6 +4693,14 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      delete_private_message_for_everyone: {
+        Args: { p_message_id: string }
+        Returns: undefined
+      }
+      delete_private_message_for_me: {
+        Args: { p_message_id: string }
+        Returns: undefined
       }
       get_ad_contact_requests_secure: {
         Args: { _advertisement_id: string }
@@ -4034,6 +4932,14 @@ export type Database = {
       }
       process_scheduled_reflections: { Args: never; Returns: number }
       remove_friendship: { Args: { friendship_id: string }; Returns: undefined }
+      review_monthly_badge_candidate: {
+        Args: { p_approve: boolean; p_candidate_id: string }
+        Returns: undefined
+      }
+      revoke_user_badge: {
+        Args: { p_award_key?: string; p_badge_slug: string; p_user_id: string }
+        Returns: undefined
+      }
       search_profiles: {
         Args: { q: string }
         Returns: {
@@ -4250,6 +5156,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],

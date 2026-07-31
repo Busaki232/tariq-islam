@@ -74,6 +74,11 @@ import haDashboard from "./locales/ha/dashboard.json";
 import haIslamicCalendar from "./locales/ha/islamicCalendar.json";
 import haAds from "@/i18n/locales/ha/ads.json";
 
+// Yoruba
+import yoCommon from "./locales/yo/common.json";
+import yoPrivateChat from "./locales/yo/privateChat.json";
+import yoPrayer from "./locales/yo/prayer.json";
+
 
 // Arabic
 import arCommon from "./locales/ar/common.json";
@@ -100,13 +105,14 @@ import arAds from "@/i18n/locales/ar/ads.json";
 
 
 
-const SUPPORTED = ["en", "fr", "ha", "ar"] as const;
+const SUPPORTED = ["en", "fr", "ha", "yo", "ar"] as const;
 type SupportedLang = (typeof SUPPORTED)[number];
 
 function normalizeLng(raw: string): SupportedLang {
   const v = (raw || "").toLowerCase();
   if (v.startsWith("fr")) return "fr";
   if (v.startsWith("ha")) return "ha";
+  if (v.startsWith("yo")) return "yo";
   if (v.startsWith("ar")) return "ar";
   return "en";
 }
@@ -182,6 +188,11 @@ const resources = {
     islamicCalendar: haIslamicCalendar,
     ads: haAds,
 
+  },
+  yo: {
+    common: yoCommon,
+    prayer: yoPrayer,
+    privateChat: yoPrivateChat,
   },
   ar: {
     common: arCommon,

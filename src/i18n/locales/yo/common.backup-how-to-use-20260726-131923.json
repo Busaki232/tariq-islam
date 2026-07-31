@@ -1,0 +1,98 @@
+{
+  "loading": "Ń ṣí...",
+  "back": "Padà",
+  "close": "Pa",
+  "settings": {
+    "title": "Àwọn Ètò",
+    "language": {
+      "title": "Èdè",
+      "subtitle": "Yan èdè tí o fẹ́ lò nínú app.",
+      "placeholder": "Yan èdè",
+      "current": "Èdè lọwọlọwọ",
+      "english": "Gẹ̀ẹ́sì",
+      "french": "Faransé",
+      "hausa": "Hausa",
+      "yoruba": "Yorùbá",
+      "arabic": "Lárúbáwá"
+    }
+  },
+  "bottomNav": {
+    "home": "Ilé",
+    "ibadah": "Ìbádah",
+    "messages": "Àwọn Ìfiranṣẹ́",
+    "tariqAI": "Tariq AI",
+    "mosques": "Àwọn Mọ́sálásí",
+    "scholars": "Àwọn Ọ̀mọ̀wé",
+    "myLectures": "Àwọn Ẹ̀kọ́ Mi",
+    "managePlaylists": "Ṣàkóso Àkójọ",
+    "savedLectures": "Àwọn Ẹ̀kọ́ Tí A Fipamọ́",
+    "continueWatching": "Tẹ̀síwájú Ní Wíwò"
+  },
+  "moreMenu": {
+    "quran": "Kúrání",
+    "qibla": "Qiblah",
+    "tasbih": "Tasbih"
+  },
+  "appOnboarding": {
+    "progress": "Ìgbésẹ̀ {{current}} nínú {{total}}",
+    "skip": "Fò ó",
+    "back": "Padà",
+    "next": "Tẹ̀síwájú",
+    "done": "Parí",
+    "openIbadah": "Ṣí Ìbádah",
+    "steps": {
+      "welcome": {
+        "title": "Káàbọ̀ sí Tariq Islam",
+        "body": "Tariq Islam kó ìjọsìn, ẹ̀kọ́, àwọn ọ̀mọ̀wé, mọ́sálásí, àwùjọ àti irinṣẹ́ AI Islam jọ sí ibi kan."
+      },
+      "ibadah": {
+        "title": "Bẹ̀rẹ̀ Pẹ̀lú Ìbádah",
+        "body": "Ṣí Ìbádah láti wọ Kúrání, Qiblah, Tasbih, àwọn mọ́sálásí, àwọn ọ̀mọ̀wé, ẹ̀kọ́ tí a fipamọ́ àti Tariq AI."
+      },
+      "reflections": {
+        "title": "Ṣàwárí Àwọn Ìránnilétí",
+        "body": "Wo àwọn ìránnilétí Islam kúkúrú pẹ̀lú àkọlé àti ìtumọ̀ ní àwọn èdè tí a ṣe àtìlẹ́yìn fún."
+      },
+      "scholars": {
+        "title": "Kọ́ Lọ́wọ́ Àwọn Ọ̀mọ̀wé",
+        "body": "Tẹ̀lé àwọn ọ̀mọ̀wé tí a fìdí múlẹ̀, wo ẹ̀kọ́, fipamọ́ wọn, kí o sì tẹ̀síwájú nígbà mìíràn."
+      },
+      "mosques": {
+        "title": "Sopọ̀ Pẹ̀lú Àwọn Mọ́sálásí",
+        "body": "Ṣàwárí profaili mọ́sálásí, ìkéde, ìṣẹ̀lẹ̀ àti ìgbóhùnsáfẹ́fẹ́ tààrà."
+      },
+      "ai": {
+        "title": "Lo Tariq AI",
+        "body": "Béèrè ìbéèrè Islam, lo olùrànlọ́wọ́ Hajj, àkójọ du’a, ìtumọ̀ àti àkótán."
+      },
+      "community": {
+        "title": "Darapọ̀ Mọ́ Àwùjọ",
+        "body": "Sopọ̀ pẹ̀lú àwọn Musulumi nípasẹ̀ àwùjọ, ìfiranṣẹ́ aládàáni, ẹgbẹ́ àti ìpè."
+      },
+      "scholarWelcome": {
+        "title": "Káàbọ̀ sí Pẹpẹ Àwọn Ọ̀mọ̀wé",
+        "body": "Àkọọ́lẹ̀ ọ̀mọ̀wé tí a fọwọ́ sí ní irinṣẹ́ fún kíkọ́ni, fífi ẹ̀kọ́ jáde àti ṣíṣètò àkójọ."
+      },
+      "scholarProfile": {
+        "title": "Ṣàkóso Profaili Ọ̀mọ̀wé",
+        "body": "Mú ìtàn ara ẹni, ọ̀nà amọ̀ja, èdè àti ìsọfúnni gbogbogbòò ṣe."
+      },
+      "scholarLectures": {
+        "title": "Gbé Àwọn Ẹ̀kọ́ Sórí",
+        "body": "Ṣẹ̀dá àwòkọ́ṣe, fi àkọlé àti àlàyé kun, kí o sì gbé fídíò ẹ̀kọ́ sórí."
+      },
+      "scholarCaptions": {
+        "title": "Àkọlé àti Ìtumọ̀",
+        "body": "Ṣẹ̀dá àkọlé tó bá àkókò mu àti ìtumọ̀ fún àwọn ẹ̀kọ́."
+      },
+      "scholarReview": {
+        "title": "Firanṣẹ́ Fún Àyẹ̀wò",
+        "body": "Firanṣẹ́ àwọn ẹ̀kọ́ tí o parí fún àyẹ̀wò, kí o sì tọpinpin ipò wọn."
+      },
+      "scholarManage": {
+        "title": "Ṣàkóso Ẹ̀kọ́ àti Àkójọ",
+        "body": "Ṣètò àwọn ẹ̀kọ́ tí a fọwọ́ sí sínú àkójọ fún àwọn ọmọlẹ́yìn."
+      }
+    }
+  }
+}

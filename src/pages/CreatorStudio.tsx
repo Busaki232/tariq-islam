@@ -427,7 +427,9 @@ const topFiveReflections = useMemo(() => {
           />
 
           <StudioStat
-            label="Comments"
+            label={t("reflections.comments", {
+              defaultValue: "Comments",
+            })}
             value={totals.comments}
             icon={<MessageCircle className="h-5 w-5" />}
           />

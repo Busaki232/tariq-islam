@@ -26,6 +26,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import ScrollToTop from "@/components/ScrollToTop";
 import TopBackBar from "@/components/TopBackBar";
 import BottomNav from "@/components/BottomNav";
+import AppOnboarding from "@/components/onboarding/AppOnboarding";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { IncomingCallScreen } from "@/components/IncomingCallScreen";
 import { loadAdhanSettings, scheduleAdhanForToday } from "@/services/adhanNotifications";
@@ -90,15 +91,20 @@ import MosqueLivestreamViewer from "@/pages/MosqueLivestreamViewer";
 import ScholarApplication from "@/pages/ScholarApplication";
 import Scholars from "@/pages/Scholars";
 import UploadScholarLecture from "@/pages/UploadScholarLecture";
+import ScholarVoiceEnrollment from "@/pages/ScholarVoiceEnrollment";
 import ScholarProfile from "@/pages/ScholarProfile";
+import ScholarLivestream from "@/pages/ScholarLivestream";
 import ScholarLectures from "@/pages/ScholarLectures";
 import ScholarLectureViewer from "@/pages/ScholarLectureViewer";
+import ScholarLecturesFeed from "@/pages/ScholarLecturesFeed";
 import SavedScholarLectures from "@/pages/SavedScholarLectures";
 import ContinueWatching from "@/pages/ContinueWatching";
 import CreateScholarPlaylist from "@/pages/CreateScholarPlaylist";
 import ManageScholarPlaylists from "./pages/ManageScholarPlaylists";
 import ScholarPlaylistViewer from "./pages/ScholarPlaylistViewer";
 import EditScholarPlaylist from "./pages/EditScholarPlaylist";
+import TariqAI from "@/pages/TariqAI";
+import RealtimeTranslation from "@/pages/RealtimeTranslation";
 
 if (import.meta.env.DEV) {
   (window as any).supabase = supabase;
@@ -586,6 +592,15 @@ export default function App() {
                             <Route path="/email-confirmed" element={<EmailConfirmed />} />
 
 <Route path="/quran" element={<QuranPage />} />
+<Route path="/tariq-ai" element={<TariqAI />} />
+<Route
+  path="/live-translation"
+  element={
+    <ProtectedRoute>
+      <RealtimeTranslation />
+    </ProtectedRoute>
+  }
+/>
 <Route path="/qibla" element={<Qibla />} />
 <Route path="/tasbih" element={<Tasbih />} />
 
@@ -644,6 +659,22 @@ export default function App() {
   }
 />
 <Route
+  path="/scholars/:scholarId/voice-enrollment"
+  element={
+    <ProtectedRoute>
+      <ScholarVoiceEnrollment />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/scholar/lectures"
+  element={<ScholarLecturesFeed />}
+/>
+<Route
+  path="/scholars/lectures"
+  element={<ScholarLecturesFeed />}
+/>
+<Route
   path="/scholars/:scholarId/lectures/:lectureId"
   element={<ScholarLectureViewer />}
 />
@@ -659,6 +690,15 @@ export default function App() {
     </ProtectedRoute>
   }
 />
+<Route
+  path="/scholars/:scholarId/livestreams/:livestreamId"
+  element={
+    <ProtectedRoute>
+      <ScholarLivestream />
+    </ProtectedRoute>
+  }
+/>
+
 <Route
   path="/scholars/:scholarId"
   element={<ScholarProfile />}
@@ -869,6 +909,7 @@ export default function App() {
                           </Routes>
                         </div>
 
+                <AppOnboarding />
                 <BottomNav />
                       </Router>
                     </TooltipProvider>

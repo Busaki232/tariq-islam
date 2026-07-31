@@ -103,7 +103,9 @@
       "french": "Français",
       "hausa": "Haoussa",
       "arabic": "Arabe"
-    }
+    },
+    "how_to_use_title": "Comment utiliser Tariq Islam",
+    "how_to_use_subtitle": "Rouvrez le guide pour découvrir Ibadah, les réflexions, les savants, les mosquées, Tariq AI et la communauté."
   },
   "reflections": {
     "featuredReflections": "Réflexions à la une",
@@ -420,7 +422,9 @@
           "rejected": "Rejetées ({{count}})"
         }
       }
-    }
+    },
+    "adminBio": "Tariq Islam Admin est le système de gestion et de modération de la plateforme Tariq Islam, créée et exploitée par Busaki Media. Il a été conçu pour superviser la communauté musulmane en pleine croissance en gérant les utilisateurs, en surveillant le contenu, en examinant les signalements, en approuvant les inscriptions de mosquées, en gérant les événements et en maintenant un environnement islamique sûr pour tous les membres.\n\nLe système d’administration offre un contrôle complet sur les opérations de la communauté, notamment :\n\n• Gestion et vérification des utilisateurs\n• Modération de la communauté et examen du contenu\n• Approbation des mosquées et des événements\n• Gestion des publicités\n• Traitement des signalements et des plaintes\n• Surveillance des messages pour assurer la sécurité\n• Gestion des partenariats et des organisations\n• Analyse et suivi de l’engagement\n\nNotre mission est de créer une communauté islamique numérique mondiale, sûre et bénéfique, où les musulmans peuvent se connecter, apprendre et progresser ensemble tout en préservant les valeurs islamiques.\n\nPropulsé par Busaki Media\nNous développons la technologie au service de la Oumma.",
+    "edit": "Modifier"
   },
   "bottomNav": {
     "home": "Accueil",
@@ -650,8 +654,132 @@
       "specialties": "Spécialités",
       "viewScholar": "Voir le savant",
       "loadError": "Impossible de charger les savants",
-      "loadErrorDescription": "L’annuaire des savants n’a pas pu être chargé. Veuillez réessayer."
+      "loadErrorDescription": "L’annuaire des savants n’a pas pu être chargé. Veuillez réessayer.",
+      "watchLectures": "Regarder les conférences des savants",
+      "watchLecturesDescription": "Découvrez les dernières conférences de savants vérifiés."
+    },
+    "lectureViewer": {
+      "loading": "Chargement de la conférence...",
+      "unavailable": "Conférence indisponible",
+      "unavailableDescription": "Cette conférence peut être indisponible, supprimée ou en attente d’approbation.",
+      "returnToScholar": "Retour au savant",
+      "back": "Retour",
+      "save": "Enregistrer",
+      "saved": "Enregistré",
+      "viewProfile": "Voir le profil",
+      "like_one": "{{count}} J’aime",
+      "like_other": "{{count}} J’aime",
+      "comment_one": "{{count}} Commentaire",
+      "comment_other": "{{count}} Commentaires",
+      "share": "Partager",
+      "view_one": "{{count}} vue",
+      "view_other": "{{count}} vues",
+      "noDescription": "Aucune description n’a été fournie pour cette conférence.",
+      "comments": "Commentaires",
+      "nextVideoComing": "La prochaine vidéo arrive",
+      "commentCount_one": "{{count}} commentaire",
+      "commentCount_other": "{{count}} commentaires",
+      "writeComment": "Écrire un commentaire...",
+      "signInToComment": "Connectez-vous pour commenter",
+      "postComment": "Publier le commentaire",
+      "loadingComments": "Chargement des commentaires...",
+      "noComments": "Aucun commentaire pour le moment. Lancez la discussion.",
+      "memberFallback": "Membre de Tariq Islam",
+      "deleteComment": "Supprimer le commentaire",
+      "moreFromScholar": "Plus de ce savant",
+      "continueLearning": "Continuez à apprendre auprès de ce savant.",
+      "noOtherLectures": "Aucune autre conférence approuvée pour le moment.",
+      "videoUnsupported": "Votre navigateur ne prend pas en charge la lecture vidéo.",
+      "loadError": "Impossible de charger la conférence",
+      "loadErrorDescription": "La conférence n’a pas pu être ouverte.",
+      "linkCopied": "Lien de la conférence copié",
+      "linkCopiedDescription": "Le lien de la conférence a été copié dans votre presse-papiers.",
+      "shareError": "Impossible de partager",
+      "shareErrorDescription": "Le lien de la conférence n’a pas pu être partagé.",
+      "likeError": "Impossible de mettre à jour la mention J’aime",
+      "saveRemoved": "Retiré des conférences enregistrées",
+      "saveAdded": "Conférence enregistrée",
+      "saveError": "Impossible de mettre à jour la conférence enregistrée",
+      "commentAddError": "Impossible d’ajouter le commentaire",
+      "commentDeleteError": "Impossible de supprimer le commentaire",
+      "tryAgain": "Veuillez réessayer."
+    },
+    "lectureFeed": {
+      "title": "Conférences des savants",
+      "subtitle": "Apprenez auprès de savants vérifiés",
+      "empty": "Aucune conférence disponible pour le moment",
+      "openLecture": "Ouvrir la conférence et les commentaires",
+      "captionsOff": "Sous-titres désactivés",
+      "original": "Original",
+      "captionsWillAppear": "Les sous-titres apparaîtront ici",
+      "captionLanguage": "Langue des sous-titres",
+      "expandCaptions": "Développer les sous-titres",
+      "collapseCaptions": "Réduire les sous-titres",
+      "muteVideo": "Couper le son",
+      "turnOnSound": "Activer le son"
     }
   },
-  "close": "Fermer"
+  "close": "Fermer",
+  "appOnboarding": {
+    "progress": "Étape {{current}} sur {{total}}",
+    "skip": "Passer",
+    "back": "Retour",
+    "next": "Suivant",
+    "done": "Terminer",
+    "openIbadah": "Ouvrir Ibadah",
+    "steps": {
+      "welcome": {
+        "title": "Bienvenue sur Tariq Islam",
+        "body": "Tariq Islam réunit l’adoration, l’apprentissage, les savants, les mosquées, la communauté et les outils d’intelligence artificielle islamique."
+      },
+      "ibadah": {
+        "title": "Commencez avec Ibadah",
+        "body": "Ouvrez Ibadah pour accéder au Coran, à la Qibla, au Tasbih, aux mosquées, aux savants, aux cours enregistrés et à Tariq AI."
+      },
+      "reflections": {
+        "title": "Découvrez les réflexions",
+        "body": "Regardez de courts rappels islamiques avec des sous-titres et des traductions."
+      },
+      "scholars": {
+        "title": "Apprenez auprès des savants",
+        "body": "Suivez des savants vérifiés, regardez leurs cours et enregistrez vos leçons."
+      },
+      "mosques": {
+        "title": "Restez connecté aux mosquées",
+        "body": "Découvrez les profils, annonces, événements et diffusions en direct des mosquées."
+      },
+      "ai": {
+        "title": "Utilisez Tariq AI",
+        "body": "Posez des questions, utilisez l’assistant du Hajj, consultez les invocations et traduisez des textes islamiques."
+      },
+      "community": {
+        "title": "Rejoignez la communauté",
+        "body": "Communiquez grâce à la communauté, aux messages privés, aux groupes et aux appels."
+      },
+      "scholarWelcome": {
+        "title": "Bienvenue sur la plateforme des savants",
+        "body": "Votre compte approuvé contient des outils pour enseigner, publier des cours et organiser des playlists."
+      },
+      "scholarProfile": {
+        "title": "Gérez votre profil",
+        "body": "Maintenez votre biographie, vos spécialités, vos langues et vos informations publiques à jour."
+      },
+      "scholarLectures": {
+        "title": "Publiez des cours",
+        "body": "Créez des brouillons, ajoutez les détails et importez vos vidéos."
+      },
+      "scholarCaptions": {
+        "title": "Sous-titres et traduction",
+        "body": "Générez des sous-titres synchronisés et des traductions accessibles."
+      },
+      "scholarReview": {
+        "title": "Soumettez pour examen",
+        "body": "Envoyez vos cours terminés à la modération et suivez leur statut."
+      },
+      "scholarManage": {
+        "title": "Gérez les cours et playlists",
+        "body": "Organisez vos cours approuvés en playlists pour vos abonnés."
+      }
+    }
+  }
 }

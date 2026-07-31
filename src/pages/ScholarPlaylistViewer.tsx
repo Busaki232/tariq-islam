@@ -172,7 +172,9 @@ const ScholarPlaylistViewer = () => {
   const firstLecture = lectures[0];
 
   const openLecture = (lectureId: string) => {
-    navigate(`/scholar-lectures/${lectureId}`);
+    navigate(
+      `/scholars/${playlist.scholar_id}/lectures/${lectureId}`
+    );
   };
 
   return (
@@ -184,7 +186,9 @@ const ScholarPlaylistViewer = () => {
         onClick={() => navigate(-1)}
       >
         <ArrowLeft className="mr-2 h-4 w-4" />
-        Back
+        {t("back", {
+          defaultValue: "Back",
+        })}
       </Button>
 
       <div className="grid gap-6 md:grid-cols-[320px_1fr]">

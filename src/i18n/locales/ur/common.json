@@ -18,5 +18,25 @@
   "joinNow": "ابھی شامل ہوں - مفت",
   "or": "یا",
   "salaam": "السلام علیکم",
-  "bismillah": "بسم اللہ الرحمٰن الرحیم"
+  "bismillah": "بسم اللہ الرحمٰن الرحیم",
+  "scholars": {
+    "directory": {
+      "watchLectures": "علماء کے لیکچرز دیکھیں",
+      "watchLecturesDescription": "تصدیق شدہ علماء کے تازہ ترین لیکچرز دیکھیں۔"
+    },
+    "lectureFeed": {
+      "title": "علماء کے لیکچرز",
+      "subtitle": "تصدیق شدہ علماء سے علم حاصل کریں",
+      "empty": "ابھی کوئی لیکچر دستیاب نہیں ہے",
+      "openLecture": "لیکچر اور تبصرے کھولیں",
+      "captionsOff": "کیپشن بند کریں",
+      "original": "اصل",
+      "captionsWillAppear": "کیپشن یہاں ظاہر ہوں گے",
+      "captionLanguage": "کیپشن کی زبان",
+      "expandCaptions": "کیپشن کھولیں",
+      "collapseCaptions": "کیپشن سمیٹیں",
+      "muteVideo": "ویڈیو کی آواز بند کریں",
+      "turnOnSound": "آواز چلائیں"
+    }
+  }
 }

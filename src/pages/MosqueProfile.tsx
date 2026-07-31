@@ -1,10 +1,24 @@
-import { useEffect, useState } from "react";
-import { ArrowLeft, MapPin, Phone, Globe2, BadgeCheck } from "lucide-react";
+import {
+  useEffect,
+  useState,
+  type ChangeEvent,
+} from "react";
+import {
+  ArrowLeft,
+  MapPin,
+  Phone,
+  Globe2,
+  BadgeCheck,
+  Loader2,
+  Pencil,
+} from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { supabase } from "@/integrations/supabase/client";
+import { openInAppLink } from "@/utils/openInAppLink";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { useTranslation } from "react-i18next";
 import nigerianIslamicAssociationImage from "@/assets/nigerian-islamic-association-chicago.png";
 
 import brooklynIslamicCenterImage from "@/assets/brooklyn-islamic-center.png";
@@ -101,6 +115,7 @@ const MosqueProfile = () => {
   const navigate = useNavigate();
   const { mosqueId } = useParams();
   const { user } = useAuth();
+  const { t } = useTranslation("mosques");
 
   const [mosque, setMosque] = useState<MosqueProfileData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -116,6 +131,10 @@ const [canManageAnnouncements, setCanManageAnnouncements] =
   const [savingAnnouncement, setSavingAnnouncement] = useState(false);
   const [editingMosqueProfile, setEditingMosqueProfile] = useState(false);
   const [savingMosqueProfile, setSavingMosqueProfile] = useState(false);
+  const [
+    uploadingMosqueImage,
+    setUploadingMosqueImage,
+  ] = useState(false);
 
   const [mosqueEvents, setMosqueEvents] = useState<MosqueEvent[]>([]);
 
@@ -718,6 +737,112 @@ const handleSubmitMosqueClaim = async () => {
     setSubmittingClaim(false);
   }
 };
+const handleMosqueImageChange = async (
+  event: ChangeEvent<HTMLInputElement>
+) => {
+  const file = event.currentTarget.files?.[0] ?? null;
+
+  event.currentTarget.value = "";
+
+  if (
+    !file ||
+    !mosque ||
+    !mosqueId ||
+    !canManageAnnouncements ||
+    uploadingMosqueImage
+  ) {
+    return;
+  }
+
+  const allowedTypes = [
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+  ];
+
+  if (!allowedTypes.includes(file.type)) {
+    window.alert(
+      "Please select a JPG, PNG, or WebP image."
+    );
+    return;
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    window.alert(
+      "The mosque picture must be 5 MB or smaller."
+    );
+    return;
+  }
+
+  setUploadingMosqueImage(true);
+
+  const extension =
+    file.type === "image/png"
+      ? "png"
+      : file.type === "image/webp"
+        ? "webp"
+        : "jpg";
+
+  const storagePath =
+    `${mosqueId}/profile-${Date.now()}.${extension}`;
+
+  try {
+    const { error: uploadError } =
+      await supabase.storage
+        .from("mosque-images")
+        .upload(storagePath, file, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: file.type,
+        });
+
+    if (uploadError) {
+      throw uploadError;
+    }
+
+    const { data: publicUrlData } =
+      supabase.storage
+        .from("mosque-images")
+        .getPublicUrl(storagePath);
+
+    const imageUrl = publicUrlData.publicUrl;
+
+    const { data, error: updateError } =
+      await supabase
+        .from("mosques")
+        .update({
+          image_url: imageUrl,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", mosqueId)
+        .select(
+          "id,name,address,city,state,phone,website,image_url,description,verified,prayer_times,claimed_by"
+        )
+        .single();
+
+    if (updateError) {
+      await supabase.storage
+        .from("mosque-images")
+        .remove([storagePath]);
+
+      throw updateError;
+    }
+
+    setMosque(data);
+  } catch (error) {
+    console.error(
+      "Could not update mosque picture:",
+      error
+    );
+
+    window.alert(
+      "The mosque picture could not be updated."
+    );
+  } finally {
+    setUploadingMosqueImage(false);
+  }
+};
+
 const handleStartEditingMosqueProfile = () => {
   if (!mosque || !canManageAnnouncements) {
     return;
@@ -1736,7 +1861,9 @@ const handleToggleMosqueNotifications = async () => {
           className="mb-6"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Mosques
+     {t("profile.backToMosques", {
+       defaultValue: "Back to Mosques",
+     })}
         </Button>
 
         <div className="rounded-xl border p-6 text-center">
@@ -1753,6 +1880,8 @@ const location = [mosque.city, mosque.state]
   .join(", ");
 
 const localMosqueImages: Record<string, string> = {
+  "Nigerian Islamic Association":
+    nigerianIslamicAssociationImage,
   "Islamic Center of Chicago": islamicCenterChicagoImage,
   "Muslim Community Center": muslimCommunityCenterChicagoImage,
   "Council of Islamic Organizations of Greater Chicago": ciogcChicagoImage,
@@ -1778,14 +1907,16 @@ const mosqueImage =
           className="mb-4"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Mosques
+    {t("profile.backToMosques", {
+      defaultValue: "Back to Mosques",
+    })}
         </Button>
 
         <div className="overflow-hidden rounded-2xl border bg-card shadow-sm">
-          <div className="aspect-[16/7] bg-muted">
-          {mosqueImage ? (
-            <img
-              src={mosqueImage}
+          <div className="relative aspect-[16/7] bg-muted">
+            {mosqueImage ? (
+              <img
+                src={mosqueImage}
                 alt={mosque.name}
                 className="h-full w-full object-cover"
               />
@@ -1793,6 +1924,49 @@ const mosqueImage =
               <div className="flex h-full items-center justify-center text-muted-foreground">
                 Mosque photo
               </div>
+            )}
+
+            {canManageAnnouncements && (
+              <>
+                <input
+                  id="mosque-profile-image-input"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  onChange={(event) =>
+                    void handleMosqueImageChange(event)
+                  }
+                />
+
+                <button
+                  type="button"
+                  disabled={uploadingMosqueImage}
+                  onClick={() =>
+                    document
+                      .getElementById(
+                        "mosque-profile-image-input"
+                      )
+                      ?.click()
+                  }
+                  className="absolute bottom-3 right-3 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/30 bg-black/70 text-white shadow-xl backdrop-blur-md transition hover:bg-black/85 disabled:opacity-60"
+                  aria-label={
+                    mosque.image_url
+                      ? "Change mosque picture"
+                      : "Add mosque picture"
+                  }
+                  title={
+                    mosque.image_url
+                      ? "Change mosque picture"
+                      : "Add mosque picture"
+                  }
+                >
+                  {uploadingMosqueImage ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <Pencil className="h-5 w-5" />
+                  )}
+                </button>
+              </>
             )}
           </div>
 
@@ -1817,13 +1991,17 @@ const mosqueImage =
             </div>
             <div className="mt-4 flex flex-col gap-3 rounded-xl border bg-muted/20 p-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="font-medium">
-                  {mosqueFollowerCount}{" "}
-                  {mosqueFollowerCount === 1 ? "Follower" : "Followers"}
-                </p>
-
+            <p className="font-medium">
+              {t("profile.followers.count", {
+                count: mosqueFollowerCount,
+                defaultValue: "{{count}} Followers",
+              })}
+            </p>
                 <p className="text-sm text-muted-foreground">
-                  Follow this mosque for announcements and event updates.
+                  {t("profile.followers.description", {
+                    defaultValue:
+                      "Follow this mosque for announcements and event updates.",
+                  })}
                 </p>
               </div>
 
@@ -1834,11 +2012,17 @@ const mosqueImage =
          onClick={() => void handleToggleMosqueFollow()}
          disabled={mosqueFollowLoading}
        >
-         {mosqueFollowLoading
-           ? "Please wait..."
-           : isFollowingMosque
-             ? "Following"
-             : "Follow Mosque"}
+        {mosqueFollowLoading
+          ? t("profile.followers.pleaseWait", {
+              defaultValue: "Please wait...",
+            })
+          : isFollowingMosque
+            ? t("profile.followers.following", {
+                defaultValue: "Following",
+              })
+            : t("profile.followers.followMosque", {
+                defaultValue: "Follow Mosque",
+              })}
        </Button>
 
        {isFollowingMosque && (
@@ -1850,11 +2034,15 @@ const mosqueImage =
              className="h-4 w-4"
            />
 
-           <span>
-             {mosqueNotificationsEnabled
-               ? "Notifications On"
-               : "Notifications Off"}
-           </span>
+          <span>
+            {mosqueNotificationsEnabled
+              ? t("profile.followers.notificationsOn", {
+                  defaultValue: "Notifications On",
+                })
+              : t("profile.followers.notificationsOff", {
+                  defaultValue: "Notifications Off",
+                })}
+          </span>
          </label>
        )}
      </div>
@@ -1866,13 +2054,17 @@ const mosqueImage =
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <h2 className="text-xl font-semibold">
-          Claim This Mosque
+          {t("profile.claim.title", {
+            defaultValue: "Claim This Mosque",
+          })}
         </h2>
 
-        <p className="mt-1 text-sm text-muted-foreground">
-          Mosque representatives can request access to manage prayer times,
-          announcements, and profile information.
-        </p>
+       <p className="mt-1 text-sm text-muted-foreground">
+         {t("profile.claim.description", {
+           defaultValue:
+             "Mosque representatives can request access to manage prayer times, announcements, and profile information.",
+         })}
+       </p>
       </div>
 
       {!user ? (
@@ -1880,22 +2072,34 @@ const mosqueImage =
           type="button"
           onClick={() => navigate("/auth")}
         >
-          Sign In to Claim
+          {t("profile.claim.signIn", {
+            defaultValue: "Sign In to Claim",
+          })}
         </Button>
       ) : existingClaimStatus === "pending" ? (
         <span className="rounded-full bg-islamic-gold/15 px-3 py-2 text-sm font-medium text-islamic-gold">
-          Claim Pending Review
+        {t("profile.claim.pending", {
+          defaultValue: "Claim Pending Review",
+        })}
         </span>
       ) : existingClaimStatus === "approved" ? (
         <span className="rounded-full bg-islamic-green/15 px-3 py-2 text-sm font-medium text-islamic-green">
-          Claim Approved
+         {t("profile.claim.approved", {
+           defaultValue: "Claim Approved",
+         })}
         </span>
       ) : (
         <Button
           type="button"
           onClick={() => setClaimFormOpen((current) => !current)}
         >
-          {claimFormOpen ? "Close Claim Form" : "Claim This Mosque"}
+       {claimFormOpen
+         ? t("profile.claim.closeForm", {
+             defaultValue: "Close Claim Form",
+           })
+         : t("profile.claim.openForm", {
+             defaultValue: "Claim This Mosque",
+           })}
         </Button>
       )}
     </div>
@@ -1907,31 +2111,38 @@ const mosqueImage =
         <div className="mt-5 space-y-4 border-t pt-5">
           {existingClaimStatus === "rejected" && (
             <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
-              Your previous claim was not approved. You may submit updated
-              information.
+           {t("profile.claim.previousRejected", {
+             defaultValue:
+               "Your previous claim was not approved. You may submit updated information.",
+           })}
+
             </div>
           )}
 
           <div>
-            <label className="text-sm font-medium">
-              Full Name
-            </label>
-
+          <label className="text-sm font-medium">
+            {t("profile.claim.fullName", {
+              defaultValue: "Full Name",
+            })}
+          </label>
             <input
               type="text"
               value={claimFullName}
               onChange={(event) =>
                 setClaimFullName(event.target.value)
               }
-              placeholder="Your full name"
-              className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
+          placeholder={t("profile.claim.fullNamePlaceholder", {
+            defaultValue: "Your full name",
+          })}
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium">
-              Your Role at the Mosque
-            </label>
+        <label className="text-sm font-medium">
+          {t("profile.claim.role", {
+            defaultValue: "Your Role at the Mosque",
+          })}
+        </label>
 
             <input
               type="text"
@@ -1939,16 +2150,20 @@ const mosqueImage =
               onChange={(event) =>
                 setClaimRole(event.target.value)
               }
-              placeholder="Example: Imam, administrator, board member"
+            placeholder={t("profile.claim.rolePlaceholder", {
+              defaultValue: "Example: Imam, administrator, board member",
+            })}
               className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
             />
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="text-sm font-medium">
-                Email
-              </label>
+            <label className="text-sm font-medium">
+              {t("profile.volunteers.email", {
+                defaultValue: "Email",
+              })}
+            </label>
 
               <input
                 type="email"
@@ -1956,15 +2171,19 @@ const mosqueImage =
                 onChange={(event) =>
                   setClaimEmail(event.target.value)
                 }
-                placeholder="you@example.com"
+               placeholder={t("profile.claim.emailPlaceholder", {
+                 defaultValue: "you@example.com",
+               })}
                 className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
               />
             </div>
 
             <div>
-              <label className="text-sm font-medium">
-                Phone
-              </label>
+            <label className="text-sm font-medium">
+             {t("profile.volunteers.phone", {
+               defaultValue: "Phone",
+             })}
+            </label>
 
               <input
                 type="tel"
@@ -1972,15 +2191,20 @@ const mosqueImage =
                 onChange={(event) =>
                   setClaimPhone(event.target.value)
                 }
-                placeholder="Phone number"
+        placeholder={t("profile.claim.phonePlaceholder", {
+          defaultValue: "Phone number",
+        })}
                 className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
               />
             </div>
           </div>
 
+
           <div>
             <label className="text-sm font-medium">
-              Proof and Verification Details
+              {t("profile.claim.proofDetails", {
+                defaultValue: "Proof and Verification Details",
+              })}
             </label>
 
             <textarea
@@ -1988,7 +2212,10 @@ const mosqueImage =
               onChange={(event) =>
                 setClaimProofDetails(event.target.value)
               }
-              placeholder="Explain your relationship to the mosque and how the admin can verify your role."
+              placeholder={t("profile.claim.proofPlaceholder", {
+                defaultValue:
+                  "Explain your relationship to the mosque and how the admin can verify your role.",
+              })}
               className="mt-2 min-h-[140px] w-full rounded-md border bg-background p-3 text-sm"
             />
           </div>
@@ -2006,8 +2233,12 @@ const mosqueImage =
             className="w-full"
           >
             {submittingClaim
-              ? "Submitting Claim..."
-              : "Submit Claim for Review"}
+              ? t("profile.claim.submitting", {
+                  defaultValue: "Submitting Claim...",
+                })
+              : t("profile.claim.submit", {
+                  defaultValue: "Submit Claim for Review",
+                })}
           </Button>
         </div>
       )}
@@ -2018,13 +2249,17 @@ const mosqueImage =
   <section className="rounded-2xl border bg-card p-5">
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <h2 className="text-xl font-semibold">
-          Mosque Profile Management
-        </h2>
+     <h2 className="text-xl font-semibold">
+       {t("profile.management.title", {
+         defaultValue: "Mosque Profile Management",
+       })}
+     </h2>
 
-        <p className="mt-1 text-sm text-muted-foreground">
-          Update this mosque’s public information.
-        </p>
+     <p className="mt-1 text-sm text-muted-foreground">
+       {t("profile.management.description", {
+         defaultValue: "Update this mosque’s public information.",
+       })}
+     </p>
       </div>
 
       <Button
@@ -2040,17 +2275,23 @@ const mosqueImage =
         }}
       >
         {editingMosqueProfile
-          ? "Close Edit Form"
-          : "Edit Mosque Profile"}
+          ? t("profile.management.closeEditForm", {
+              defaultValue: "Close Edit Form",
+            })
+          : t("profile.management.editProfile", {
+              defaultValue: "Edit Mosque Profile",
+            })}
       </Button>
     </div>
 
     {editingMosqueProfile && (
       <div className="mt-5 space-y-4 border-t pt-5">
         <div>
-          <label className="text-sm font-medium">
-            Mosque Name
-          </label>
+        <label className="text-sm font-medium">
+          {t("profile.management.mosqueName", {
+            defaultValue: "Mosque Name",
+          })}
+        </label>
 
           <input
             type="text"
@@ -2063,9 +2304,12 @@ const mosqueImage =
         </div>
 
         <div>
-          <label className="text-sm font-medium">
-            Address
-          </label>
+        <label className="text-sm font-medium">
+               {t("profile.management.address", {
+                 defaultValue: "Address",
+               })}
+             </label>
+
 
           <input
             type="text"
@@ -2079,9 +2323,11 @@ const mosqueImage =
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="text-sm font-medium">
-              City
-            </label>
+        <label className="text-sm font-medium">
+          {t("profile.management.city", {
+            defaultValue: "City",
+          })}
+        </label>
 
             <input
               type="text"
@@ -2095,7 +2341,9 @@ const mosqueImage =
 
           <div>
             <label className="text-sm font-medium">
-              State
+              {t("profile.management.state", {
+                defaultValue: "State",
+              })}
             </label>
 
             <input
@@ -2111,9 +2359,11 @@ const mosqueImage =
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="text-sm font-medium">
-              Phone
-            </label>
+           <label className="text-sm font-medium">
+             {t("profile.management.phone", {
+               defaultValue: "Phone",
+             })}
+           </label>
 
             <input
               type="tel"
@@ -2126,9 +2376,11 @@ const mosqueImage =
           </div>
 
           <div>
-            <label className="text-sm font-medium">
-              Website
-            </label>
+          <label className="text-sm font-medium">
+            {t("profile.management.website", {
+              defaultValue: "Website",
+            })}
+          </label>
 
             <input
               type="url"
@@ -2136,16 +2388,20 @@ const mosqueImage =
               onChange={(event) =>
                 setEditMosqueWebsite(event.target.value)
               }
-              placeholder="https://example.org"
+            placeholder={t("profile.management.websitePlaceholder", {
+              defaultValue: "https://example.org",
+            })}
               className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
             />
           </div>
         </div>
 
         <div>
-          <label className="text-sm font-medium">
-            Description
-          </label>
+         <label className="text-sm font-medium">
+           {t("profile.management.descriptionLabel", {
+             defaultValue: "Description",
+           })}
+         </label>
 
           <textarea
             value={editMosqueDescription}
@@ -2166,9 +2422,13 @@ const mosqueImage =
             }
             className="flex-1"
           >
-            {savingMosqueProfile
-              ? "Saving Profile..."
-              : "Save Mosque Profile"}
+         {savingMosqueProfile
+           ? t("profile.management.saving", {
+               defaultValue: "Saving Profile...",
+             })
+           : t("profile.management.save", {
+               defaultValue: "Save Mosque Profile",
+             })}
           </Button>
 
           <Button
@@ -2178,7 +2438,9 @@ const mosqueImage =
             disabled={savingMosqueProfile}
             className="flex-1"
           >
-            Cancel
+       {t("profile.volunteers.cancel", {
+         defaultValue: "Cancel",
+       })}
           </Button>
         </div>
       </div>
@@ -2188,9 +2450,11 @@ const mosqueImage =
 
 <section>
   <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-    <h2 className="text-xl font-semibold">
-      Prayer Times
-    </h2>
+<h2 className="text-xl font-semibold">
+  {t("profile.prayerTimes.title", {
+    defaultValue: "Prayer Times",
+  })}
+</h2>
 
     {canManageAnnouncements && (
       <Button
@@ -2205,9 +2469,13 @@ const mosqueImage =
           handleStartEditingPrayerTimes();
         }}
       >
-        {editingPrayerTimes
-          ? "Close Prayer Form"
-          : "Edit Prayer Times"}
+       {editingPrayerTimes
+         ? t("profile.prayerTimes.closeForm", {
+             defaultValue: "Close Prayer Form",
+           })
+         : t("profile.prayerTimes.edit", {
+             defaultValue: "Edit Prayer Times",
+           })}
       </Button>
     )}
   </div>
@@ -2215,128 +2483,215 @@ const mosqueImage =
     <div className="mb-5 space-y-4 rounded-2xl border bg-card p-5">
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className="text-sm font-medium">Fajr</label>
+          <label className="text-sm font-medium">
+            {t("profile.prayerTimes.fajr", {
+              defaultValue: "Fajr",
+            })}
+          </label>
           <input
             type="text"
             value={editFajr}
             onChange={(event) => setEditFajr(event.target.value)}
-            placeholder="Example: 5:30 AM"
+         placeholder={t("profile.prayerTimes.fajrPlaceholder", {
+           defaultValue: "Example: 5:30 AM",
+         })}
             className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
           />
         </div>
 
-        <div>
-          <label className="text-sm font-medium">Dhuhr</label>
-          <input
-            type="text"
-            value={editDhuhr}
-            onChange={(event) => setEditDhuhr(event.target.value)}
-            placeholder="Example: 1:00 PM"
-            className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
-          />
-        </div>
+  <div>
+    <label className="text-sm font-medium">
+      {t("profile.prayerTimes.dhuhr", {
+        defaultValue: "Dhuhr",
+      })}
+    </label>
 
-        <div>
-          <label className="text-sm font-medium">Asr</label>
-          <input
-            type="text"
-            value={editAsr}
-            onChange={(event) => setEditAsr(event.target.value)}
-            placeholder="Example: 5:00 PM"
-            className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
-          />
-        </div>
+    <input
+      type="text"
+      value={editDhuhr}
+      onChange={(event) => setEditDhuhr(event.target.value)}
+      placeholder={t("profile.prayerTimes.dhuhrPlaceholder", {
+        defaultValue: "Example: 1:00 PM",
+      })}
+      className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
+    />
+  </div>
 
-        <div>
-          <label className="text-sm font-medium">Maghrib</label>
-          <input
-            type="text"
-            value={editMaghrib}
-            onChange={(event) => setEditMaghrib(event.target.value)}
-            placeholder="Example: 8:15 PM"
-            className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
-          />
-        </div>
+ <div>
+   <label className="text-sm font-medium">
+     {t("profile.prayerTimes.asr", {
+       defaultValue: "Asr",
+     })}
+   </label>
 
-        <div>
-          <label className="text-sm font-medium">Isha</label>
-          <input
-            type="text"
-            value={editIsha}
-            onChange={(event) => setEditIsha(event.target.value)}
-            placeholder="Example: 9:45 PM"
-            className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
-          />
-        </div>
+   <input
+     type="text"
+     value={editAsr}
+     onChange={(event) => setEditAsr(event.target.value)}
+     placeholder={t("profile.prayerTimes.asrPlaceholder", {
+       defaultValue: "Example: 5:00 PM",
+     })}
+     className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
+   />
+ </div>
 
-        <div>
-          <label className="text-sm font-medium">Jummah</label>
-          <input
-            type="text"
-            value={editJummah}
-            onChange={(event) => setEditJummah(event.target.value)}
-            placeholder="Example: 1:00 PM Khutbah, 1:30 PM Salah"
-            className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
-          />
-        </div>
-      </div>
+ <div>
+   <label className="text-sm font-medium">
+     {t("profile.prayerTimes.maghrib", {
+       defaultValue: "Maghrib",
+     })}
+   </label>
 
-      <div className="flex flex-col gap-2 sm:flex-row">
-        <Button
-          type="button"
-          onClick={() => void handleSavePrayerTimes()}
-          disabled={savingPrayerTimes}
-          className="flex-1"
-        >
-          {savingPrayerTimes
-            ? "Saving Prayer Times..."
-            : "Save Prayer Times"}
-        </Button>
+   <input
+     type="text"
+     value={editMaghrib}
+     onChange={(event) => setEditMaghrib(event.target.value)}
+     placeholder={t("profile.prayerTimes.maghribPlaceholder", {
+       defaultValue: "Example: 8:15 PM",
+     })}
+     className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
+   />
+ </div>
 
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => setEditingPrayerTimes(false)}
-          disabled={savingPrayerTimes}
-          className="flex-1"
-        >
-          Cancel
-        </Button>
-      </div>
-    </div>
-  )}
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-      {[
-        ["Fajr", mosque.prayer_times?.fajr],
-        ["Dhuhr", mosque.prayer_times?.dhuhr],
-        ["Asr", mosque.prayer_times?.asr],
-        ["Maghrib", mosque.prayer_times?.maghrib],
-        ["Isha", mosque.prayer_times?.isha],
-        ["Jummah", mosque.prayer_times?.jummah],
-      ].map(([label, time]) => (
-        <div
-          key={label}
-          className="rounded-xl border bg-muted/20 p-4 text-center"
-        >
-          <p className="text-sm text-muted-foreground">
-            {label}
-          </p>
+ <div>
+   <label className="text-sm font-medium">
+     {t("profile.prayerTimes.isha", {
+       defaultValue: "Isha",
+     })}
+   </label>
 
-          <p className="mt-1 font-semibold">
-            {time || "Not provided"}
-          </p>
-        </div>
-      ))}
-    </div>
+   <input
+     type="text"
+     value={editIsha}
+     onChange={(event) => setEditIsha(event.target.value)}
+     placeholder={t("profile.prayerTimes.ishaPlaceholder", {
+       defaultValue: "Example: 9:45 PM",
+     })}
+     className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
+   />
+ </div>
+
+ <div>
+   <label className="text-sm font-medium">
+     {t("profile.prayerTimes.jummah", {
+       defaultValue: "Jummah",
+     })}
+   </label>
+
+   <input
+     type="text"
+     value={editJummah}
+     onChange={(event) => setEditJummah(event.target.value)}
+     placeholder={t("profile.prayerTimes.jummahPlaceholder", {
+       defaultValue: "Example: 1:00 PM Khutbah, 1:30 PM Salah",
+     })}
+     className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
+   />
+ </div>
+ </div>
+
+ <div className="flex flex-col gap-2 sm:flex-row">
+   <Button
+     type="button"
+     onClick={() => void handleSavePrayerTimes()}
+     disabled={savingPrayerTimes}
+     className="flex-1"
+   >
+     {savingPrayerTimes
+       ? t("profile.prayerTimes.saving", {
+           defaultValue: "Saving Prayer Times...",
+         })
+       : t("profile.prayerTimes.save", {
+           defaultValue: "Save Prayer Times",
+         })}
+   </Button>
+
+   <Button
+     type="button"
+     variant="outline"
+     onClick={() => setEditingPrayerTimes(false)}
+     disabled={savingPrayerTimes}
+     className="flex-1"
+   >
+     {t("profile.prayerTimes.cancel", {
+       defaultValue: "Cancel",
+     })}
+   </Button>
+ </div>
+ </div>
+ )}
+
+ <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+   {[
+     [
+       t("profile.prayerTimes.fajr", {
+         defaultValue: "Fajr",
+       }),
+       mosque.prayer_times?.fajr,
+     ],
+     [
+       t("profile.prayerTimes.dhuhr", {
+         defaultValue: "Dhuhr",
+       }),
+       mosque.prayer_times?.dhuhr,
+     ],
+     [
+       t("profile.prayerTimes.asr", {
+         defaultValue: "Asr",
+       }),
+       mosque.prayer_times?.asr,
+     ],
+     [
+       t("profile.prayerTimes.maghrib", {
+         defaultValue: "Maghrib",
+       }),
+       mosque.prayer_times?.maghrib,
+     ],
+     [
+       t("profile.prayerTimes.isha", {
+         defaultValue: "Isha",
+       }),
+       mosque.prayer_times?.isha,
+     ],
+     [
+       t("profile.prayerTimes.jummah", {
+         defaultValue: "Jummah",
+       }),
+       mosque.prayer_times?.jummah,
+     ],
+   ].map(([label, time]) => (
+     <div
+       key={label}
+       className="rounded-xl border bg-muted/20 p-4 text-center"
+     >
+       <p className="text-sm text-muted-foreground">
+         {label}
+       </p>
+
+       <p className="mt-1 font-semibold">
+         {time ||
+           t("profile.prayerTimes.notProvided", {
+             defaultValue: "Not provided",
+           })}
+       </p>
+     </div>
+   ))}
+ </div>
   </section>
   <section className="rounded-2xl border bg-card p-5">
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <h2 className="text-xl font-semibold">Mosque Events</h2>
+     <h2 className="text-xl font-semibold">
+       {t("profile.events.title", {
+         defaultValue: "Mosque Events",
+       })}
+     </h2>
 
-        <p className="mt-1 text-sm text-muted-foreground">
-          Upcoming programs and community activities.
-        </p>
+     <p className="mt-1 text-sm text-muted-foreground">
+       {t("profile.events.description", {
+         defaultValue: "Upcoming programs and community activities.",
+       })}
+     </p>
       </div>
 
       {canManageAnnouncements && (
@@ -2345,112 +2700,181 @@ const mosqueImage =
           onClick={() => setEventFormOpen((current) => !current)}
           variant={eventFormOpen ? "outline" : "default"}
         >
-          {eventFormOpen ? "Close Event Form" : "Create Mosque Event"}
+      {eventFormOpen
+        ? t("profile.events.closeForm", {
+            defaultValue: "Close Event Form",
+          })
+        : t("profile.events.openForm", {
+            defaultValue: "Create Mosque Event",
+          })}
         </Button>
       )}
     </div>
 
     {canManageAnnouncements && eventFormOpen && (
       <div className="mt-5 space-y-4 border-t pt-5">
-        <div>
-          <label className="text-sm font-medium">Event Title</label>
 
-          <input
-            type="text"
-            value={eventTitle}
-            onChange={(event) => setEventTitle(event.target.value)}
-            placeholder="Enter event title"
-            className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
-          />
-        </div>
+<div>
+  <label className="text-sm font-medium">
+    {t("profile.events.eventTitle", {
+      defaultValue: "Event Title",
+    })}
+  </label>
 
-        <div>
-          <label className="text-sm font-medium">Description</label>
+  <input
+    type="text"
+    value={eventTitle}
+    onChange={(event) => setEventTitle(event.target.value)}
+    placeholder={t("profile.events.eventTitlePlaceholder", {
+      defaultValue: "Enter event title",
+    })}
+    className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
+  />
+</div>
 
-          <textarea
-            value={eventDescription}
-            onChange={(event) => setEventDescription(event.target.value)}
-            placeholder="Describe the event"
-            className="mt-2 min-h-[120px] w-full rounded-md border bg-background p-3 text-sm"
-          />
-        </div>
+<div>
+  <label className="text-sm font-medium">
+    {t("profile.events.descriptionLabel", {
+      defaultValue: "Description",
+    })}
+  </label>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label className="text-sm font-medium">Date</label>
+  <textarea
+    value={eventDescription}
+    onChange={(event) => setEventDescription(event.target.value)}
+    placeholder={t("profile.events.descriptionPlaceholder", {
+      defaultValue: "Describe the event",
+    })}
+    className="mt-2 min-h-[120px] w-full rounded-md border bg-background p-3 text-sm"
+  />
+</div>
 
-            <input
-              type="date"
-              value={eventDate}
-              onChange={(event) => setEventDate(event.target.value)}
-              min={new Date().toISOString().split("T")[0]}
-              className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
-            />
-          </div>
+<div className="grid gap-4 sm:grid-cols-2">
+  <div>
+    <label className="text-sm font-medium">
+      {t("profile.events.date", {
+        defaultValue: "Date",
+      })}
+    </label>
 
-          <div>
-            <label className="text-sm font-medium">Time</label>
+    <input
+      type="date"
+      value={eventDate}
+      onChange={(event) => setEventDate(event.target.value)}
+      min={new Date().toISOString().split("T")[0]}
+      className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
+    />
+  </div>
 
-            <input
-              type="time"
-              value={eventTime}
-              onChange={(event) => setEventTime(event.target.value)}
-              className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
-            />
-          </div>
-        </div>
+  <div>
+    <label className="text-sm font-medium">
+      {t("profile.events.time", {
+        defaultValue: "Time",
+      })}
+    </label>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label className="text-sm font-medium">Location</label>
+    <input
+      type="time"
+      value={eventTime}
+      onChange={(event) => setEventTime(event.target.value)}
+      className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
+    />
+  </div>
+</div>
 
-            <input
-              type="text"
-              value={eventLocation}
-              onChange={(event) => setEventLocation(event.target.value)}
-              placeholder="Main prayer hall"
-              className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
-            />
-          </div>
+<div className="grid gap-4 sm:grid-cols-2">
+  <div>
+    <label className="text-sm font-medium">
+      {t("profile.events.location", {
+        defaultValue: "Location",
+      })}
+    </label>
 
-          <div>
-            <label className="text-sm font-medium">Category</label>
+    <input
+      type="text"
+      value={eventLocation}
+      onChange={(event) => setEventLocation(event.target.value)}
+      placeholder={t("profile.events.locationPlaceholder", {
+        defaultValue: "Main prayer hall",
+      })}
+      className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
+    />
+  </div>
 
-          <select
-            value={eventCategory}
-            onChange={(event) => setEventCategory(event.target.value)}
-            className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
-          >
-            <option value="religious">Religious</option>
-            <option value="educational">Educational</option>
-            <option value="cultural">Cultural</option>
-            <option value="social">Social</option>
-            <option value="general">General</option>
-          </select>
-          </div>
-        </div>
+  <div>
+    <label className="text-sm font-medium">
+      {t("profile.events.category", {
+        defaultValue: "Category",
+      })}
+    </label>
 
-        <Button
-          type="button"
-          onClick={() => void handleCreateMosqueEvent()}
-          disabled={
-            savingMosqueEvent ||
-            !eventTitle.trim() ||
-            !eventDate ||
-            !eventTime ||
-            !eventLocation.trim()
-          }
-          className="w-full"
-        >
-          {savingMosqueEvent ? "Creating Event..." : "Create Event"}
-        </Button>
+    <select
+      value={eventCategory}
+      onChange={(event) => setEventCategory(event.target.value)}
+      className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
+    >
+      <option value="religious">
+        {t("profile.events.categories.religious", {
+          defaultValue: "Religious",
+        })}
+      </option>
+
+      <option value="educational">
+        {t("profile.events.categories.educational", {
+          defaultValue: "Educational",
+        })}
+      </option>
+
+      <option value="cultural">
+        {t("profile.events.categories.cultural", {
+          defaultValue: "Cultural",
+        })}
+      </option>
+
+      <option value="social">
+        {t("profile.events.categories.social", {
+          defaultValue: "Social",
+        })}
+      </option>
+
+      <option value="general">
+        {t("profile.events.categories.general", {
+          defaultValue: "General",
+        })}
+      </option>
+    </select>
+  </div>
+</div>
+
+<Button
+  type="button"
+  onClick={() => void handleCreateMosqueEvent()}
+  disabled={
+    savingMosqueEvent ||
+    !eventTitle.trim() ||
+    !eventDate ||
+    !eventTime ||
+    !eventLocation.trim()
+  }
+  className="w-full"
+>
+  {savingMosqueEvent
+    ? t("profile.events.creating", {
+        defaultValue: "Creating Event...",
+      })
+    : t("profile.events.create", {
+        defaultValue: "Create Event",
+      })}
+</Button>
       </div>
     )}
 
     <div className="mt-5 space-y-3">
       {mosqueEvents.length === 0 ? (
         <p className="rounded-xl border bg-muted/20 p-4 text-sm text-muted-foreground">
-          No upcoming mosque events.
+          {t("profile.events.empty", {
+            defaultValue: "No upcoming mosque events.",
+          })}
         </p>
       ) : (
           mosqueEvents.map((event) => (
@@ -2461,9 +2885,11 @@ const mosqueImage =
        {editingMosqueEventId === event.id ? (
          <div className="space-y-4">
            <div>
-             <label className="text-sm font-medium">
-               Event Title
-             </label>
+            <label className="text-sm font-medium">
+              {t("profile.events.eventTitle", {
+                defaultValue: "Event Title",
+              })}
+            </label>
 
              <input
                type="text"
@@ -2476,10 +2902,11 @@ const mosqueImage =
            </div>
 
            <div>
-             <label className="text-sm font-medium">
-               Description
-             </label>
-
+       <label className="text-sm font-medium">
+         {t("profile.events.descriptionLabel", {
+           defaultValue: "Description",
+         })}
+       </label>
              <textarea
                value={editingEventDescription}
                onChange={(changeEvent) =>
@@ -2491,9 +2918,11 @@ const mosqueImage =
 
            <div className="grid gap-4 sm:grid-cols-2">
              <div>
-               <label className="text-sm font-medium">
-                 Date
-               </label>
+             <label className="text-sm font-medium">
+               {t("profile.events.date", {
+                 defaultValue: "Date",
+               })}
+             </label>
 
                <input
                  type="date"
@@ -2508,7 +2937,9 @@ const mosqueImage =
 
              <div>
                <label className="text-sm font-medium">
-                 Time
+                 {t("profile.events.time", {
+                   defaultValue: "Time",
+                 })}
                </label>
 
                <input
@@ -2524,9 +2955,11 @@ const mosqueImage =
 
            <div className="grid gap-4 sm:grid-cols-2">
              <div>
-               <label className="text-sm font-medium">
-                 Location
-               </label>
+              <label className="text-sm font-medium">
+                {t("profile.events.location", {
+                  defaultValue: "Location",
+                })}
+              </label>
 
                <input
                  type="text"
@@ -2539,9 +2972,11 @@ const mosqueImage =
              </div>
 
              <div>
-               <label className="text-sm font-medium">
-                 Category
-               </label>
+              <label className="text-sm font-medium">
+                {t("profile.events.category", {
+                  defaultValue: "Category",
+                })}
+              </label>
 
                <select
                  onChange={(changeEvent) =>
@@ -2549,13 +2984,47 @@ const mosqueImage =
                  }
                  className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
                >
-                 <option value="community">Community</option>
-                 <option value="lecture">Lecture</option>
-                 <option value="education">Education</option>
-                 <option value="youth">Youth</option>
-                 <option value="sisters">Sisters</option>
-                 <option value="fundraiser">Fundraiser</option>
-                 <option value="jummah">Jummah</option>
+                <option value="community">
+                  {t("profile.events.categories.community", {
+                    defaultValue: "Community",
+                  })}
+                </option>
+
+                <option value="lecture">
+                  {t("profile.events.categories.lecture", {
+                    defaultValue: "Lecture",
+                  })}
+                </option>
+
+                <option value="education">
+                  {t("profile.events.categories.education", {
+                    defaultValue: "Education",
+                  })}
+                </option>
+
+                <option value="youth">
+                  {t("profile.events.categories.youth", {
+                    defaultValue: "Youth",
+                  })}
+                </option>
+
+                <option value="sisters">
+                  {t("profile.events.categories.sisters", {
+                    defaultValue: "Sisters",
+                  })}
+                </option>
+
+                <option value="fundraiser">
+                  {t("profile.events.categories.fundraiser", {
+                    defaultValue: "Fundraiser",
+                  })}
+                </option>
+
+                <option value="jummah">
+                  {t("profile.events.categories.jummah", {
+                    defaultValue: "Jummah",
+                  })}
+                </option>
                </select>
              </div>
            </div>
@@ -2573,7 +3042,13 @@ const mosqueImage =
                }
                className="flex-1"
              >
-               {updatingMosqueEvent ? "Saving Event..." : "Save Event"}
+               {updatingMosqueEvent
+                 ? t("profile.events.saving", {
+                     defaultValue: "Saving Event...",
+                   })
+                 : t("profile.events.save", {
+                     defaultValue: "Save Event",
+                   })}
              </Button>
 
              <Button
@@ -2583,7 +3058,9 @@ const mosqueImage =
                disabled={updatingMosqueEvent}
                className="flex-1"
              >
-               Cancel
+               {t("profile.events.cancel", {
+                 defaultValue: "Cancel",
+               })}
              </Button>
            </div>
          </div>
@@ -2592,7 +3069,10 @@ const mosqueImage =
            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
              <div>
                <h3 className="font-semibold">
-                 {event.title || "Mosque Event"}
+       {event.title ||
+         t("profile.events.fallbackTitle", {
+           defaultValue: "Mosque Event",
+         })}
                </h3>
 
                <p className="mt-1 text-sm text-muted-foreground">
@@ -2619,7 +3099,9 @@ const mosqueImage =
                        handleStartEditingMosqueEvent(event)
                      }
                    >
-                     Edit
+                   {t("profile.events.edit", {
+                     defaultValue: "Edit",
+                   })}
                    </Button>
 
                    <Button
@@ -2630,7 +3112,9 @@ const mosqueImage =
                        void handleDeleteMosqueEvent(event.id)
                      }
                    >
-                     Delete
+                 {t("profile.announcements.delete", {
+                   defaultValue: "Delete",
+                 })}
                    </Button>
                  </>
                )}
@@ -2645,7 +3129,10 @@ const mosqueImage =
 
            {event.location && (
              <p className="mt-3 text-sm font-medium">
-               Location: {event.location}
+              {t("profile.events.locationValue", {
+                location: event.location,
+                defaultValue: "Location: {{location}}",
+              })}
              </p>
            )}
          </>
@@ -2658,11 +3145,18 @@ const mosqueImage =
     <section className="rounded-2xl border bg-card p-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-xl font-semibold">Mosque Livestreams</h2>
+     <h2 className="text-xl font-semibold">
+       {t("profile.livestreams.title", {
+         defaultValue: "Mosque Livestreams",
+       })}
+     </h2>
 
-          <p className="mt-1 text-sm text-muted-foreground">
-            Watch live broadcasts and view upcoming mosque programs.
-          </p>
+     <p className="mt-1 text-sm text-muted-foreground">
+       {t("profile.livestreams.description", {
+         defaultValue:
+           "Watch live broadcasts and view upcoming mosque programs.",
+       })}
+     </p>
         </div>
 
         {canManageAnnouncements && (
@@ -2673,123 +3167,169 @@ const mosqueImage =
             }
             variant={livestreamFormOpen ? "outline" : "default"}
           >
-            {livestreamFormOpen
-              ? "Close Livestream Form"
-              : "Create Livestream"}
+           {livestreamFormOpen
+             ? t("profile.livestreams.closeForm", {
+                 defaultValue: "Close Livestream Form",
+               })
+             : t("profile.livestreams.openForm", {
+                 defaultValue: "Create Livestream",
+               })}
           </Button>
         )}
       </div>
 
       {canManageAnnouncements && livestreamFormOpen && (
         <div className="mt-5 space-y-4 border-t pt-5">
+
+      <div>
+        <label className="text-sm font-medium">
+          {t("profile.livestreams.livestreamTitle", {
+            defaultValue: "Livestream Title",
+          })}
+        </label>
+
+        <input
+          type="text"
+          value={livestreamTitle}
+          onChange={(event) =>
+            setLivestreamTitle(event.target.value)
+          }
+          placeholder={t(
+            "profile.livestreams.titlePlaceholder",
+            {
+              defaultValue: "Example: Friday Jummah Khutbah",
+            }
+          )}
+          className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
+        />
+      </div>
+
+       <div>
+         <label className="text-sm font-medium">
+           {t("profile.livestreams.descriptionLabel", {
+             defaultValue: "Description",
+           })}
+         </label>
+
+         <textarea
+           value={livestreamDescription}
+           onChange={(event) =>
+             setLivestreamDescription(event.target.value)
+           }
+           placeholder={t(
+             "profile.livestreams.descriptionPlaceholder",
+             {
+               defaultValue: "Describe the livestream",
+             }
+           )}
+           className="mt-2 min-h-[110px] w-full rounded-md border bg-background p-3 text-sm"
+         />
+       </div>
+
+      <div>
+        <label className="text-sm font-medium">
+          {t("profile.livestreams.streamUrl", {
+            defaultValue: "Stream URL",
+          })}
+        </label>
+
+        <input
+          type="url"
+          value={livestreamUrl}
+          onChange={(event) =>
+            setLivestreamUrl(event.target.value)
+          }
+          placeholder={t("profile.livestreams.urlPlaceholder", {
+            defaultValue: "https://youtube.com/live/...",
+          })}
+          className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
+        />
+      </div>
+
+        <div className="grid gap-4 sm:grid-cols-3">
           <div>
             <label className="text-sm font-medium">
-              Livestream Title
+              {t("profile.livestreams.status", {
+                defaultValue: "Status",
+              })}
+            </label>
+
+            <select
+              value={livestreamStatus}
+              onChange={(event) =>
+                setLivestreamStatus(
+                  event.target.value as
+                    | "upcoming"
+                    | "live"
+                    | "ended"
+                )
+              }
+              className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
+            >
+              <option value="upcoming">
+                {t("profile.livestreams.statuses.upcoming", {
+                  defaultValue: "Upcoming",
+                })}
+              </option>
+
+              <option value="live">
+                {t("profile.livestreams.statuses.live", {
+                  defaultValue: "Live",
+                })}
+              </option>
+
+              <option value="ended">
+                {t("profile.livestreams.statuses.ended", {
+                  defaultValue: "Ended",
+                })}
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">
+              {t("profile.livestreams.date", {
+                defaultValue: "Date",
+              })}
             </label>
 
             <input
-              type="text"
-              value={livestreamTitle}
+              type="date"
+              value={livestreamDate}
               onChange={(event) =>
-                setLivestreamTitle(event.target.value)
+                setLivestreamDate(event.target.value)
               }
-              placeholder="Example: Friday Jummah Khutbah"
+              min={new Date().toISOString().split("T")[0]}
               className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
             />
           </div>
 
           <div>
             <label className="text-sm font-medium">
-              Description
-            </label>
-
-            <textarea
-              value={livestreamDescription}
-              onChange={(event) =>
-                setLivestreamDescription(event.target.value)
-              }
-              placeholder="Describe the livestream"
-              className="mt-2 min-h-[110px] w-full rounded-md border bg-background p-3 text-sm"
-            />
-          </div>
-
-          <div>
-            <label className="text-sm font-medium">
-              Stream URL
+              {t("profile.livestreams.time", {
+                defaultValue: "Time",
+              })}
             </label>
 
             <input
-              type="url"
-              value={livestreamUrl}
+              type="time"
+              value={livestreamTime}
               onChange={(event) =>
-                setLivestreamUrl(event.target.value)
+                setLivestreamTime(event.target.value)
               }
-              placeholder="https://youtube.com/live/..."
               className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
             />
           </div>
-
-          <div className="grid gap-4 sm:grid-cols-3">
-            <div>
-              <label className="text-sm font-medium">
-                Status
-              </label>
-
-              <select
-                value={livestreamStatus}
-                onChange={(event) =>
-                  setLivestreamStatus(
-                    event.target.value as
-                      | "upcoming"
-                      | "live"
-                      | "ended"
-                  )
-                }
-                className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
-              >
-                <option value="upcoming">Upcoming</option>
-                <option value="live">Live</option>
-                <option value="ended">Ended</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium">
-                Date
-              </label>
-
-              <input
-                type="date"
-                value={livestreamDate}
-                onChange={(event) =>
-                  setLivestreamDate(event.target.value)
-                }
-                min={new Date().toISOString().split("T")[0]}
-                className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium">
-                Time
-              </label>
-
-              <input
-                type="time"
-                value={livestreamTime}
-                onChange={(event) =>
-                  setLivestreamTime(event.target.value)
-                }
-                className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
-              />
-            </div>
-          </div>
+        </div>
 
           {livestreamStatus === "upcoming" &&
             (!livestreamDate || !livestreamTime) && (
-              <p className="text-sm text-muted-foreground">
-                Upcoming livestreams require a date and time.
-              </p>
+           <p className="text-sm text-muted-foreground">
+             {t("profile.livestreams.scheduleRequired", {
+               defaultValue:
+                 "Upcoming livestreams require a date and time.",
+             })}
+           </p>
             )}
 
           <Button
@@ -2805,8 +3345,12 @@ const mosqueImage =
             className="w-full"
           >
             {savingLivestream
-              ? "Creating Livestream..."
-              : "Create Livestream"}
+              ? t("profile.livestreams.creating", {
+                  defaultValue: "Creating Livestream...",
+                })
+              : t("profile.livestreams.create", {
+                  defaultValue: "Create Livestream",
+                })}
           </Button>
         </div>
       )}
@@ -2814,7 +3358,10 @@ const mosqueImage =
       <div className="mt-5 space-y-3">
         {mosqueLivestreams.length === 0 ? (
           <p className="rounded-xl border bg-muted/20 p-4 text-sm text-muted-foreground">
-            No mosque livestreams are currently available.
+           {t("profile.livestreams.empty", {
+             defaultValue:
+               "No mosque livestreams are currently available.",
+           })}
           </p>
         ) : (
           mosqueLivestreams.map((livestream) => (
@@ -2838,11 +3385,17 @@ const mosqueImage =
                             : "bg-muted text-muted-foreground"
                       }`}
                     >
-                      {livestream.status === "live"
-                        ? "LIVE NOW"
-                        : livestream.status === "upcoming"
-                          ? "UPCOMING"
-                          : "ENDED"}
+                     {livestream.status === "live"
+                       ? t("profile.livestreams.badges.liveNow", {
+                           defaultValue: "LIVE NOW",
+                         })
+                       : livestream.status === "upcoming"
+                         ? t("profile.livestreams.badges.upcoming", {
+                             defaultValue: "UPCOMING",
+                           })
+                         : t("profile.livestreams.badges.ended", {
+                             defaultValue: "ENDED",
+                           })}
                     </span>
                   </div>
 
@@ -2865,11 +3418,17 @@ const mosqueImage =
                           )
                         }
                       >
-                        {livestream.status === "live"
-                          ? "Watch Live"
-                          : livestream.status === "upcoming"
-                            ? "View Stream"
-                            : "Watch Recording"}
+                       {livestream.status === "live"
+                         ? t("profile.livestreams.watchLive", {
+                             defaultValue: "Watch Live",
+                           })
+                         : livestream.status === "upcoming"
+                           ? t("profile.livestreams.viewStream", {
+                               defaultValue: "View Stream",
+                             })
+                           : t("profile.livestreams.watchRecording", {
+                               defaultValue: "Watch Recording",
+                             })}
                       </Button>
                      </div>
                    </div>
@@ -2888,7 +3447,9 @@ const mosqueImage =
                              )
                            }
                          >
-                           Go Live
+                         {t("profile.livestreams.goLive", {
+                           defaultValue: "Go Live",
+                         })}
                          </Button>
                        )}
 
@@ -2904,7 +3465,9 @@ const mosqueImage =
                              )
                            }
                          >
-                           End
+                           {t("profile.livestreams.end", {
+                             defaultValue: "End",
+                           })}
                          </Button>
                        )}
 
@@ -2918,7 +3481,9 @@ const mosqueImage =
                            )
                          }
                        >
-                         Delete
+                       {t("profile.livestreams.delete", {
+                         defaultValue: "Delete",
+                       })}
                        </Button>
                      </div>
                    )}
@@ -2936,13 +3501,18 @@ const mosqueImage =
   <section className="rounded-2xl border bg-card p-5">
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <h2 className="text-xl font-semibold">
-          Volunteer Opportunities
-        </h2>
+   <h2 className="text-xl font-semibold">
+     {t("profile.volunteers.title", {
+       defaultValue: "Volunteer Opportunities",
+     })}
+   </h2>
 
-        <p className="mt-1 text-sm text-muted-foreground">
-          Help the mosque with upcoming programs and community activities.
-        </p>
+   <p className="mt-1 text-sm text-muted-foreground">
+     {t("profile.volunteers.description", {
+       defaultValue:
+         "Help the mosque with upcoming programs and community activities.",
+     })}
+   </p>
       </div>
 
       {canManageAnnouncements && (
@@ -2951,125 +3521,152 @@ const mosqueImage =
           onClick={() => setVolunteerFormOpen((current) => !current)}
           variant={volunteerFormOpen ? "outline" : "default"}
         >
-          {volunteerFormOpen
-            ? "Close Volunteer Form"
-            : "Create Opportunity"}
+         {volunteerFormOpen
+           ? t("profile.volunteers.closeForm", {
+               defaultValue: "Close Volunteer Form",
+             })
+           : t("profile.volunteers.openForm", {
+               defaultValue: "Create Opportunity",
+             })}
         </Button>
       )}
     </div>
 
     {canManageAnnouncements && volunteerFormOpen && (
       <div className="mt-5 space-y-4 border-t pt-5">
+
+      <div>
+        <label className="text-sm font-medium">
+          {t("profile.volunteers.opportunityTitle", {
+            defaultValue: "Opportunity Title",
+          })}
+        </label>
+
+        <input
+          type="text"
+          value={volunteerTitle}
+          onChange={(event) => setVolunteerTitle(event.target.value)}
+          placeholder={t("profile.volunteers.titlePlaceholder", {
+            defaultValue: "Example: Ramadan food distribution",
+          })}
+          className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
+        />
+      </div>
+
+      <div>
+        <label className="text-sm font-medium">
+          {t("profile.volunteers.descriptionLabel", {
+            defaultValue: "Description",
+          })}
+        </label>
+
+        <textarea
+          value={volunteerDescription}
+          onChange={(event) =>
+            setVolunteerDescription(event.target.value)
+          }
+          placeholder={t("profile.volunteers.descriptionPlaceholder", {
+            defaultValue:
+              "Describe the work volunteers will help with",
+          })}
+          className="mt-2 min-h-[120px] w-full rounded-md border bg-background p-3 text-sm"
+        />
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label className="text-sm font-medium">
-            Opportunity Title
+            {t("profile.volunteers.date", {
+              defaultValue: "Volunteer Date",
+            })}
           </label>
 
           <input
-            type="text"
-            value={volunteerTitle}
-            onChange={(event) => setVolunteerTitle(event.target.value)}
-            placeholder="Example: Ramadan food distribution"
+            type="date"
+            value={volunteerDate}
+            onChange={(event) => setVolunteerDate(event.target.value)}
+            min={new Date().toISOString().split("T")[0]}
             className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
           />
         </div>
 
         <div>
           <label className="text-sm font-medium">
-            Description
-          </label>
-
-          <textarea
-            value={volunteerDescription}
-            onChange={(event) =>
-              setVolunteerDescription(event.target.value)
-            }
-            placeholder="Describe the work volunteers will help with"
-            className="mt-2 min-h-[120px] w-full rounded-md border bg-background p-3 text-sm"
-          />
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label className="text-sm font-medium">
-              Volunteer Date
-            </label>
-
-            <input
-              type="date"
-              value={volunteerDate}
-              onChange={(event) => setVolunteerDate(event.target.value)}
-              min={new Date().toISOString().split("T")[0]}
-              className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
-            />
-          </div>
-
-          <div>
-            <label className="text-sm font-medium">
-              Volunteers Needed
-            </label>
-
-            <input
-              type="number"
-              min="1"
-              value={volunteersNeeded}
-              onChange={(event) =>
-                setVolunteersNeeded(event.target.value)
-              }
-              placeholder="Optional"
-              className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
-            />
-          </div>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label className="text-sm font-medium">
-              Start Time
-            </label>
-
-            <input
-              type="time"
-              value={volunteerStartTime}
-              onChange={(event) =>
-                setVolunteerStartTime(event.target.value)
-              }
-              className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
-            />
-          </div>
-
-          <div>
-            <label className="text-sm font-medium">
-              End Time
-            </label>
-
-            <input
-              type="time"
-              value={volunteerEndTime}
-              onChange={(event) =>
-                setVolunteerEndTime(event.target.value)
-              }
-              className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="text-sm font-medium">
-            Location
+            {t("profile.volunteers.needed", {
+              defaultValue: "Volunteers Needed",
+            })}
           </label>
 
           <input
-            type="text"
-            value={volunteerLocation}
+            type="number"
+            min="1"
+            value={volunteersNeeded}
             onChange={(event) =>
-              setVolunteerLocation(event.target.value)
+              setVolunteersNeeded(event.target.value)
             }
-            placeholder="Example: Mosque community hall"
+       placeholder={t("profile.volunteers.optional", {
+         defaultValue: "Optional",
+       })}
+       className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
+       />
+        </div>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label className="text-sm font-medium">
+            {t("profile.volunteers.startTime", {
+              defaultValue: "Start Time",
+            })}
+          </label>
+
+          <input
+            type="time"
+            value={volunteerStartTime}
+            onChange={(event) =>
+              setVolunteerStartTime(event.target.value)
+            }
             className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
           />
         </div>
 
+        <div>
+          <label className="text-sm font-medium">
+            {t("profile.volunteers.endTime", {
+              defaultValue: "End Time",
+            })}
+          </label>
+
+          <input
+            type="time"
+            value={volunteerEndTime}
+            onChange={(event) =>
+              setVolunteerEndTime(event.target.value)
+            }
+            className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="text-sm font-medium">
+          {t("profile.volunteers.location", {
+            defaultValue: "Location",
+          })}
+        </label>
+
+        <input
+          type="text"
+          value={volunteerLocation}
+          onChange={(event) =>
+            setVolunteerLocation(event.target.value)
+          }
+          placeholder={t("profile.volunteers.locationPlaceholder", {
+            defaultValue: "Example: Mosque community hall",
+          })}
+          className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
+        />
+      </div>
         <Button
           type="button"
           onClick={() => void handleCreateVolunteerOpportunity()}
@@ -3080,9 +3677,14 @@ const mosqueImage =
           }
           className="w-full"
         >
-          {savingVolunteerOpportunity
-            ? "Creating Opportunity..."
-            : "Create Volunteer Opportunity"}
+        {savingVolunteerOpportunity
+           ? t("profile.volunteers.creating", {
+               defaultValue: "Creating Opportunity...",
+             })
+           : t("profile.volunteers.create", {
+               defaultValue: "Create Volunteer Opportunity",
+             })}
+
         </Button>
       </div>
     )}
@@ -3090,7 +3692,10 @@ const mosqueImage =
     <div className="mt-5 space-y-4">
       {volunteerOpportunities.length === 0 ? (
         <div className="rounded-xl border bg-muted/20 p-4 text-sm text-muted-foreground">
-          No volunteer opportunities are currently available.
+        {t("profile.volunteers.empty", {
+          defaultValue:
+            "No volunteer opportunities are currently available.",
+        })}
         </div>
       ) : (
         volunteerOpportunities.map((opportunity) => {
@@ -3130,12 +3735,20 @@ const mosqueImage =
                           : "bg-islamic-green/10 text-islamic-green"
                       }`}
                     >
-                      {isFull ? "Full" : "Open"}
+                  {isFull
+                    ? t("profile.volunteers.full", {
+                        defaultValue: "Full",
+                      })
+                    : t("profile.volunteers.open", {
+                        defaultValue: "Open",
+                      })}
                     </span>
 
                     {isSignedUp && (
                       <span className="rounded-full bg-blue-500/10 px-2 py-1 text-xs font-medium text-blue-700">
-                        You are signed up
+                        {t("profile.volunteers.signedUp", {
+                          defaultValue: "You are signed up",
+                        })}
                       </span>
                     )}
                   </div>
@@ -3150,32 +3763,41 @@ const mosqueImage =
 
                   {(opportunity.start_time ||
                     opportunity.end_time) && (
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      Time:{" "}
-                      {opportunity.start_time
-                        ? new Date(
-                            `${opportunity.volunteer_date}T${opportunity.start_time}`
-                          ).toLocaleTimeString([], {
-                            hour: "numeric",
-                            minute: "2-digit",
-                          })
-                        : "Not provided"}
-
-                      {opportunity.end_time &&
-                        ` – ${new Date(
-                          `${opportunity.volunteer_date}T${opportunity.end_time}`
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {t("profile.volunteers.timeValue", {
+                    time: opportunity.start_time
+                      ? new Date(
+                          `${opportunity.volunteer_date}T${opportunity.start_time}`
                         ).toLocaleTimeString([], {
                           hour: "numeric",
                           minute: "2-digit",
-                        })}`}
-                    </p>
-                  )}
+                        })
+                      : t("profile.volunteers.notProvided", {
+                          defaultValue: "Not provided",
+                        }),
+                    defaultValue: "Time: {{time}}",
+                  })}
 
-                  {opportunity.location && (
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      Location: {opportunity.location}
-                    </p>
+                  {opportunity.end_time &&
+                    ` – ${new Date(
+                      `${opportunity.volunteer_date}T${opportunity.end_time}`
+                    ).toLocaleTimeString([], {
+                      hour: "numeric",
+                      minute: "2-digit",
+                    })}`}
+                </p>
                   )}
+{opportunity.location && (
+  <p className="mt-1 text-sm text-muted-foreground">
+    {t("profile.volunteers.locationValue", {
+      location: opportunity.location,
+      defaultValue: "Location: {{location}}",
+    })}
+  </p>
+)}
+
+
+
                 </div>
 
                 <div className="flex flex-wrap gap-2">
@@ -3189,7 +3811,9 @@ const mosqueImage =
                          void handleCancelVolunteerSignup(opportunity)
                        }
                      >
-                       Cancel Signup
+                 {t("profile.volunteers.cancelSignup", {
+                   defaultValue: "Cancel Signup",
+                 })}
                      </Button>
                    ) : (
                      <Button
@@ -3200,7 +3824,13 @@ const mosqueImage =
                          handleOpenVolunteerSignup(opportunity)
                        }
                      >
-                       {isFull ? "Opportunity Full" : "Sign Up"}
+                  {isFull
+                    ? t("profile.volunteers.opportunityFull", {
+                        defaultValue: "Opportunity Full",
+                      })
+                    : t("profile.volunteers.signUp", {
+                        defaultValue: "Sign Up",
+                      })}
                      </Button>
                    ))}
                   {canManageAnnouncements && (
@@ -3220,9 +3850,14 @@ const mosqueImage =
                             opportunity.id
                         }
                       >
-                        {volunteerListOpen
-                          ? "Hide Volunteers"
-                          : `View Volunteers (${signupCount})`}
+                       {volunteerListOpen
+                         ? t("profile.volunteers.hideVolunteers", {
+                             defaultValue: "Hide Volunteers",
+                           })
+                         : t("profile.volunteers.viewVolunteers", {
+                             count: signupCount,
+                             defaultValue: "View Volunteers ({{count}})",
+                           })}
                       </Button>
 
                       <Button
@@ -3250,29 +3885,29 @@ const mosqueImage =
 
               <div className="mt-4">
                 <div className="flex items-center justify-between gap-3 text-sm">
-                  <span className="font-medium">
-                    {opportunity.volunteers_needed !== null
-                      ? `${signupCount} of ${opportunity.volunteers_needed} volunteers`
-                      : `${signupCount} volunteer${
-                          signupCount === 1 ? "" : "s"
-                        } signed up`}
-                  </span>
+             <span className="font-medium">
+               {opportunity.volunteers_needed !== null
+                 ? t("profile.volunteers.countOfNeeded", {
+                     count: signupCount,
+                     needed: opportunity.volunteers_needed,
+                     defaultValue: "{{count}} of {{needed}} volunteers",
+                   })
+                 : t("profile.volunteers.signupCount", {
+                     count: signupCount,
+                     defaultValue: "{{count}} volunteers signed up",
+                   })}
+             </span>
 
                   {opportunity.volunteers_needed !== null && (
-                    <span className="text-muted-foreground">
-                      {Math.max(
-                        0,
-                        opportunity.volunteers_needed - signupCount
-                      )}{" "}
-                      spot
-                      {Math.max(
-                        0,
-                        opportunity.volunteers_needed - signupCount
-                      ) === 1
-                        ? ""
-                        : "s"}{" "}
-                      remaining
-                    </span>
+              <span className="text-muted-foreground">
+                {t("profile.volunteers.spotsRemaining", {
+                  count: Math.max(
+                    0,
+                    opportunity.volunteers_needed - signupCount
+                  ),
+                  defaultValue: "{{count}} spots remaining",
+                })}
+              </span>
                   )}
                 </div>
 
@@ -3296,12 +3931,16 @@ const mosqueImage =
               {signupFormOpen && !isSignedUp && (
                 <div className="mt-5 space-y-4 border-t pt-5">
                   <h4 className="font-semibold">
-                    Volunteer Signup
+                 {t("profile.volunteers.signupTitle", {
+                   defaultValue: "Volunteer Signup",
+                 })}
                   </h4>
 
                   <div>
                     <label className="text-sm font-medium">
-                      Full Name
+           {t("profile.volunteers.fullName", {
+             defaultValue: "Full Name",
+           })}
                     </label>
 
                     <input
@@ -3310,7 +3949,9 @@ const mosqueImage =
                       onChange={(event) =>
                         setVolunteerFullName(event.target.value)
                       }
-                      placeholder="Enter your full name"
+               placeholder={t("profile.volunteers.fullNamePlaceholder", {
+                 defaultValue: "Enter your full name",
+               })}
                       className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
                     />
                   </div>
@@ -3327,15 +3968,19 @@ const mosqueImage =
                         onChange={(event) =>
                           setVolunteerPhone(event.target.value)
                         }
-                        placeholder="Optional"
+                        placeholder={t("profile.volunteers.optional", {
+                          defaultValue: "Optional",
+                        })}
                         className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
                       />
                     </div>
 
                     <div>
-                      <label className="text-sm font-medium">
-                        Email
-                      </label>
+                    <label className="text-sm font-medium">
+                      {t("profile.volunteers.email", {
+                        defaultValue: "Email",
+                      })}
+                    </label>
 
                       <input
                         type="email"
@@ -3343,7 +3988,9 @@ const mosqueImage =
                         onChange={(event) =>
                           setVolunteerEmail(event.target.value)
                         }
-                        placeholder="Optional"
+                   placeholder={t("profile.volunteers.optional", {
+                     defaultValue: "Optional",
+                   })}
                         className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
                       />
                     </div>
@@ -3351,7 +3998,9 @@ const mosqueImage =
 
                   <div>
                     <label className="text-sm font-medium">
-                      Message to the Mosque
+               {t("profile.volunteers.messageToMosque", {
+                 defaultValue: "Message to the Mosque",
+               })}
                     </label>
 
                     <textarea
@@ -3359,7 +4008,9 @@ const mosqueImage =
                       onChange={(event) =>
                         setVolunteerNotes(event.target.value)
                       }
-                      placeholder="Add any helpful details or availability"
+      placeholder={t("profile.volunteers.notesPlaceholder", {
+        defaultValue: "Add any helpful details or availability",
+      })}
                       className="mt-2 min-h-[100px] w-full rounded-md border bg-background p-3 text-sm"
                     />
                   </div>
@@ -3376,9 +4027,13 @@ const mosqueImage =
                       }
                       className="flex-1"
                     >
-                      {submittingVolunteerSignup
-                        ? "Submitting Signup..."
-                        : "Confirm Volunteer Signup"}
+                     {submittingVolunteerSignup
+                       ? t("profile.volunteers.submittingSignup", {
+                           defaultValue: "Submitting Signup...",
+                         })
+                       : t("profile.volunteers.confirmSignup", {
+                           defaultValue: "Confirm Volunteer Signup",
+                         })}
                     </Button>
 
                     <Button
@@ -3394,7 +4049,9 @@ const mosqueImage =
                       disabled={submittingVolunteerSignup}
                       className="flex-1"
                     >
-                      Cancel
+                    {t("profile.volunteers.cancel", {
+                      defaultValue: "Cancel",
+                    })}
                     </Button>
                   </div>
                 </div>
@@ -3403,16 +4060,22 @@ const mosqueImage =
               {canManageAnnouncements && volunteerListOpen && (
                 <div className="mt-5 border-t pt-5">
                   <h4 className="font-semibold">
-                    Registered Volunteers
+                {t("profile.volunteers.registeredTitle", {
+                  defaultValue: "Registered Volunteers",
+                })}
                   </h4>
 
                   {loadingVolunteerSignups ? (
                     <p className="mt-3 text-sm text-muted-foreground">
-                      Loading volunteers...
+                    {t("profile.volunteers.loading", {
+                      defaultValue: "Loading volunteers...",
+                    })}
                     </p>
                   ) : volunteerSignups.length === 0 ? (
                     <p className="mt-3 rounded-lg border bg-background p-3 text-sm text-muted-foreground">
-                      No volunteers have signed up yet.
+                 {t("profile.volunteers.noSignups", {
+                   defaultValue: "No volunteers have signed up yet.",
+                 })}
                     </p>
                   ) : (
                     <div className="mt-3 space-y-3">
@@ -3424,27 +4087,39 @@ const mosqueImage =
                           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                             <div>
                               <p className="font-medium">
-                                {signup.full_name ||
-                                  "Tariq Islam Member"}
+                       {signup.full_name ||
+                         t("profile.volunteers.defaultMemberName", {
+                           defaultValue: "Tariq Islam Member",
+                         })}
                               </p>
 
                               {signup.email && (
                                 <p className="mt-1 text-sm text-muted-foreground">
-                                  Email: {signup.email}
+                     {t("profile.volunteers.emailValue", {
+                       email: signup.email,
+                       defaultValue: "Email: {{email}}",
+                     })}
                                 </p>
                               )}
 
                               {signup.phone && (
                                 <p className="mt-1 text-sm text-muted-foreground">
-                                  Phone: {signup.phone}
+                {t("profile.volunteers.phoneValue", {
+                  phone: signup.phone,
+                  defaultValue: "Phone: {{phone}}",
+                })}
                                 </p>
                               )}
                             </div>
 
                             <span className="w-fit rounded-full bg-islamic-green/10 px-2 py-1 text-xs font-medium text-islamic-green">
                               {signup.status === "attended"
-                                ? "Attended"
-                                : "Signed Up"}
+                                ? t("profile.volunteers.attended", {
+                                    defaultValue: "Attended",
+                                  })
+                                : t("profile.volunteers.signedUpStatus", {
+                                    defaultValue: "Signed Up",
+                                  })}
                             </span>
                           </div>
 
@@ -3454,12 +4129,12 @@ const mosqueImage =
                             </p>
                           )}
 
-                          <p className="mt-3 text-xs text-muted-foreground">
-                            Signed up{" "}
-                            {new Date(
-                              signup.created_at
-                            ).toLocaleDateString()}
-                          </p>
+                    <p className="mt-3 text-xs text-muted-foreground">
+                      {t("profile.volunteers.signedUpOn", {
+                        date: new Date(signup.created_at).toLocaleDateString(),
+                        defaultValue: "Signed up {{date}}",
+                      })}
+                    </p>
                         </div>
                       ))}
                     </div>
@@ -3474,13 +4149,19 @@ const mosqueImage =
   </section>
 <section>
   <div className="mb-3 flex items-center justify-between">
-    <h2 className="text-xl font-semibold">Announcements</h2>
+   <h2 className="text-xl font-semibold">
+     {t("profile.announcements.title", {
+       defaultValue: "Announcements",
+     })}
+   </h2>
 
     {canManageAnnouncements && (
       <div className="mb-4 space-y-3 rounded-xl border bg-muted/20 p-4">
         <div>
           <label className="text-sm font-medium">
-            Announcement Title
+            {t("profile.announcements.titleLabel", {
+              defaultValue: "Announcement Title",
+            })}
           </label>
 
           <input
@@ -3489,14 +4170,18 @@ const mosqueImage =
             onChange={(event) =>
               setAnnouncementTitle(event.target.value)
             }
-            placeholder="Enter announcement title"
+          placeholder={t("profile.announcements.titlePlaceholder", {
+            defaultValue: "Enter announcement title",
+          })}
             className="mt-2 h-10 w-full rounded-md border bg-background px-3 text-sm"
           />
         </div>
 
         <div>
           <label className="text-sm font-medium">
-            Announcement Message
+            {t("profile.announcements.messageLabel", {
+              defaultValue: "Announcement Message",
+            })}
           </label>
 
           <textarea
@@ -3504,7 +4189,9 @@ const mosqueImage =
             onChange={(event) =>
               setAnnouncementMessage(event.target.value)
             }
-            placeholder="Write the mosque announcement"
+        placeholder={t("profile.announcements.messagePlaceholder", {
+          defaultValue: "Write the mosque announcement",
+        })}
             className="mt-2 min-h-[120px] w-full rounded-md border bg-background p-3 text-sm"
           />
         </div>
@@ -3519,7 +4206,9 @@ const mosqueImage =
             className="h-4 w-4"
           />
 
-          Pin this announcement
+      {t("profile.announcements.pinThis", {
+        defaultValue: "Pin this announcement",
+      })}
         </label>
 
         <Button
@@ -3533,8 +4222,12 @@ const mosqueImage =
           className="w-full"
         >
           {savingAnnouncement
-            ? "Publishing Announcement..."
-            : "Publish Announcement"}
+            ? t("profile.announcements.publishing", {
+                defaultValue: "Publishing Announcement...",
+              })
+            : t("profile.announcements.publish", {
+                defaultValue: "Publish Announcement",
+              })}
         </Button>
       </div>
     )}
@@ -3548,7 +4241,9 @@ const mosqueImage =
 
   {announcements.length === 0 ? (
     <div className="rounded-xl border bg-muted/20 p-4 text-sm text-muted-foreground">
-      No announcements have been posted yet.
+   {t("profile.announcements.empty", {
+     defaultValue: "No announcements have been posted yet.",
+   })}
     </div>
   ) : (
     <div className="space-y-3">
@@ -3587,7 +4282,13 @@ const mosqueImage =
                    !editingAnnouncementMessage.trim()
                  }
                >
-                 {updatingAnnouncement ? "Saving..." : "Save"}
+            {updatingAnnouncement
+              ? t("profile.announcements.saving", {
+                  defaultValue: "Saving...",
+                })
+              : t("profile.announcements.save", {
+                  defaultValue: "Save",
+                })}
                </Button>
 
                <Button
@@ -3600,7 +4301,9 @@ const mosqueImage =
                    setEditingAnnouncementMessage("");
                  }}
                >
-                 Cancel
+        {t("profile.announcements.cancel", {
+          defaultValue: "Cancel",
+        })}
                </Button>
              </div>
            </div>
@@ -3612,7 +4315,9 @@ const mosqueImage =
 
                  {announcement.is_pinned && (
                    <span className="mt-2 inline-block rounded-full bg-islamic-green/10 px-2 py-1 text-xs font-medium text-islamic-green">
-                     Pinned
+                 {t("profile.announcements.pinned", {
+                   defaultValue: "Pinned",
+                 })}
                    </span>
                  )}
                </div>
@@ -3627,7 +4332,13 @@ const mosqueImage =
                        void handleTogglePinnedAnnouncement(announcement)
                      }
                    >
-                     {announcement.is_pinned ? "Unpin" : "Pin"}
+              {announcement.is_pinned
+                ? t("profile.announcements.unpin", {
+                    defaultValue: "Unpin",
+                  })
+                : t("profile.announcements.pin", {
+                    defaultValue: "Pin",
+                  })}
                    </Button>
 
                    <Button
@@ -3638,7 +4349,9 @@ const mosqueImage =
                        handleStartEditingAnnouncement(announcement)
                      }
                    >
-                     Edit
+                    {t("profile.announcements.edit", {
+                      defaultValue: "Edit",
+                    })}
                    </Button>
 
                    <Button
@@ -3649,7 +4362,9 @@ const mosqueImage =
                        void handleDeleteAnnouncement(announcement.id)
                      }
                    >
-                     Delete
+               {t("profile.announcements.delete", {
+                 defaultValue: "Delete",
+               })}
                    </Button>
                  </div>
                )}
@@ -3682,34 +4397,44 @@ const mosqueImage =
                 </a>
               )}
 
-          {mosque.website && (
-            <div className="rounded-xl border bg-muted/20 p-4">
-              <h3 className="font-semibold">Support This Mosque</h3>
+       <div className="rounded-xl border bg-muted/20 p-4">
+         <h3 className="font-semibold">
+           {t("profile.support.title", {
+             defaultValue: "Support This Mosque",
+           })}
+         </h3>
 
-              <p className="mt-1 text-sm text-muted-foreground">
-                Donations are handled directly by the mosque. Visit the mosque’s
-                official website to donate.
-              </p>
-            </div>
-          )}
+         <p className="mt-1 text-sm text-muted-foreground">
+           {t("profile.support.description", {
+             defaultValue:
+               "Donations are handled directly by the mosque. Visit the mosque’s official website to donate.",
+           })}
+         </p>
+       </div>
 
-              {mosque.website && (
-                <a
-                  href={mosque.website}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center gap-3 rounded-xl border p-4 hover:bg-muted/50"
-                >
-                  <Globe2 className="h-5 w-5" />
-                  <span>Visit Website</span>
-                </a>
-              )}
-            </section>
-          </div>
-        </div>
-        </div>
-    </main>
-  );
-};
+       {mosque.website && (
+         <button
+           type="button"
+           onClick={() =>
+             void openInAppLink(mosque.website!)
+           }
+           className="flex items-center gap-3 rounded-xl border p-4 text-left hover:bg-muted/50"
+         >
+           <Globe2 className="h-5 w-5" />
 
-export default MosqueProfile;
+           <span>
+             {t("profile.support.visitWebsite", {
+               defaultValue: "Visit Website",
+             })}
+           </span>
+         </button>
+       )}
+       </section>
+       </div>
+       </div>
+       </div>
+       </main>
+       );
+       };
+
+       export default MosqueProfile;

@@ -11,9 +11,13 @@ import {
   Phone,
   User,
   Grid3X3,
+  ListVideo,
+  Sparkles,
+  Shield,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/useAuth";
+import { useUserRoles } from "@/hooks/useUserRoles";
 import { supabase } from "@/integrations/supabase/client";
 
 type Item = {
@@ -29,8 +33,29 @@ export default function BottomNav() {
   const navigate = useNavigate();
   const { t } = useTranslation("common");
   const { user } = useAuth();
+  const { isAdmin } = useUserRoles();
 
   const [showIbadah, setShowIbadah] = useState(false);
+
+  useEffect(() => {
+    const handleOpenIbadah = () => {
+      setShowIbadah(true);
+    };
+
+    window.addEventListener(
+      "tariq:open-ibadah",
+      handleOpenIbadah
+    );
+
+    return () => {
+      window.removeEventListener(
+        "tariq:open-ibadah",
+        handleOpenIbadah
+      );
+    };
+  }, []);
+  const [ownedScholarId, setOwnedScholarId] =
+    useState<string | null>(null);
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [unreadConversationId, setUnreadConversationId] = useState<string | null>(null);
 
@@ -60,6 +85,7 @@ export default function BottomNav() {
         return false;
       };
 
+
       const unreadRows = (data ?? []).filter(
         (m) => !readByIncludes(m.read_by, user.id)
       );
@@ -88,6 +114,36 @@ export default function BottomNav() {
       void supabase.removeChannel(channel);
     };
   }, [user?.id]);
+useEffect(() => {
+  const loadOwnedScholar = async () => {
+    if (!user?.id) {
+      setOwnedScholarId(null);
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("scholar_profiles")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("verification_status", "approved")
+      .eq("is_active", true)
+      .maybeSingle();
+
+    if (error) {
+      console.error(
+        "Unable to load owned scholar profile:",
+        error
+      );
+
+      setOwnedScholarId(null);
+      return;
+    }
+
+    setOwnedScholarId(data?.id ?? null);
+  };
+
+  void loadOwnedScholar();
+}, [user?.id]);
 
   const items: Item[] = useMemo(
     () => [
@@ -158,6 +214,23 @@ export default function BottomNav() {
 
               <button
                 type="button"
+                onClick={() => goToIbadahPage("/tariq-ai")}
+                className="flex flex-col items-center gap-2 rounded-xl border border-primary/30 bg-primary/5 p-4 hover:bg-primary/10"
+              >
+                <Sparkles
+                  size={22}
+                  className="text-primary"
+                />
+
+                <span className="text-sm font-medium">
+                  {t("bottomNav.tariqAI", {
+                    defaultValue: "Tariq AI",
+                  })}
+                </span>
+              </button>
+
+              <button
+                type="button"
                 onClick={() => goToIbadahPage("/qibla")}
                 className="rounded-xl border p-4 flex flex-col items-center gap-2 hover:bg-muted"
               >
@@ -201,6 +274,64 @@ export default function BottomNav() {
                   })}
                 </span>
               </button>
+              {ownedScholarId && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      goToIbadahPage(
+                        `/scholars/${ownedScholarId}/lectures`
+                      )
+                    }
+                    className="flex flex-col items-center gap-2 rounded-xl border p-4 hover:bg-muted"
+                  >
+                    <BookOpen size={22} />
+
+                    <span className="text-sm">
+                      {t("bottomNav.myLectures", {
+                        defaultValue: "My Lectures",
+                      })}
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      goToIbadahPage(
+                        `/scholars/${ownedScholarId}/playlists`
+                      )
+                    }
+                    className="flex flex-col items-center gap-2 rounded-xl border p-4 hover:bg-muted"
+                  >
+                    <ListVideo size={22} />
+
+                    <span className="text-sm">
+                      {t("bottomNav.managePlaylists", {
+                        defaultValue: "Manage Playlists",
+                      })}
+                    </span>
+                  </button>
+                </>
+              )}
+              {isAdmin && (
+                <button
+                  type="button"
+                  onClick={() => goToIbadahPage("/admin")}
+                  className="flex flex-col items-center gap-2 rounded-xl border border-primary/30 bg-primary/5 p-4 hover:bg-primary/10"
+                >
+                  <Shield
+                    size={22}
+                    className="text-primary"
+                  />
+
+                  <span className="text-sm font-medium">
+                    {t("bottomNav.admin", {
+                      defaultValue: "Admin",
+                    })}
+                  </span>
+                </button>
+              )}
+
               <button
                 type="button"
                 onClick={() => goToIbadahPage("/saved-scholar-lectures")}
@@ -256,6 +387,7 @@ export default function BottomNav() {
               "relative flex flex-col items-center justify-center min-w-[64px] px-1 py-2 rounded-xl transition",
          [
            "/quran",
+           "/tariq-ai",
            "/qibla",
            "/tasbih",
            "/mosques",

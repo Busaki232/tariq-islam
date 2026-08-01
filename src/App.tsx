@@ -46,6 +46,7 @@ import Index from "@/pages/Index";
 import QuranPage from "@/pages/Quran";
 import Auth from "@/pages/Auth";
 import EmailConfirmed from "@/pages/EmailConfirmed";
+import ResetPassword from "@/pages/ResetPassword";
 import Advertisement from "@/pages/Advertisement";
 import Mosques from "@/pages/Mosques";
 import MosqueProfile from "@/pages/MosqueProfile";
@@ -589,6 +590,7 @@ export default function App() {
 
                             <Route path="/" element={<Index />} />
                             <Route path="/auth" element={<Auth />} />
+                            <Route path="/reset-password" element={<ResetPassword />} />
                             <Route path="/email-confirmed" element={<EmailConfirmed />} />
 
 <Route path="/quran" element={<QuranPage />} />

@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Mail, Lock, User, Phone, MapPin } from "lucide-react";
 import { TURNSTILE_SITE_KEY, isCaptchaEnabled } from "@/config/turnstile";
 import { toast } from "sonner";
@@ -54,6 +55,7 @@ export const AuthForm = () => {
   const [activeTab, setActiveTab] = useState("signin");
   const [showResendConfirmation, setShowResendConfirmation] = useState(false);
   const [signUpEmail, setSignUpEmail] = useState("");
+  const [resettingPassword, setResettingPassword] = useState(false);
   const { signIn, signUp, loading, resendConfirmation } = useAuth();
 
   // ✅ IMPORTANT: prevent first-render Turnstile load in native apps
@@ -135,6 +137,58 @@ export const AuthForm = () => {
     if (signUpEmail) await resendConfirmation(signUpEmail);
   };
 
+  const handleForgotPassword = async () => {
+    const email = signInForm.getValues("email").trim();
+
+    if (!email) {
+      signInForm.setError("email", {
+        type: "manual",
+        message: "Enter your email address first",
+      });
+      return;
+    }
+
+    const parsedEmail = z.string().email().safeParse(email);
+
+    if (!parsedEmail.success) {
+      signInForm.setError("email", {
+        type: "manual",
+        message: "Enter a valid email address",
+      });
+      return;
+    }
+
+    try {
+      setResettingPassword(true);
+
+      const redirectTo =
+        "https://global-muslims-connect.com/reset-password";
+
+      const { error } =
+        await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo,
+        });
+
+      if (error) {
+        throw error;
+      }
+
+      toast.success(
+        "Password reset email sent. Check your inbox and spam folder."
+      );
+    } catch (error) {
+      console.error("Unable to send password reset email:", error);
+
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Unable to send password reset email"
+      );
+    } finally {
+      setResettingPassword(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-hero p-4">
       <div className="w-full max-w-md">
@@ -204,6 +258,19 @@ export const AuthForm = () => {
                         </FormItem>
                       )}
                     />
+
+                    <div className="flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => void handleForgotPassword()}
+                        disabled={loading || resettingPassword}
+                        className="text-sm font-medium text-primary hover:underline disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {resettingPassword
+                          ? "Sending reset email..."
+                          : "Forgot password?"}
+                      </button>
+                    </div>
 
                     {captchaEnabled && (
                       <div className="my-4">

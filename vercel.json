@@ -2,11 +2,11 @@
   "rewrites": [
     {
       "source": "/.well-known/apple-app-site-association",
-      "destination": "/api/apple-app-site-association"
+      "destination": "/.well-known/apple-app-site-association.json"
     },
     {
       "source": "/(.*)",
-      "destination": "/"
+      "destination": "/index.html"
     }
   ]
 }

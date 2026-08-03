@@ -1,0 +1,14 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "G5RLSW66VS.com.tariqislam.app",
+        "paths": [
+          "/reset-password",
+          "/reset-password/*"
+        ]
+      }
+    ]
+  }
+}

@@ -7,6 +7,7 @@ import {
   Languages,
   MapPin,
   Play,
+  Radio,
   Search,
   Star,
   UserRound,
@@ -19,12 +20,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -62,6 +58,16 @@ type ScholarWithProfile = ScholarProfile & {
   full_name: string | null;
 };
 
+type LiveScholarLivestream = {
+  id: string;
+  scholar_id: string;
+  title: string;
+  description: string | null;
+  started_at: string | null;
+  scheduled_for: string | null;
+  status: "live";
+};
+
 const ALL_FILTER = "all";
 
 const Scholars = () => {
@@ -71,6 +77,10 @@ const Scholars = () => {
 
   const [scholars, setScholars] = useState<ScholarWithProfile[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [liveLivestreams, setLiveLivestreams] = useState<
+    LiveScholarLivestream[]
+  >([]);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [countryFilter, setCountryFilter] = useState(ALL_FILTER);
@@ -127,14 +137,11 @@ const Scholars = () => {
         }
 
         const profilesByUserId = new Map<string, UserProfile>(
-          (profileData ?? []).map((profile) => [
-            profile.user_id,
-            profile,
-          ])
+          (profileData ?? []).map((profile) => [profile.user_id, profile])
         );
 
-        const combinedScholars: ScholarWithProfile[] =
-          approvedScholars.map((scholar) => {
+        const combinedScholars: ScholarWithProfile[] = approvedScholars.map(
+          (scholar) => {
             const profile = profilesByUserId.get(scholar.user_id);
 
             return {
@@ -143,22 +150,23 @@ const Scholars = () => {
               username: profile?.username ?? null,
               full_name: profile?.full_name ?? null,
             };
-          });
+          }
+        );
 
         setScholars(combinedScholars);
       } catch (error) {
         console.error("Error loading scholars:", error);
 
-  toast({
-    title: t("scholars.directory.loadError", {
-      defaultValue: "Unable to load scholars",
-    }),
-    description: t("scholars.directory.loadErrorDescription", {
-      defaultValue:
-        "The scholar directory could not be loaded. Please try again.",
-    }),
-    variant: "destructive",
-  });
+        toast({
+          title: t("scholars.directory.loadError", {
+            defaultValue: "Unable to load scholars",
+          }),
+          description: t("scholars.directory.loadErrorDescription", {
+            defaultValue:
+              "The scholar directory could not be loaded. Please try again.",
+          }),
+          variant: "destructive",
+        });
       } finally {
         setLoading(false);
       }
@@ -166,6 +174,112 @@ const Scholars = () => {
 
     void loadScholars();
   }, [toast, t]);
+
+  useEffect(() => {
+    const loadLiveLivestreams = async () => {
+      const { data, error } = await supabase
+        .from("scholar_livestreams")
+        .select(
+          `
+            id,
+            scholar_id,
+            title,
+            description,
+            started_at,
+            scheduled_for,
+            status
+          `
+        )
+        .eq("status", "live")
+        .order("started_at", { ascending: false });
+
+      if (error) {
+        console.error("Unable to load live scholar livestreams:", error);
+        return;
+      }
+
+      setLiveLivestreams((data ?? []) as LiveScholarLivestream[]);
+    };
+
+    void loadLiveLivestreams();
+
+    const channel = supabase
+      .channel("scholars-live-livestreams")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "scholar_livestreams",
+        },
+        (payload) => {
+          if (payload.eventType === "DELETE") {
+            const deletedId = (payload.old as { id?: string }).id;
+
+            if (!deletedId) return;
+
+            setLiveLivestreams((current) =>
+              current.filter((livestream) => livestream.id !== deletedId)
+            );
+
+            return;
+          }
+
+          const updated = payload.new as LiveScholarLivestream & {
+            status: "draft" | "upcoming" | "live" | "ended" | "cancelled";
+          };
+
+          if (updated.status === "live") {
+            setLiveLivestreams((current) => {
+              const withoutUpdated = current.filter(
+                (livestream) => livestream.id !== updated.id
+              );
+
+              return [updated as LiveScholarLivestream, ...withoutUpdated];
+            });
+          } else {
+            setLiveLivestreams((current) =>
+              current.filter((livestream) => livestream.id !== updated.id)
+            );
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const liveLivestreamByScholarId = useMemo(() => {
+    return new Map(
+      liveLivestreams.map((livestream) => [livestream.scholar_id, livestream])
+    );
+  }, [liveLivestreams]);
+
+  const liveScholars = useMemo(() => {
+    return liveLivestreams
+      .map((livestream) => {
+        const scholar = scholars.find(
+          (item) => item.id === livestream.scholar_id
+        );
+
+        if (!scholar) return null;
+
+        return {
+          scholar,
+          livestream,
+        };
+      })
+      .filter(
+        (
+          item
+        ): item is {
+          scholar: ScholarWithProfile;
+          livestream: LiveScholarLivestream;
+        } => Boolean(item)
+      );
+  }, [liveLivestreams, scholars]);
 
   const countries = useMemo(() => {
     return Array.from(
@@ -189,56 +303,56 @@ const Scholars = () => {
     ).sort((a, b) => a.localeCompare(b));
   }, [scholars]);
 
-const filteredScholars = useMemo(() => {
-  const query = searchTerm.trim().toLowerCase();
+  const filteredScholars = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
 
-  return scholars.filter((scholar) => {
-    const scholarLanguages = scholar.languages ?? [];
-    const scholarSpecialties = scholar.specialties ?? [];
+    return scholars.filter((scholar) => {
+      if (liveLivestreamByScholarId.has(scholar.id)) {
+        return false;
+      }
 
-    const searchableText = [
-      scholar.display_name,
-      scholar.full_name,
-      scholar.username,
-      scholar.biography,
-      scholar.city,
-      scholar.country,
-      ...scholarLanguages,
-      ...scholarSpecialties,
-    ]
-      .filter(Boolean)
-      .join(" ")
-      .toLowerCase();
+      const scholarLanguages = scholar.languages ?? [];
+      const scholarSpecialties = scholar.specialties ?? [];
 
-    const matchesSearch =
-      query === "" || searchableText.includes(query);
+      const searchableText = [
+        scholar.display_name,
+        scholar.full_name,
+        scholar.username,
+        scholar.biography,
+        scholar.city,
+        scholar.country,
+        ...scholarLanguages,
+        ...scholarSpecialties,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
 
-    const matchesCountry =
-      countryFilter === ALL_FILTER ||
-      scholar.country === countryFilter;
+      const matchesSearch = query === "" || searchableText.includes(query);
 
-    const matchesLanguage =
-      languageFilter === ALL_FILTER ||
-      scholarLanguages.includes(languageFilter);
+      const matchesCountry =
+        countryFilter === ALL_FILTER || scholar.country === countryFilter;
 
-    const matchesSpecialty =
-      specialtyFilter === ALL_FILTER ||
-      scholarSpecialties.includes(specialtyFilter);
+      const matchesLanguage =
+        languageFilter === ALL_FILTER ||
+        scholarLanguages.includes(languageFilter);
 
-    return (
-      matchesSearch &&
-      matchesCountry &&
-      matchesLanguage &&
-      matchesSpecialty
-    );
-  });
-}, [
-  scholars,
-  searchTerm,
-  countryFilter,
-  languageFilter,
-  specialtyFilter,
-]);
+      const matchesSpecialty =
+        specialtyFilter === ALL_FILTER ||
+        scholarSpecialties.includes(specialtyFilter);
+
+      return (
+        matchesSearch && matchesCountry && matchesLanguage && matchesSpecialty
+      );
+    });
+  }, [
+    scholars,
+    liveLivestreamByScholarId,
+    searchTerm,
+    countryFilter,
+    languageFilter,
+    specialtyFilter,
+  ]);
 
   const clearFilters = () => {
     setSearchTerm("");
@@ -273,18 +387,18 @@ const filteredScholars = useMemo(() => {
           </Button>
 
           <div>
-    <h1 className="text-2xl font-bold sm:text-3xl">
-      {t("scholars.directory.title", {
-        defaultValue: "Scholars",
-      })}
-    </h1>
+            <h1 className="text-2xl font-bold sm:text-3xl">
+              {t("scholars.directory.title", {
+                defaultValue: "Scholars",
+              })}
+            </h1>
 
-    <p className="text-sm text-muted-foreground">
-      {t("scholars.directory.description", {
-        defaultValue:
-          "Discover verified Islamic scholars and their areas of expertise.",
-      })}
-    </p>
+            <p className="text-sm text-muted-foreground">
+              {t("scholars.directory.description", {
+                defaultValue:
+                  "Discover verified Islamic scholars and their areas of expertise.",
+              })}
+            </p>
           </div>
         </div>
         <Button
@@ -327,12 +441,8 @@ const filteredScholars = useMemo(() => {
               />
             </div>
 
-
-<div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-              <Select
-                value={countryFilter}
-                onValueChange={setCountryFilter}
-              >
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+              <Select value={countryFilter} onValueChange={setCountryFilter}>
                 <SelectTrigger>
                   <SelectValue
                     placeholder={t("scholars.directory.country", {
@@ -356,10 +466,7 @@ const filteredScholars = useMemo(() => {
                 </SelectContent>
               </Select>
 
-              <Select
-                value={languageFilter}
-                onValueChange={setLanguageFilter}
-              >
+              <Select value={languageFilter} onValueChange={setLanguageFilter}>
                 <SelectTrigger>
                   <SelectValue
                     placeholder={t("scholars.directory.language", {
@@ -370,9 +477,9 @@ const filteredScholars = useMemo(() => {
 
                 <SelectContent>
                   <SelectItem value={ALL_FILTER}>
-             {t("scholars.directory.allLanguages", {
-               defaultValue: "All languages",
-             })}
+                    {t("scholars.directory.allLanguages", {
+                      defaultValue: "All languages",
+                    })}
                   </SelectItem>
 
                   {languages.map((language) => (
@@ -410,11 +517,7 @@ const filteredScholars = useMemo(() => {
                 </SelectContent>
               </Select>
 
-              <Button
-                type="button"
-                variant="outline"
-                onClick={clearFilters}
-              >
+              <Button type="button" variant="outline" onClick={clearFilters}>
                 {t("scholars.directory.clearFilters", {
                   defaultValue: "Clear filters",
                 })}
@@ -423,16 +526,107 @@ const filteredScholars = useMemo(() => {
           </CardContent>
         </Card>
 
+        {liveScholars.length > 0 && (
+          <section className="mb-8">
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <h2 className="flex items-center gap-2 text-xl font-semibold">
+                  <Radio className="h-5 w-5 animate-pulse text-red-600" />
+                  Live Scholars
+                </h2>
+
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Watch scholar lectures happening now.
+                </p>
+              </div>
+
+              <Badge className="bg-red-600 text-white hover:bg-red-600">
+                {liveScholars.length} LIVE
+              </Badge>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {liveScholars.map(({ scholar, livestream }) => (
+                <Card
+                  key={livestream.id}
+                  className="overflow-hidden border-red-500/40"
+                >
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start gap-3">
+                      <div className="relative">
+                        <Avatar className="h-14 w-14">
+                          <AvatarImage
+                            src={scholar.avatar_url ?? undefined}
+                            alt={scholar.display_name}
+                          />
+
+                          <AvatarFallback>
+                            {getInitials(scholar.display_name)}
+                          </AvatarFallback>
+                        </Avatar>
+
+                        <span className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-background bg-red-600" />
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <CardTitle className="truncate text-base">
+                            {scholar.display_name}
+                          </CardTitle>
+
+                          <BadgeCheck className="h-4 w-4 shrink-0 text-primary" />
+                        </div>
+
+                        <Badge className="mt-2 bg-red-600 text-white hover:bg-red-600">
+                          <Radio className="mr-1 h-3 w-3" />
+                          LIVE NOW
+                        </Badge>
+                      </div>
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="space-y-3">
+                    <div>
+                      <h3 className="line-clamp-2 font-semibold">
+                        {livestream.title}
+                      </h3>
+
+                      {livestream.description && (
+                        <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                          {livestream.description}
+                        </p>
+                      )}
+                    </div>
+
+                    <Button
+                      type="button"
+                      className="w-full bg-red-600 text-white hover:bg-red-700"
+                      onClick={() =>
+                        navigate(
+                          `/scholars/${scholar.id}/livestreams/${livestream.id}`
+                        )
+                      }
+                    >
+                      <Play className="mr-2 h-4 w-4 fill-current" />
+                      Watch Live
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </section>
+        )}
+
         <div className="mb-4 flex items-center justify-between">
-       <p className="text-sm text-muted-foreground">
-         {t("scholars.directory.resultCount", {
-           count: filteredScholars.length,
-           defaultValue:
-             filteredScholars.length === 1
-               ? "{{count}} scholar"
-               : "{{count}} scholars",
-         })}
-       </p>
+          <p className="text-sm text-muted-foreground">
+            {t("scholars.directory.resultCount", {
+              count: filteredScholars.length,
+              defaultValue:
+                filteredScholars.length === 1
+                  ? "{{count}} scholar"
+                  : "{{count}} scholars",
+            })}
+          </p>
         </div>
 
         {loading ? (
@@ -453,17 +647,17 @@ const filteredScholars = useMemo(() => {
             <CardContent className="flex flex-col items-center justify-center py-14 text-center">
               <UserRound className="mb-4 h-12 w-12 text-muted-foreground" />
 
-        <h2 className="text-lg font-semibold">
-          {t("scholars.directory.noResults", {
-            defaultValue: "No scholars found",
-          })}
-        </h2>
+              <h2 className="text-lg font-semibold">
+                {t("scholars.directory.noResults", {
+                  defaultValue: "No scholars found",
+                })}
+              </h2>
 
-        <p className="mt-1 max-w-md text-sm text-muted-foreground">
-          {t("scholars.directory.noResultsDescription", {
-            defaultValue: "Try changing your search or filters.",
-          })}
-        </p>
+              <p className="mt-1 max-w-md text-sm text-muted-foreground">
+                {t("scholars.directory.noResultsDescription", {
+                  defaultValue: "Try changing your search or filters.",
+                })}
+              </p>
 
               <Button
                 type="button"
@@ -483,9 +677,7 @@ const filteredScholars = useMemo(() => {
               <Card
                 key={scholar.id}
                 className="cursor-pointer transition hover:-translate-y-0.5 hover:shadow-md"
-onClick={() => navigate(`/scholars/${scholar.id}`)}
-
-
+                onClick={() => navigate(`/scholars/${scholar.id}`)}
               >
                 <CardHeader>
                   <div className="flex items-start gap-4">
@@ -509,14 +701,23 @@ onClick={() => navigate(`/scholars/${scholar.id}`)}
                         <BadgeCheck className="h-5 w-5 shrink-0 text-primary" />
                       </div>
 
-                      {scholar.is_featured && (
-                        <Badge className="mt-2">
-                          <Star className="mr-1 h-3 w-3" />
-                          {t("scholars.directory.featured", {
-                            defaultValue: "Featured",
-                          })}
-                        </Badge>
-                      )}
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {liveLivestreamByScholarId.has(scholar.id) && (
+                          <Badge className="bg-red-600 text-white hover:bg-red-600">
+                            <Radio className="mr-1 h-3 w-3" />
+                            LIVE
+                          </Badge>
+                        )}
+
+                        {scholar.is_featured && (
+                          <Badge>
+                            <Star className="mr-1 h-3 w-3" />
+                            {t("scholars.directory.featured", {
+                              defaultValue: "Featured",
+                            })}
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </CardHeader>
@@ -544,22 +745,17 @@ onClick={() => navigate(`/scholars/${scholar.id}`)}
                     <div>
                       <div className="mb-2 flex items-center gap-2 text-sm font-medium">
                         <BookOpen className="h-4 w-4" />
-                       {t("scholars.directory.specialties", {
-                         defaultValue: "Specialties",
-                       })}
+                        {t("scholars.directory.specialties", {
+                          defaultValue: "Specialties",
+                        })}
                       </div>
 
                       <div className="flex flex-wrap gap-2">
-                        {scholar.specialties
-                          .slice(0, 3)
-                          .map((specialty) => (
-                            <Badge
-                              key={specialty}
-                              variant="secondary"
-                            >
-                              {specialty}
-                            </Badge>
-                          ))}
+                        {scholar.specialties.slice(0, 3).map((specialty) => (
+                          <Badge key={specialty} variant="secondary">
+                            {specialty}
+                          </Badge>
+                        ))}
 
                         {scholar.specialties.length > 3 && (
                           <Badge variant="outline">
@@ -574,26 +770,47 @@ onClick={() => navigate(`/scholars/${scholar.id}`)}
                     <div className="flex items-start gap-2 text-sm text-muted-foreground">
                       <Languages className="mt-0.5 h-4 w-4 shrink-0" />
 
-                      <span>
-                        {scholar.languages.join(", ")}
-                      </span>
+                      <span>{scholar.languages.join(", ")}</span>
                     </div>
                   )}
 
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      navigate(`/scholars/${scholar.id}`);
-                    }}
-                  >
-                    <Globe2 className="mr-2 h-4 w-4" />
-                    {t("scholars.directory.viewScholar", {
-                      defaultValue: "View Scholar",
-                    })}
-                  </Button>
+                  {liveLivestreamByScholarId.has(scholar.id) ? (
+                    <Button
+                      type="button"
+                      className="w-full bg-red-600 text-white hover:bg-red-700"
+                      onClick={(event) => {
+                        event.stopPropagation();
+
+                        const livestream = liveLivestreamByScholarId.get(
+                          scholar.id
+                        );
+
+                        if (!livestream) return;
+
+                        navigate(
+                          `/scholars/${scholar.id}/livestreams/${livestream.id}`
+                        );
+                      }}
+                    >
+                      <Play className="mr-2 h-4 w-4 fill-current" />
+                      Watch Live
+                    </Button>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        navigate(`/scholars/${scholar.id}`);
+                      }}
+                    >
+                      <Globe2 className="mr-2 h-4 w-4" />
+                      {t("scholars.directory.viewScholar", {
+                        defaultValue: "View Scholar",
+                      })}
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             ))}

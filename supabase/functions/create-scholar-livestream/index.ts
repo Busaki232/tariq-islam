@@ -16,10 +16,7 @@ type CreateLivestreamBody = {
   scheduledFor?: string | null;
 };
 
-const jsonResponse = (
-  body: Record<string, unknown>,
-  status = 200,
-) =>
+const jsonResponse = (body: Record<string, unknown>, status = 200) =>
   new Response(JSON.stringify(body), {
     status,
     headers: {
@@ -34,17 +31,13 @@ Deno.serve(async (req: Request) => {
   }
 
   if (req.method !== "POST") {
-    return jsonResponse(
-      { error: "Method not allowed." },
-      405,
-    );
+    return jsonResponse({ error: "Method not allowed." }, 405);
   }
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
-    const supabaseServiceRoleKey =
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    const supabaseServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     const dailyApiKey = Deno.env.get("DAILY_API_KEY");
 
     if (
@@ -57,36 +50,29 @@ Deno.serve(async (req: Request) => {
 
       return jsonResponse(
         { error: "Server configuration is incomplete." },
-        500,
+        500
       );
     }
 
     const authorization = req.headers.get("Authorization");
 
     if (!authorization?.startsWith("Bearer ")) {
-      return jsonResponse(
-        { error: "Authentication is required." },
-        401,
-      );
+      return jsonResponse({ error: "Authentication is required." }, 401);
     }
 
     const accessToken = authorization.replace("Bearer ", "").trim();
 
-    const authenticatedClient = createClient(
-      supabaseUrl,
-      supabaseAnonKey,
-      {
-        global: {
-          headers: {
-            Authorization: authorization,
-          },
-        },
-        auth: {
-          persistSession: false,
-          autoRefreshToken: false,
+    const authenticatedClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        headers: {
+          Authorization: authorization,
         },
       },
-    );
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      },
+    });
 
     const {
       data: { user },
@@ -98,7 +84,7 @@ Deno.serve(async (req: Request) => {
 
       return jsonResponse(
         { error: "Your session is invalid or expired." },
-        401,
+        401
       );
     }
 
@@ -107,45 +93,37 @@ Deno.serve(async (req: Request) => {
     const scholarId = body.scholarId?.trim();
     const title = body.title?.trim();
     const description = body.description?.trim() || null;
-    const sourceLanguage =
-      body.sourceLanguage?.trim().toLowerCase() || "ar";
+    const sourceLanguage = body.sourceLanguage?.trim().toLowerCase() || "ar";
 
     const translationLanguages = Array.from(
       new Set(
         (body.translationLanguages ?? [])
           .map((language) => language.trim().toLowerCase())
-          .filter(Boolean),
-      ),
+          .filter(Boolean)
+      )
     );
 
     if (!scholarId) {
-      return jsonResponse(
-        { error: "Scholar ID is required." },
-        400,
-      );
+      return jsonResponse({ error: "Scholar ID is required." }, 400);
     }
 
     if (!title) {
-      return jsonResponse(
-        { error: "Livestream title is required." },
-        400,
-      );
+      return jsonResponse({ error: "Livestream title is required." }, 400);
     }
 
     if (title.length > 200) {
       return jsonResponse(
         { error: "Livestream title cannot exceed 200 characters." },
-        400,
+        400
       );
     }
 
     if (description && description.length > 5000) {
       return jsonResponse(
         {
-          error:
-            "Livestream description cannot exceed 5,000 characters.",
+          error: "Livestream description cannot exceed 5,000 characters.",
         },
-        400,
+        400
       );
     }
 
@@ -157,42 +135,35 @@ Deno.serve(async (req: Request) => {
       if (Number.isNaN(scheduledDate.getTime())) {
         return jsonResponse(
           { error: "The scheduled livestream date is invalid." },
-          400,
+          400
         );
       }
 
       scheduledFor = scheduledDate.toISOString();
     }
 
-    const adminClient = createClient(
-      supabaseUrl,
-      supabaseServiceRoleKey,
-      {
-        auth: {
-          persistSession: false,
-          autoRefreshToken: false,
-        },
+    const adminClient = createClient(supabaseUrl, supabaseServiceRoleKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
       },
-    );
+    });
 
-    const { data: scholar, error: scholarError } =
-      await adminClient
-        .from("scholar_profiles")
-        .select(
-          "id, user_id, display_name, verification_status, is_active",
-        )
-        .eq("id", scholarId)
-        .eq("user_id", user.id)
-        .eq("verification_status", "approved")
-        .eq("is_active", true)
-        .maybeSingle();
+    const { data: scholar, error: scholarError } = await adminClient
+      .from("scholar_profiles")
+      .select("id, user_id, display_name, verification_status, is_active")
+      .eq("id", scholarId)
+      .eq("user_id", user.id)
+      .eq("verification_status", "approved")
+      .eq("is_active", true)
+      .maybeSingle();
 
     if (scholarError) {
       console.error("Scholar verification query failed:", scholarError);
 
       return jsonResponse(
         { error: "Unable to verify the scholar profile." },
-        500,
+        500
       );
     }
 
@@ -202,40 +173,35 @@ Deno.serve(async (req: Request) => {
           error:
             "Only the approved owner of this scholar profile can create a livestream.",
         },
-        403,
+        403
       );
     }
 
-    const { data: existingLivestream, error: existingError } =
-      await adminClient
-        .from("scholar_livestreams")
-        .select("id, title, status")
-        .eq("scholar_id", scholar.id)
-        .in("status", ["upcoming", "live"])
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+    const { data: existingLivestream, error: existingError } = await adminClient
+      .from("scholar_livestreams")
+      .select("id, title, status")
+      .eq("scholar_id", scholar.id)
+      .in("status", ["draft", "upcoming", "live"])
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
     if (existingError) {
-      console.error(
-        "Existing livestream lookup failed:",
-        existingError,
-      );
+      console.error("Existing livestream lookup failed:", existingError);
 
       return jsonResponse(
         { error: "Unable to check existing livestreams." },
-        500,
+        500
       );
     }
 
     if (existingLivestream) {
       return jsonResponse(
         {
-          error:
-            "This scholar already has an active or scheduled livestream.",
+          error: "This scholar already has an active or scheduled livestream.",
           existingLivestream,
         },
-        409,
+        409
       );
     }
 
@@ -244,34 +210,29 @@ Deno.serve(async (req: Request) => {
     const roomName = `scholar-${compactId}`;
 
     const nowSeconds = Math.floor(Date.now() / 1000);
-    const roomExpirationSeconds =
-      scheduledFor
-        ? Math.floor(new Date(scheduledFor).getTime() / 1000) +
-          12 * 60 * 60
-        : nowSeconds + 12 * 60 * 60;
+    const roomExpirationSeconds = scheduledFor
+      ? Math.floor(new Date(scheduledFor).getTime() / 1000) + 12 * 60 * 60
+      : nowSeconds + 12 * 60 * 60;
 
-    const dailyResponse = await fetch(
-      "https://api.daily.co/v1/rooms",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${dailyApiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: roomName,
-          privacy: "private",
-          properties: {
-            exp: roomExpirationSeconds,
-            eject_at_room_exp: true,
-            enable_chat: true,
-            enable_screenshare: true,
-            start_video_off: true,
-            start_audio_off: true,
-          },
-        }),
+    const dailyResponse = await fetch("https://api.daily.co/v1/rooms", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${dailyApiKey}`,
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify({
+        name: roomName,
+        privacy: "private",
+        properties: {
+          exp: roomExpirationSeconds,
+          eject_at_room_exp: true,
+          enable_chat: true,
+          enable_screenshare: true,
+          start_video_off: true,
+          start_audio_off: true,
+        },
+      }),
+    });
 
     const dailyResult = await dailyResponse.json();
 
@@ -283,30 +244,29 @@ Deno.serve(async (req: Request) => {
           error: "Unable to create the livestream room.",
           dailyStatus: dailyResponse.status,
         },
-        502,
+        502
       );
     }
 
     const initialStatus = scheduledFor ? "upcoming" : "draft";
 
-    const { data: livestream, error: insertError } =
-      await adminClient
-        .from("scholar_livestreams")
-        .insert({
-          id: livestreamId,
-          scholar_id: scholar.id,
-          created_by: user.id,
-          title,
-          description,
-          daily_room_name: dailyResult.name,
-          daily_room_url: dailyResult.url,
-          source_language: sourceLanguage,
-          translation_languages: translationLanguages,
-          scheduled_for: scheduledFor,
-          status: initialStatus,
-        })
-        .select("*")
-        .single();
+    const { data: livestream, error: insertError } = await adminClient
+      .from("scholar_livestreams")
+      .insert({
+        id: livestreamId,
+        scholar_id: scholar.id,
+        created_by: user.id,
+        title,
+        description,
+        daily_room_name: dailyResult.name,
+        daily_room_url: dailyResult.url,
+        source_language: sourceLanguage,
+        translation_languages: translationLanguages,
+        scheduled_for: scheduledFor,
+        status: initialStatus,
+      })
+      .select("*")
+      .single();
 
     if (insertError) {
       console.error("Livestream insert failed:", insertError);
@@ -319,19 +279,13 @@ Deno.serve(async (req: Request) => {
             headers: {
               Authorization: `Bearer ${dailyApiKey}`,
             },
-          },
+          }
         );
       } catch (cleanupError) {
-        console.error(
-          "Failed to clean up Daily room:",
-          cleanupError,
-        );
+        console.error("Failed to clean up Daily room:", cleanupError);
       }
 
-      return jsonResponse(
-        { error: "Unable to save the livestream." },
-        500,
-      );
+      return jsonResponse({ error: "Unable to save the livestream." }, 500);
     }
 
     return jsonResponse(
@@ -339,7 +293,7 @@ Deno.serve(async (req: Request) => {
         success: true,
         livestream,
       },
-      201,
+      201
     );
   } catch (error) {
     console.error("Unexpected create livestream error:", error);
@@ -351,7 +305,7 @@ Deno.serve(async (req: Request) => {
             ? error.message
             : "An unexpected error occurred.",
       },
-      500,
+      500
     );
   }
 });

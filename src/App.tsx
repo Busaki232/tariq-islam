@@ -13,6 +13,7 @@ import {
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
 import { Capacitor } from "@capacitor/core";
+import { App as CapacitorApp } from "@capacitor/app";
 import { LocalNotifications } from "@capacitor/local-notifications";
 import { PushNotifications } from "@capacitor/push-notifications";
 import { Preferences } from "@capacitor/preferences";
@@ -112,6 +113,94 @@ if (import.meta.env.DEV) {
 }
 
 const queryClient = new QueryClient();
+
+function NativeDeepLinkHandler() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) {
+      return;
+    }
+
+    const openUrl = async (urlValue: string) => {
+      try {
+        const url = new URL(urlValue);
+
+        const isCustomScheme = url.protocol === "tariqislam:";
+        const allowedHosts = new Set([
+          "global-muslims-connect.com",
+          "www.global-muslims-connect.com",
+        ]);
+
+        if (!isCustomScheme && !allowedHosts.has(url.hostname)) {
+          return;
+        }
+
+        const hashParams = new URLSearchParams(
+          url.hash.startsWith("#") ? url.hash.slice(1) : url.hash
+        );
+
+        const accessToken = hashParams.get("access_token");
+        const refreshToken = hashParams.get("refresh_token");
+        const recoveryType =
+          hashParams.get("type") || url.searchParams.get("type");
+        const authCode = url.searchParams.get("code");
+
+        if (authCode) {
+          const { error } =
+            await supabase.auth.exchangeCodeForSession(authCode);
+
+          if (error) {
+            throw error;
+          }
+        } else if (accessToken && refreshToken) {
+          const { error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+
+          if (error) {
+            throw error;
+          }
+        }
+
+        const customPath = isCustomScheme
+          ? `/${url.hostname}${url.pathname}`
+          : url.pathname;
+
+        const destination =
+          recoveryType === "recovery"
+            ? "/reset-password"
+            : `${customPath}${url.search}${url.hash}` || "/";
+
+        navigate(destination, { replace: true });
+      } catch (error) {
+        console.error("[DEEPLINK] Unable to open URL:", error);
+        navigate("/reset-password", { replace: true });
+      }
+    };
+
+    void CapacitorApp.getLaunchUrl().then((result) => {
+      if (result?.url) {
+        void openUrl(result.url);
+      }
+    });
+
+    let removeListener: (() => Promise<void>) | undefined;
+
+    void CapacitorApp.addListener("appUrlOpen", ({ url }) => {
+      void openUrl(url);
+    }).then((listener) => {
+      removeListener = () => listener.remove();
+    });
+
+    return () => {
+      void removeListener?.();
+    };
+  }, [navigate]);
+
+  return null;
+}
 
 function DebugAuthId() {
 
@@ -569,6 +658,7 @@ export default function App() {
 
           <Router>
             <ScrollToTop />
+            <NativeDeepLinkHandler />
             <OnlinePresenceTracker />
             <DebugAuthId />
             <NativeUserIdSync />

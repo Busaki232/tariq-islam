@@ -22,6 +22,13 @@ public class MainActivity extends BridgeActivity {
         try {
             if (this.bridge != null && this.bridge.getWebView() != null) {
                 this.bridge.getWebView().setBackgroundColor(APP_BG);
+
+                // Allow Daily livestream and video-call media to play
+                // automatically without Android WebView's large play button.
+                this.bridge
+                        .getWebView()
+                        .getSettings()
+                        .setMediaPlaybackRequiresUserGesture(false);
             }
             getWindow().getDecorView().setBackgroundColor(APP_BG);
         } catch (Exception ignored) {}

@@ -1,0 +1,15 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.tariqislam.app",
+      "sha256_cert_fingerprints": [
+        "A6:0C:1C:DA:1B:96:56:83:76:E7:01:96:37:E0:36:8A:D9:18:DE:22:70:50:C8:1A:B7:6F:1D:15:97:2B:A7:82",
+        "BA:53:2E:E8:BD:70:F1:D2:86:87:0A:DC:A5:14:03:B2:9C:1B:43:E0:FC:BD:50:6F:D4:B3:19:EA:6E:F7:A9:70"
+      ]
+    }
+  }
+]

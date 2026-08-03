@@ -9,7 +9,7 @@ const corsHeaders = {
 
 type RequestBody = {
   livestreamId?: string;
-  action?: "start" | "end";
+  action?: "start" | "end" | "heartbeat";
 };
 
 const jsonResponse = (
@@ -100,9 +100,9 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    if (action !== "start" && action !== "end") {
+    if (action !== "start" && action !== "end" && action !== "heartbeat") {
       return jsonResponse(
-        { error: 'Action must be either "start" or "end".' },
+        { error: 'Action must be "start", "end", or "heartbeat".' },
         400,
       );
     }
@@ -255,6 +255,7 @@ Deno.serve(async (req: Request) => {
             status: "live",
             started_at: livestream.started_at ?? now,
             ended_at: null,
+            last_heartbeat_at: now,
           })
           .eq("id", livestream.id)
           .in("status", ["draft", "upcoming"])
@@ -273,6 +274,44 @@ Deno.serve(async (req: Request) => {
       return jsonResponse({
         success: true,
         action: "start",
+        livestream: updated,
+      });
+    }
+
+    if (action === "heartbeat") {
+      if (livestream.status !== "live") {
+        return jsonResponse(
+          {
+            error: "Only a live broadcast can receive a heartbeat.",
+            currentStatus: livestream.status,
+          },
+          409,
+        );
+      }
+
+      const { data: updated, error: heartbeatError } =
+        await adminClient
+          .from("scholar_livestreams")
+          .update({
+            last_heartbeat_at: now,
+          })
+          .eq("id", livestream.id)
+          .eq("status", "live")
+          .select("*")
+          .single();
+
+      if (heartbeatError) {
+        console.error("Livestream heartbeat failed:", heartbeatError);
+
+        return jsonResponse(
+          { error: "Unable to update the livestream heartbeat." },
+          500,
+        );
+      }
+
+      return jsonResponse({
+        success: true,
+        action: "heartbeat",
         livestream: updated,
       });
     }

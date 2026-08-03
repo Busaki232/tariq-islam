@@ -468,21 +468,8 @@ if (user?.id) {
         } else {
           setExistingClaimStatus(null);
         }
-let canManage = data.claimed_by === user?.id;
-
-if (user?.id && !canManage) {
-  const { data: roleData, error: roleError } = await supabase
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", user.id)
-    .in("role", ["admin", "moderator"]);
-
-  if (roleError) {
-    throw roleError;
-  }
-
-  canManage = Boolean(roleData?.length);
-}
+const canManage =
+  Boolean(user?.id) && data.claimed_by === user.id;
 
 setCanManageAnnouncements(canManage);
       } catch (error) {
@@ -699,9 +686,9 @@ const handleSubmitMosqueClaim = async () => {
   const phone = claimPhone.trim();
   const proofDetails = claimProofDetails.trim();
 
-  if (!fullName || !roleAtMosque || !email || !proofDetails) {
-    return;
-  }
+if (!fullName || !roleAtMosque || !email || !phone || !proofDetails) {
+  return;
+}
 
   setSubmittingClaim(true);
 
@@ -2223,12 +2210,13 @@ const mosqueImage =
           <Button
             type="button"
             onClick={() => void handleSubmitMosqueClaim()}
-            disabled={
-              submittingClaim ||
-              !claimFullName.trim() ||
-              !claimRole.trim() ||
-              !claimEmail.trim() ||
-              !claimProofDetails.trim()
+          disabled={
+            submittingClaim ||
+            !claimFullName.trim() ||
+            !claimRole.trim() ||
+            !claimEmail.trim() ||
+            !claimPhone.trim() ||
+            !claimProofDetails.trim()
             }
             className="w-full"
           >
@@ -3180,6 +3168,12 @@ const mosqueImage =
 
       {canManageAnnouncements && livestreamFormOpen && (
         <div className="mt-5 space-y-4 border-t pt-5">
+
+        <div className="rounded-xl border border-islamic-gold/30 bg-islamic-gold/10 p-3 text-sm text-muted-foreground">
+          Tariq Islam will review this request and may contact you by phone or email
+          to verify your relationship with the mosque. Access is not granted until
+          the claim is approved.
+        </div>
 
       <div>
         <label className="text-sm font-medium">

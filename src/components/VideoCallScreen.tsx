@@ -34,7 +34,12 @@ interface CallContentProps {
 
 type PluginListenerHandleLike = { remove?: () => void } | null;
 
-const CallContent = ({ callType, otherUserName, onLeave, onParticipantJoined }: CallContentProps) => {
+const CallContent = ({
+  callType,
+  otherUserName,
+  onLeave,
+  onParticipantJoined,
+}: CallContentProps) => {
   const daily = useDaily();
   const localSessionId = useLocalSessionId();
   const participantIds = useParticipantIds({ filter: "remote" });
@@ -86,7 +91,11 @@ const CallContent = ({ callType, otherUserName, onLeave, onParticipantJoined }: 
         setIsJoining(false);
         setIsReconnecting(false);
         toast.error(t("call.errorTitle", { defaultValue: "Call error" }), {
-          description: event?.errorMsg || t("call.errorBody", { defaultValue: "There was an issue with the call" }),
+          description:
+            event?.errorMsg ||
+            t("call.errorBody", {
+              defaultValue: "There was an issue with the call",
+            }),
         });
       },
       [t]
@@ -153,7 +162,10 @@ const CallContent = ({ callType, otherUserName, onLeave, onParticipantJoined }: 
           // Do nothing. Must hang up via UI.
         });
 
-        const handle: any = typeof (maybe as any)?.then === "function" ? await (maybe as any) : maybe;
+        const handle: any =
+          typeof (maybe as any)?.then === "function"
+            ? await (maybe as any)
+            : maybe;
 
         if (cancelled) {
           if (handle?.remove && typeof handle.remove === "function") {
@@ -187,7 +199,9 @@ const CallContent = ({ callType, otherUserName, onLeave, onParticipantJoined }: 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+    return `${mins.toString().padStart(2, "0")}:${secs
+      .toString()
+      .padStart(2, "0")}`;
   };
 
   const toggleMute = useCallback(() => {
@@ -216,7 +230,7 @@ const CallContent = ({ callType, otherUserName, onLeave, onParticipantJoined }: 
   }, [daily, onLeave]);
 
   const hasRemoteParticipants = participantIds.length > 0;
-  const showLocalPreview = Boolean(localSessionId && isJoined);
+  const showLocalPreview = false;
 
   return (
     <>
@@ -258,10 +272,13 @@ const CallContent = ({ callType, otherUserName, onLeave, onParticipantJoined }: 
               <User className="h-16 w-16 text-gray-500" />
             </div>
             <p className="text-xl font-semibold">
-              {otherUserName || t("call.unknownUser", { defaultValue: "Unknown" })}
+              {otherUserName ||
+                t("call.unknownUser", { defaultValue: "Unknown" })}
             </p>
             <p className="text-white/60 text-sm">
-              {t("call.waitingJoin", { defaultValue: "Waiting for them to join…" })}
+              {t("call.waitingJoin", {
+                defaultValue: "Waiting for them to join…",
+              })}
             </p>
           </div>
         )}
@@ -289,24 +306,38 @@ const CallContent = ({ callType, otherUserName, onLeave, onParticipantJoined }: 
           variant="outline"
           size="lg"
           className={`rounded-full w-14 h-14 ${
-            isMuted ? "bg-red-500/20 border-red-500 text-red-500" : "bg-white/10 border-white/20 text-white"
+            isMuted
+              ? "bg-red-500/20 border-red-500 text-red-500"
+              : "bg-white/10 border-white/20 text-white"
           }`}
           onClick={toggleMute}
-          aria-label={t("call.toggleMic", { defaultValue: "Toggle microphone" })}
+          aria-label={t("call.toggleMic", {
+            defaultValue: "Toggle microphone",
+          })}
         >
-          {isMuted ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+          {isMuted ? (
+            <MicOff className="h-5 w-5" />
+          ) : (
+            <Mic className="h-5 w-5" />
+          )}
         </Button>
 
         <Button
           variant="outline"
           size="lg"
           className={`rounded-full w-14 h-14 ${
-            isCameraOff ? "bg-red-500/20 border-red-500 text-red-500" : "bg-white/10 border-white/20 text-white"
+            isCameraOff
+              ? "bg-red-500/20 border-red-500 text-red-500"
+              : "bg-white/10 border-white/20 text-white"
           }`}
           onClick={toggleCamera}
           aria-label={t("call.toggleCam", { defaultValue: "Toggle camera" })}
         >
-          {isCameraOff ? <VideoOff className="h-5 w-5" /> : <Video className="h-5 w-5" />}
+          {isCameraOff ? (
+            <VideoOff className="h-5 w-5" />
+          ) : (
+            <Video className="h-5 w-5" />
+          )}
         </Button>
 
         <Button
@@ -423,7 +454,8 @@ const VideoCallWrapper = ({
         if (!ok) {
           setError(
             t("call.permissionsRequired", {
-              defaultValue: "Camera/microphone access required. Please allow access in settings.",
+              defaultValue:
+                "Camera/microphone access required. Please allow access in settings.",
             })
           );
           return;
@@ -436,8 +468,10 @@ const VideoCallWrapper = ({
           startVideoOff: callType !== "video",
         });
 
-        const onCameraError = (e: any) => console.log("[VideoCall] camera-error", e);
-        const onDailyError = (e: any) => console.log("[VideoCall] daily-error", e);
+        const onCameraError = (e: any) =>
+          console.log("[VideoCall] camera-error", e);
+        const onDailyError = (e: any) =>
+          console.log("[VideoCall] daily-error", e);
 
         co.on("camera-error", onCameraError);
         co.on("error", onDailyError);
@@ -547,7 +581,9 @@ const VideoCallWrapper = ({
       <div className="flex items-center justify-center h-full bg-black">
         <div className="flex flex-col items-center gap-4">
           <div className="animate-spin h-12 w-12 border-4 border-primary border-t-transparent rounded-full" />
-          <p className="text-white text-lg">{t("call.initializing", { defaultValue: "Initializing call..." })}</p>
+          <p className="text-white text-lg">
+            {t("call.initializing", { defaultValue: "Initializing call..." })}
+          </p>
         </div>
       </div>
     );
@@ -585,7 +621,8 @@ export const VideoCallScreen = () => {
   const roomUrl = activeCall.roomUrl;
   if (!roomUrl) return null;
 
-  const inviteId = (activeCall as any)?.id ?? (activeCall as any)?.callInviteId ?? null;
+  const inviteId =
+    (activeCall as any)?.id ?? (activeCall as any)?.callInviteId ?? null;
   const callState = activeCall.callState;
 
   const handleParticipantJoined = useCallback(() => {
@@ -601,7 +638,10 @@ export const VideoCallScreen = () => {
 
     if (inviteId) {
       try {
-        const wasDialing = callState === "calling" || callState === "waiting" || callState === "ringing";
+        const wasDialing =
+          callState === "calling" ||
+          callState === "waiting" ||
+          callState === "ringing";
 
         if (wasDialing) {
           await supabase
@@ -639,7 +679,10 @@ export const VideoCallScreen = () => {
       }
 
       if (nextStatus === "ended") {
-        const wasDialing = callState === "calling" || callState === "waiting" || callState === "ringing";
+        const wasDialing =
+          callState === "calling" ||
+          callState === "waiting" ||
+          callState === "ringing";
 
         if (wasDialing) {
           updateCallState({ callState: "no-answer" as any });
@@ -667,7 +710,12 @@ export const VideoCallScreen = () => {
       .channel(`call_invite_watch:${inviteId}`)
       .on(
         "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "call_invites", filter: `id=eq.${inviteId}` },
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "call_invites",
+          filter: `id=eq.${inviteId}`,
+        },
         (payload: any) => {
           if (stopped) return;
           const nextStatus = payload?.new?.status as string | undefined;
@@ -679,7 +727,11 @@ export const VideoCallScreen = () => {
 
     const poll = async () => {
       try {
-        const { data } = await supabase.from("call_invites").select("status").eq("id", inviteId).maybeSingle();
+        const { data } = await supabase
+          .from("call_invites")
+          .select("status")
+          .eq("id", inviteId)
+          .maybeSingle();
         const st = (data as any)?.status as string | undefined;
         if (!stopped) handleRemoteStatus(st);
       } catch {}
@@ -697,7 +749,10 @@ export const VideoCallScreen = () => {
     };
   }, [inviteId, handleRemoteStatus]);
 
-  const showDialUi = callState === "calling" || callState === "waiting" || callState === "ringing";
+  const showDialUi =
+    callState === "calling" ||
+    callState === "waiting" ||
+    callState === "ringing";
 
   return (
     <div className="fixed inset-0 z-[100] bg-black">
@@ -711,7 +766,9 @@ export const VideoCallScreen = () => {
 
       {showDialUi && (
         <CallingScreen
-          otherUserName={activeCall.otherUserName || t("call.user", { defaultValue: "User" })}
+          otherUserName={
+            activeCall.otherUserName || t("call.user", { defaultValue: "User" })
+          }
           otherUserAvatar={undefined}
           callType="video"
           onCancel={() => void leave()}
@@ -725,7 +782,8 @@ export const VideoCallScreen = () => {
               {t("call.missedTitle", { defaultValue: "Missed call" })}
             </div>
             <div className="mt-1 text-white/60 text-sm">
-              {(activeCall.otherUserName || t("call.user", { defaultValue: "User" }))}{" "}
+              {activeCall.otherUserName ||
+                t("call.user", { defaultValue: "User" })}{" "}
               {t("call.noAnswer", { defaultValue: "didn’t answer" })}
             </div>
           </div>

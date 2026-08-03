@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Normal application theme after the native startup screen -->
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+
+        <!-- Prevent a white flash while the WebView loads -->
+        <item name="android:windowBackground">#166534</item>
+
+        <!-- Keep system bars consistent with the startup screen -->
+        <item name="android:statusBarColor">#166534</item>
+        <item name="android:navigationBarColor">#166534</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <!-- Use light icons on the black system bars -->
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+
+    <!-- Theme used by the Capacitor activity after startup -->
+    <style name="AppTheme.NoActionBar" parent="AppTheme">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <!-- Native startup theme for Android 11 and older -->
+    <style
+        name="AppTheme.NoActionBarLaunch"
+        parent="Theme.AppCompat.DayNight.NoActionBar">
+
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+
+        <!-- Black screen with one Tariq Islam logo -->
+        <item name="android:windowBackground">@drawable/launch_background</item>
+
+        <item name="android:statusBarColor">@android:color/black</item>
+        <item name="android:navigationBarColor">@android:color/black</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+
+</resources>

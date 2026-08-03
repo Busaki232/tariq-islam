@@ -22,12 +22,7 @@ import {
   Youtube,
 } from "lucide-react";
 
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -38,13 +33,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useTranslation } from "react-i18next";
 
-
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 
 type ScholarProfileRecord = {
@@ -89,6 +78,93 @@ type ScholarLecture = {
   view_count: number;
   created_at: string;
 };
+
+type LectureThumbnailProps = {
+  videoUrl: string;
+  title: string;
+};
+
+const LectureThumbnail = ({
+  videoUrl,
+  title,
+}: LectureThumbnailProps) => {
+  const [ready, setReady] = useState(false);
+  const [failed, setFailed] = useState(false);
+
+  return (
+    <div className="relative h-full w-full overflow-hidden bg-black">
+      {!failed && (
+        <video
+          src={videoUrl}
+          aria-label={title}
+          muted
+          playsInline
+          preload="auto"
+          controls={false}
+          disablePictureInPicture
+          onLoadedMetadata={(event) => {
+            const video = event.currentTarget;
+
+            try {
+              const duration =
+                Number.isFinite(video.duration) && video.duration > 0
+                  ? video.duration
+                  : 0;
+
+              video.currentTime =
+                duration > 5
+                  ? Math.min(3, duration * 0.12)
+                  : duration > 1
+                    ? Math.min(1, duration * 0.25)
+                    : 0.1;
+            } catch (error) {
+              console.error(
+                "Unable to select lecture still frame:",
+                error
+              );
+            }
+          }}
+          onSeeked={(event) => {
+            event.currentTarget.pause();
+            setReady(true);
+          }}
+          onLoadedData={(event) => {
+            event.currentTarget.pause();
+
+            if (event.currentTarget.currentTime > 0) {
+              setReady(true);
+            }
+          }}
+          onError={(event) => {
+            console.error(
+              "Unable to load lecture preview:",
+              event.currentTarget.error
+            );
+            setFailed(true);
+          }}
+          className={`h-full w-full object-cover transition-opacity duration-300 ${
+            ready ? "opacity-100" : "opacity-0"
+          }`}
+        />
+      )}
+
+      {!ready && !failed && (
+        <div className="absolute inset-0 flex items-center justify-center bg-muted">
+          <Loader2 className="h-7 w-7 animate-spin text-muted-foreground" />
+        </div>
+      )}
+
+      {failed && (
+        <div className="absolute inset-0 flex items-center justify-center bg-muted px-5 text-center">
+          <span className="line-clamp-2 text-sm font-medium text-muted-foreground">
+            {title}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+};
+
 type ScholarPlaylist = {
   id: string;
   scholar_id: string;
@@ -119,7 +195,6 @@ type ScholarLivestreamRecord = {
   created_at: string;
 };
 
-
 const ScholarProfile = () => {
   const navigate = useNavigate();
   const { scholarId } = useParams<{ scholarId: string }>();
@@ -148,14 +223,9 @@ const ScholarProfile = () => {
   const [livestreamDescription, setLivestreamDescription] = useState("");
   const [livestreamSourceLanguage, setLivestreamSourceLanguage] =
     useState("ar");
-  const [
-    livestreamTranslationLanguages,
-    setLivestreamTranslationLanguages,
-  ] = useState("en");
-  const [livestreamScheduledFor, setLivestreamScheduledFor] =
-    useState("");
-
-
+  const [livestreamTranslationLanguages, setLivestreamTranslationLanguages] =
+    useState("en");
+  const [livestreamScheduledFor, setLivestreamScheduledFor] = useState("");
 
   useEffect(() => {
     const loadScholar = async () => {
@@ -226,23 +296,23 @@ const ScholarProfile = () => {
       } catch (error) {
         console.error("Error loading scholar profile:", error);
 
-toast({
-  title: t("scholars.profilePage.loadError", {
-    defaultValue: "Unable to load scholar",
-  }),
-  description: t("scholars.profilePage.loadErrorDescription", {
-    defaultValue:
-      "The scholar profile could not be loaded. Please try again.",
-  }),
-  variant: "destructive",
-});
+        toast({
+          title: t("scholars.profilePage.loadError", {
+            defaultValue: "Unable to load scholar",
+          }),
+          description: t("scholars.profilePage.loadErrorDescription", {
+            defaultValue:
+              "The scholar profile could not be loaded. Please try again.",
+          }),
+          variant: "destructive",
+        });
       } finally {
         setLoading(false);
       }
     };
 
     void loadScholar();
- }, [scholarId, toast, t]);
+  }, [scholarId, toast, t]);
 
   const getInitials = (name: string) => {
     return name
@@ -253,70 +323,67 @@ toast({
       .join("");
   };
 
-useEffect(() => {
-  const loadFollowInformation = async () => {
-    if (!scholarId) {
-      return;
-    }
-
-    try {
-      const { count, error: countError } = await supabase
-        .from("scholar_followers")
-        .select("id", {
-          count: "exact",
-          head: true,
-        })
-        .eq("scholar_id", scholarId);
-
-      if (countError) {
-        throw countError;
-      }
-
-      setFollowerCount(count ?? 0);
-
-      if (!user?.id) {
-        setIsFollowing(false);
+  useEffect(() => {
+    const loadFollowInformation = async () => {
+      if (!scholarId) {
         return;
       }
 
-      const { data, error } = await supabase
-        .from("scholar_followers")
-        .select("id")
-        .eq("scholar_id", scholarId)
-        .eq("user_id", user.id)
-        .maybeSingle();
+      try {
+        const { count, error: countError } = await supabase
+          .from("scholar_followers")
+          .select("id", {
+            count: "exact",
+            head: true,
+          })
+          .eq("scholar_id", scholarId);
 
-      if (error) {
-        throw error;
+        if (countError) {
+          throw countError;
+        }
+
+        setFollowerCount(count ?? 0);
+
+        if (!user?.id) {
+          setIsFollowing(false);
+          return;
+        }
+
+        const { data, error } = await supabase
+          .from("scholar_followers")
+          .select("id")
+          .eq("scholar_id", scholarId)
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (error) {
+          throw error;
+        }
+
+        setIsFollowing(Boolean(data));
+      } catch (error) {
+        console.error("Could not load scholar follow information:", error);
+      }
+    };
+
+    void loadFollowInformation();
+  }, [scholarId, user?.id]);
+
+  useEffect(() => {
+    const loadLectures = async () => {
+      if (!scholarId) {
+        setLectures([]);
+        setLecturesLoading(false);
+        return;
       }
 
-      setIsFollowing(Boolean(data));
-    } catch (error) {
-      console.error(
-        "Could not load scholar follow information:",
-        error
-      );
-    }
-  };
+      try {
+        setLecturesLoading(true);
 
-  void loadFollowInformation();
-}, [scholarId, user?.id]);
-
-useEffect(() => {
-  const loadLectures = async () => {
-    if (!scholarId) {
-      setLectures([]);
-      setLecturesLoading(false);
-      return;
-    }
-
-    try {
-      setLecturesLoading(true);
-
-      const { data, error } = await supabase
-        .from("scholar_lectures")
-        .select(
-          `
+        const { data, error } = await supabase
+          .from("scholar_lectures")
+          .select(
+            `
             id,
             title,
             description,
@@ -328,42 +395,42 @@ useEffect(() => {
             view_count,
             created_at
           `
-        )
-        .eq("scholar_id", scholarId)
-        .eq("status", "approved")
-        .order("is_featured", { ascending: false })
-        .order("created_at", { ascending: false });
+          )
+          .eq("scholar_id", scholarId)
+          .eq("status", "approved")
+          .order("is_featured", { ascending: false })
+          .order("created_at", { ascending: false });
 
-      if (error) {
-        throw error;
+        if (error) {
+          throw error;
+        }
+
+        setLectures((data ?? []) as ScholarLecture[]);
+      } catch (error) {
+        console.error("Could not load scholar lectures:", error);
+        setLectures([]);
+      } finally {
+        setLecturesLoading(false);
+      }
+    };
+
+    void loadLectures();
+  }, [scholarId]);
+  useEffect(() => {
+    const loadPlaylists = async () => {
+      if (!scholarId) {
+        setPlaylists([]);
+        setPlaylistsLoading(false);
+        return;
       }
 
-      setLectures((data ?? []) as ScholarLecture[]);
-    } catch (error) {
-      console.error("Could not load scholar lectures:", error);
-      setLectures([]);
-    } finally {
-      setLecturesLoading(false);
-    }
-  };
+      try {
+        setPlaylistsLoading(true);
 
-  void loadLectures();
-}, [scholarId]);
-useEffect(() => {
-  const loadPlaylists = async () => {
-    if (!scholarId) {
-      setPlaylists([]);
-      setPlaylistsLoading(false);
-      return;
-    }
-
-    try {
-      setPlaylistsLoading(true);
-
-      let playlistQuery = supabase
-        .from("scholar_playlists")
-        .select(
-          `
+        let playlistQuery = supabase
+          .from("scholar_playlists")
+          .select(
+            `
             id,
             scholar_id,
             title,
@@ -372,38 +439,36 @@ useEffect(() => {
             is_published,
             created_at
           `
-        )
-        .eq("scholar_id", scholarId)
-        .order("created_at", { ascending: false });
+          )
+          .eq("scholar_id", scholarId)
+          .order("created_at", { ascending: false });
 
-      // Visitors see only published playlists.
-      // The scholar owner can also see private drafts.
-      if (user?.id !== scholar?.user_id) {
-        playlistQuery = playlistQuery.eq("is_published", true);
-      }
+        // Visitors see only published playlists.
+        // The scholar owner can also see private drafts.
+        if (user?.id !== scholar?.user_id) {
+          playlistQuery = playlistQuery.eq("is_published", true);
+        }
 
-      const { data: playlistData, error: playlistError } =
-        await playlistQuery;
+        const { data: playlistData, error: playlistError } =
+          await playlistQuery;
 
-      if (playlistError) {
-        throw playlistError;
-      }
+        if (playlistError) {
+          throw playlistError;
+        }
 
-      const playlistRows = playlistData ?? [];
+        const playlistRows = playlistData ?? [];
 
-      if (playlistRows.length === 0) {
-        setPlaylists([]);
-        return;
-      }
+        if (playlistRows.length === 0) {
+          setPlaylists([]);
+          return;
+        }
 
-      const playlistIds = playlistRows.map(
-        (playlist) => playlist.id
-      );
+        const playlistIds = playlistRows.map((playlist) => playlist.id);
 
-      const { data: itemData, error: itemError } = await supabase
-        .from("scholar_playlist_items")
-        .select(
-          `
+        const { data: itemData, error: itemError } = await supabase
+          .from("scholar_playlist_items")
+          .select(
+            `
             playlist_id,
             position,
             lecture_id,
@@ -413,64 +478,60 @@ useEffect(() => {
               video_url
             )
           `
-        )
-        .in("playlist_id", playlistIds)
-        .order("position", { ascending: true });
+          )
+          .in("playlist_id", playlistIds)
+          .order("position", { ascending: true });
 
-      if (itemError) {
-        throw itemError;
+        if (itemError) {
+          throw itemError;
+        }
+
+        const playlistDetails = playlistRows.map((playlist) => {
+          const matchingItems = (itemData ?? []).filter(
+            (item) => item.playlist_id === playlist.id
+          );
+
+          const firstItem = matchingItems[0];
+
+          const firstLecture = Array.isArray(firstItem?.scholar_lectures)
+            ? firstItem?.scholar_lectures[0]
+            : firstItem?.scholar_lectures;
+
+          return {
+            ...playlist,
+            lecture_count: matchingItems.length,
+            first_lecture_thumbnail: firstLecture?.thumbnail_url ?? null,
+            first_lecture_video: firstLecture?.video_url ?? null,
+          };
+        });
+
+        setPlaylists(playlistDetails as ScholarPlaylist[]);
+      } catch (error) {
+        console.error("Could not load scholar playlists:", error);
+        setPlaylists([]);
+      } finally {
+        setPlaylistsLoading(false);
+      }
+    };
+
+    void loadPlaylists();
+  }, [scholarId, scholar?.user_id, user?.id]);
+
+  useEffect(() => {
+    const loadActiveLivestream = async () => {
+      if (!scholarId) {
+        setActiveLivestream(null);
+        setLivestreamLoading(false);
+        return;
       }
 
-      const playlistDetails = playlistRows.map((playlist) => {
-        const matchingItems = (itemData ?? []).filter(
-          (item) => item.playlist_id === playlist.id
-        );
+      try {
+        setLivestreamLoading(true);
 
-        const firstItem = matchingItems[0];
-
-        const firstLecture = Array.isArray(
-          firstItem?.scholar_lectures
-        )
-          ? firstItem?.scholar_lectures[0]
-          : firstItem?.scholar_lectures;
-
-        return {
-          ...playlist,
-          lecture_count: matchingItems.length,
-          first_lecture_thumbnail:
-            firstLecture?.thumbnail_url ?? null,
-          first_lecture_video:
-            firstLecture?.video_url ?? null,
-        };
-      });
-
-      setPlaylists(playlistDetails as ScholarPlaylist[]);
-    } catch (error) {
-      console.error("Could not load scholar playlists:", error);
-      setPlaylists([]);
-    } finally {
-      setPlaylistsLoading(false);
-    }
-  };
-
-  void loadPlaylists();
-}, [scholarId, scholar?.user_id, user?.id]);
-
-useEffect(() => {
-  const loadActiveLivestream = async () => {
-    if (!scholarId) {
-      setActiveLivestream(null);
-      setLivestreamLoading(false);
-      return;
-    }
-
-    try {
-      setLivestreamLoading(true);
-
-      const { data, error } = await supabase
-        .from("scholar_livestreams")
-        .select(
-          `
+        const { data, error } = await supabase
+          .from("scholar_livestreams")
+          .select(
+            `
             id,
             scholar_id,
             created_by,
@@ -486,175 +547,163 @@ useEffect(() => {
             status,
             created_at
           `
-        )
-        .eq("scholar_id", scholarId)
-        .in("status", ["draft", "upcoming", "live"])
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+          )
+          .eq("scholar_id", scholarId)
+          .in("status", ["draft", "upcoming", "live"])
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
 
-      if (error) {
-        throw error;
+        if (error) {
+          throw error;
+        }
+
+        setActiveLivestream((data as ScholarLivestreamRecord | null) ?? null);
+      } catch (error) {
+        console.error("Could not load scholar livestream:", error);
+        setActiveLivestream(null);
+      } finally {
+        setLivestreamLoading(false);
       }
+    };
 
-      setActiveLivestream(
-        (data as ScholarLivestreamRecord | null) ?? null
-      );
-    } catch (error) {
-      console.error(
-        "Could not load scholar livestream:",
-        error
-      );
-      setActiveLivestream(null);
-    } finally {
-      setLivestreamLoading(false);
+    void loadActiveLivestream();
+  }, [scholarId]);
+
+  useEffect(() => {
+    if (!scholarId) return;
+
+    const channel = supabase
+      .channel(`scholar-profile-livestream:${scholarId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "scholar_livestreams",
+          filter: `scholar_id=eq.${scholarId}`,
+        },
+        (payload) => {
+          if (payload.eventType === "DELETE") {
+            const deletedId = (payload.old as { id?: string })?.id;
+
+            setActiveLivestream((current) =>
+              current?.id === deletedId ? null : current
+            );
+
+            return;
+          }
+
+          const updated = payload.new as ScholarLivestreamRecord;
+
+          if (["draft", "upcoming", "live"].includes(updated.status)) {
+            setActiveLivestream(updated);
+          } else {
+            setActiveLivestream((current) =>
+              current?.id === updated.id ? null : current
+            );
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [scholarId]);
+
+  const handleFollowScholar = async () => {
+    if (!scholar) {
+      return;
     }
-  };
 
-  void loadActiveLivestream();
-}, [scholarId]);
+    if (!user?.id) {
+      navigate("/auth");
+      return;
+    }
 
-useEffect(() => {
-  if (!scholarId) return;
+    if (user.id === scholar.user_id) {
+      toast({
+        title: t("scholars.profilePage.ownProfile", {
+          defaultValue: "This is your scholar profile",
+        }),
+        description: t("scholars.profilePage.ownProfileDescription", {
+          defaultValue: "You cannot follow your own scholar profile.",
+        }),
+      });
 
-  const channel = supabase
-    .channel(`scholar-profile-livestream:${scholarId}`)
-    .on(
-      "postgres_changes",
-      {
-        event: "*",
-        schema: "public",
-        table: "scholar_livestreams",
-        filter: `scholar_id=eq.${scholarId}`,
-      },
-      (payload) => {
-        if (payload.eventType === "DELETE") {
-          const deletedId = (payload.old as { id?: string })?.id;
+      return;
+    }
 
-          setActiveLivestream((current) =>
-            current?.id === deletedId ? null : current
-          );
+    if (followLoading) {
+      return;
+    }
 
-          return;
+    setFollowLoading(true);
+
+    try {
+      if (isFollowing) {
+        const { error } = await supabase
+          .from("scholar_followers")
+          .delete()
+          .eq("scholar_id", scholar.id)
+          .eq("user_id", user.id);
+
+        if (error) {
+          throw error;
         }
 
-        const updated =
-          payload.new as ScholarLivestreamRecord;
+        setIsFollowing(false);
+        setFollowerCount((current) => Math.max(0, current - 1));
 
-        if (
-          ["draft", "upcoming", "live"].includes(updated.status)
-        ) {
-          setActiveLivestream(updated);
-        } else {
-          setActiveLivestream((current) =>
-            current?.id === updated.id ? null : current
-          );
-        }
-      }
-    )
-    .subscribe();
-
-  return () => {
-    void supabase.removeChannel(channel);
-  };
-}, [scholarId]);
-
-const handleFollowScholar = async () => {
-  if (!scholar) {
-    return;
-  }
-
-  if (!user?.id) {
-    navigate("/auth");
-    return;
-  }
-
-  if (user.id === scholar.user_id) {
-toast({
-  title: t("scholars.profilePage.ownProfile", {
-    defaultValue: "This is your scholar profile",
-  }),
-  description: t("scholars.profilePage.ownProfileDescription", {
-    defaultValue: "You cannot follow your own scholar profile.",
-  }),
-});
-
-    return;
-  }
-
-  if (followLoading) {
-    return;
-  }
-
-  setFollowLoading(true);
-
-  try {
-    if (isFollowing) {
-      const { error } = await supabase
-        .from("scholar_followers")
-        .delete()
-        .eq("scholar_id", scholar.id)
-        .eq("user_id", user.id);
-
-      if (error) {
-        throw error;
-      }
-
-      setIsFollowing(false);
-      setFollowerCount((current) => Math.max(0, current - 1));
-
- toast({
-   title: t("scholars.profilePage.unfollowed", {
-     defaultValue: "Scholar unfollowed",
-   }),
-   description: t("scholars.profilePage.unfollowedDescription", {
-     scholar: scholar.display_name,
-     defaultValue:
-       "You are no longer following {{scholar}}.",
-   }),
- });
-    } else {
-      const { error } = await supabase
-        .from("scholar_followers")
-        .insert({
+        toast({
+          title: t("scholars.profilePage.unfollowed", {
+            defaultValue: "Scholar unfollowed",
+          }),
+          description: t("scholars.profilePage.unfollowedDescription", {
+            scholar: scholar.display_name,
+            defaultValue: "You are no longer following {{scholar}}.",
+          }),
+        });
+      } else {
+        const { error } = await supabase.from("scholar_followers").insert({
           scholar_id: scholar.id,
           user_id: user.id,
         });
 
-      if (error) {
-        throw error;
+        if (error) {
+          throw error;
+        }
+
+        setIsFollowing(true);
+        setFollowerCount((current) => current + 1);
+
+        toast({
+          title: t("scholars.profilePage.followed", {
+            defaultValue: "Scholar followed",
+          }),
+          description: t("scholars.profilePage.followedDescription", {
+            scholar: scholar.display_name,
+            defaultValue: "You are now following {{scholar}}.",
+          }),
+        });
       }
-
-      setIsFollowing(true);
-      setFollowerCount((current) => current + 1);
-
- toast({
-   title: t("scholars.profilePage.followed", {
-     defaultValue: "Scholar followed",
-   }),
-   description: t("scholars.profilePage.followedDescription", {
-     scholar: scholar.display_name,
-     defaultValue:
-       "You are now following {{scholar}}.",
-   }),
- });
+    } catch (error) {
+      console.error("Could not update scholar follow status:", error);
+      toast({
+        title: t("scholars.profilePage.followError", {
+          defaultValue: "Unable to update follow status",
+        }),
+        description: t("scholars.profilePage.followErrorDescription", {
+          defaultValue:
+            "Your follow status could not be changed. Please try again.",
+        }),
+        variant: "destructive",
+      });
+    } finally {
+      setFollowLoading(false);
     }
-  } catch (error) {
-    console.error("Could not update scholar follow status:", error);
-toast({
-  title: t("scholars.profilePage.followError", {
-    defaultValue: "Unable to update follow status",
-  }),
-  description: t("scholars.profilePage.followErrorDescription", {
-    defaultValue:
-      "Your follow status could not be changed. Please try again.",
-  }),
-  variant: "destructive",
-});
-  } finally {
-    setFollowLoading(false);
-  }
-};
+  };
 
   const handleShare = async () => {
     if (!scholar) return;
@@ -679,42 +728,35 @@ toast({
 
       await navigator.clipboard.writeText(shareUrl);
 
-  toast({
-    title: t("scholars.profilePage.linkCopied", {
-      defaultValue: "Profile link copied",
-    }),
-    description: t("scholars.profilePage.linkCopiedDescription", {
-      defaultValue: "The scholar profile link was copied.",
-    }),
-  });
+      toast({
+        title: t("scholars.profilePage.linkCopied", {
+          defaultValue: "Profile link copied",
+        }),
+        description: t("scholars.profilePage.linkCopiedDescription", {
+          defaultValue: "The scholar profile link was copied.",
+        }),
+      });
     } catch (error) {
-      if (
-        error instanceof DOMException &&
-        error.name === "AbortError"
-      ) {
+      if (error instanceof DOMException && error.name === "AbortError") {
         return;
       }
 
       console.error("Could not share scholar profile:", error);
 
-  toast({
-    title: t("scholars.profilePage.shareError", {
-      defaultValue: "Unable to share",
-    }),
-    description: t("scholars.profilePage.shareErrorDescription", {
-      defaultValue: "The scholar profile could not be shared.",
-    }),
-    variant: "destructive",
-  });
+      toast({
+        title: t("scholars.profilePage.shareError", {
+          defaultValue: "Unable to share",
+        }),
+        description: t("scholars.profilePage.shareErrorDescription", {
+          defaultValue: "The scholar profile could not be shared.",
+        }),
+        variant: "destructive",
+      });
     }
   };
 
-  const openLivestream = (
-    livestream: ScholarLivestreamRecord
-  ) => {
-    navigate(
-      `/scholars/${livestream.scholar_id}/livestreams/${livestream.id}`
-    );
+  const openLivestream = (livestream: ScholarLivestreamRecord) => {
+    navigate(`/scholars/${livestream.scholar_id}/livestreams/${livestream.id}`);
   };
 
   const resetLivestreamForm = () => {
@@ -747,18 +789,16 @@ toast({
     if (!cleanTitle) {
       toast({
         title: "Title required",
-        description:
-          "Enter a title for the livestream.",
+        description: "Enter a title for the livestream.",
         variant: "destructive",
       });
       return;
     }
 
-    const translationLanguages =
-      livestreamTranslationLanguages
-        .split(",")
-        .map((language) => language.trim().toLowerCase())
-        .filter(Boolean);
+    const translationLanguages = livestreamTranslationLanguages
+      .split(",")
+      .map((language) => language.trim().toLowerCase())
+      .filter(Boolean);
 
     const uniqueTranslationLanguages = Array.from(
       new Set(translationLanguages)
@@ -772,8 +812,7 @@ toast({
       if (Number.isNaN(scheduledDate.getTime())) {
         toast({
           title: "Invalid schedule",
-          description:
-            "Choose a valid livestream date and time.",
+          description: "Choose a valid livestream date and time.",
           variant: "destructive",
         });
         return;
@@ -782,8 +821,7 @@ toast({
       if (scheduledDate.getTime() <= Date.now()) {
         toast({
           title: "Choose a future time",
-          description:
-            "A scheduled livestream must begin in the future.",
+          description: "A scheduled livestream must begin in the future.",
           variant: "destructive",
         });
         return;
@@ -801,11 +839,9 @@ toast({
           body: {
             scholarId: scholar.id,
             title: cleanTitle,
-            description:
-              livestreamDescription.trim() || null,
+            description: livestreamDescription.trim() || null,
             sourceLanguage:
-              livestreamSourceLanguage.trim().toLowerCase() ||
-              "ar",
+              livestreamSourceLanguage.trim().toLowerCase() || "ar",
             translationLanguages:
               uniqueTranslationLanguages.length > 0
                 ? uniqueTranslationLanguages
@@ -825,8 +861,7 @@ toast({
         );
       }
 
-      const created =
-        data.livestream as ScholarLivestreamRecord;
+      const created = data.livestream as ScholarLivestreamRecord;
 
       setActiveLivestream(created);
       resetLivestreamForm();
@@ -842,17 +877,12 @@ toast({
 
       openLivestream(created);
     } catch (error) {
-      console.error(
-        "Could not create scholar livestream:",
-        error
-      );
+      console.error("Could not create scholar livestream:", error);
 
       toast({
         title: "Unable to create livestream",
         description:
-          error instanceof Error
-            ? error.message
-            : "Please try again.",
+          error instanceof Error ? error.message : "Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -883,18 +913,18 @@ toast({
           <CardContent className="flex flex-col items-center py-12 text-center">
             <BookOpen className="mb-4 h-12 w-12 text-muted-foreground" />
 
-         <h1 className="text-xl font-semibold">
-           {t("scholars.profilePage.notFound", {
-             defaultValue: "Scholar not found",
-           })}
-         </h1>
+            <h1 className="text-xl font-semibold">
+              {t("scholars.profilePage.notFound", {
+                defaultValue: "Scholar not found",
+              })}
+            </h1>
 
-         <p className="mt-2 text-sm text-muted-foreground">
-           {t("scholars.profilePage.notFoundDescription", {
-             defaultValue:
-               "This scholar profile may be unavailable, inactive, or awaiting approval.",
-           })}
-         </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {t("scholars.profilePage.notFoundDescription", {
+                defaultValue:
+                  "This scholar profile may be unavailable, inactive, or awaiting approval.",
+              })}
+            </p>
 
             <Button
               type="button"
@@ -911,1204 +941,1138 @@ toast({
     );
   }
 
- return (
-   <main className="min-h-screen bg-background">
-     <div className="mx-auto max-w-5xl space-y-6 px-4 py-6 pb-24 sm:px-6 lg:px-8">
-       <div className="flex items-center justify-between gap-3">
-         <Button
-           type="button"
-           variant="ghost"
-           onClick={() => navigate(-1)}
-         >
-           <ArrowLeft className="mr-2 h-4 w-4" />
-          {t("back", {
-            defaultValue: "Back",
-          })}
-         </Button>
-
-         <div className="flex flex-wrap items-center gap-2">
-           {user?.id === scholar.user_id && (
-             <Button
-               type="button"
-               variant="outline"
-               onClick={() => navigate("/apply-scholar")}
-             >
-               <Pencil className="mr-2 h-4 w-4" />
-               {t("scholars.profilePage.editProfile", {
-                 defaultValue: "Edit Profile",
-               })}
-             </Button>
-           )}
-
-           <Button
-             type="button"
-             variant="outline"
-             onClick={handleShare}
-           >
-             <Share2 className="mr-2 h-4 w-4" />
-             {t("scholars.profilePage.share", {
-               defaultValue: "Share",
-             })}
-           </Button>
-         </div>
-       </div>
-
-       <Card className="border-0 bg-transparent shadow-none">
-         <CardContent className="p-6 sm:p-8">
-           <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
-             <Avatar className="h-28 w-28">
-               <AvatarImage
-                 src={scholar.avatar_url ?? undefined}
-                 alt={scholar.display_name}
-               />
-
-               <AvatarFallback className="text-2xl">
-                 {getInitials(scholar.display_name)}
-               </AvatarFallback>
-             </Avatar>
-
-             <div className="min-w-0 flex-1">
-               <div className="flex flex-wrap items-center gap-2">
-                 <h1 className="text-2xl font-bold sm:text-3xl">
-                   {scholar.display_name}
-                 </h1>
-
-                 <BadgeCheck className="h-6 w-6 shrink-0 text-primary" />
-               </div>
-
-               {scholar.is_featured && (
-                 <Badge className="mt-3">
-                   <Star className="mr-1 h-3 w-3" />
-                   {t("scholars.profilePage.featuredScholar", {
-                     defaultValue: "Featured Scholar",
-                   })}
-                 </Badge>
-               )}
-
-               {(scholar.city || scholar.country) && (
-                 <div className="mt-4 flex items-center gap-2 text-muted-foreground">
-                   <MapPin className="h-4 w-4 shrink-0" />
-
-                   <span>
-                     {[scholar.city, scholar.country]
-                       .filter(Boolean)
-                       .join(", ")}
-                   </span>
-                 </div>
-               )}
-
-               {scholar.username && (
-                 <p className="mt-2 text-sm text-muted-foreground">
-                   @{scholar.username}
-                 </p>
-               )}
-
-               <div className="mt-5 flex flex-wrap items-center gap-3">
-                 {user?.id !== scholar.user_id && (
-                   <Button
-                     type="button"
-                     onClick={handleFollowScholar}
-                     disabled={followLoading}
-                     variant={isFollowing ? "outline" : "default"}
-                   >
-                     {isFollowing ? (
-                       <UserCheck className="mr-2 h-4 w-4" />
-                     ) : (
-                       <UserPlus className="mr-2 h-4 w-4" />
-                     )}
-{followLoading
-  ? t("scholars.profilePage.updating", {
-      defaultValue: "Updating...",
-    })
-  : isFollowing
-    ? t("scholars.profilePage.following", {
-        defaultValue: "Following",
-      })
-    : t("scholars.profilePage.followScholar", {
-        defaultValue: "Follow Scholar",
-      })}
-
-                   </Button>
-                 )}
-
-                 <p className="text-sm text-muted-foreground">
-                   <span className="font-semibold text-foreground">
-                     {followerCount}
-                   </span>{" "}
-                  {t("scholars.profilePage.followerCount", {
-                    count: followerCount,
-                    defaultValue:
-                      followerCount === 1
-                        ? "follower"
-                        : "followers",
-                  })}
-                 </p>
-               </div>
-             </div>
-           </div>
-         </CardContent>
-       </Card>
-
-       <Card className="overflow-hidden border-primary/20">
-         <CardHeader className="pb-3">
-           <div className="flex flex-wrap items-start justify-between gap-3">
-             <div>
-               <CardTitle className="flex items-center gap-2">
-                 <Radio
-                   className={`h-5 w-5 ${
-                     activeLivestream?.status === "live"
-                       ? "animate-pulse text-red-600"
-                       : "text-primary"
-                   }`}
-                 />
-                 Scholar Livestream
-               </CardTitle>
-
-               <p className="mt-1 text-sm text-muted-foreground">
-                 Live lectures hosted directly inside Tariq Islam.
-               </p>
-             </div>
-
-             {activeLivestream?.status === "live" && (
-               <Badge className="bg-red-600 text-white hover:bg-red-600">
-                 <Radio className="mr-1 h-3 w-3" />
-                 LIVE NOW
-               </Badge>
-             )}
-
-             {activeLivestream?.status === "upcoming" && (
-               <Badge variant="secondary">
-                 <CalendarDays className="mr-1 h-3 w-3" />
-                 UPCOMING
-               </Badge>
-             )}
-
-             {activeLivestream?.status === "draft" &&
-               user?.id === scholar.user_id && (
-                 <Badge variant="outline">DRAFT</Badge>
-               )}
-           </div>
-         </CardHeader>
-
-         <CardContent className="space-y-4">
-           {livestreamLoading ? (
-             <div className="flex items-center gap-2 py-4 text-sm text-muted-foreground">
-               <Loader2 className="h-4 w-4 animate-spin" />
-               Loading livestream…
-             </div>
-           ) : activeLivestream ? (
-             <div className="rounded-xl border bg-muted/30 p-4">
-               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                 <div className="min-w-0">
-                   <h3 className="text-lg font-semibold">
-                     {activeLivestream.title}
-                   </h3>
-
-                   {activeLivestream.description && (
-                     <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-                       {activeLivestream.description}
-                     </p>
-                   )}
-
-                   {activeLivestream.scheduled_for && (
-                     <p className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
-                       <CalendarDays className="h-4 w-4" />
-                       {new Date(
-                         activeLivestream.scheduled_for
-                       ).toLocaleString()}
-                     </p>
-                   )}
-
-                   <p className="mt-2 text-xs text-muted-foreground">
-                     Source:{" "}
-                     {activeLivestream.source_language.toUpperCase()}
-                     {" · "}
-                     Translation:{" "}
-                     {activeLivestream.translation_languages
-                       .map((language) =>
-                         language.toUpperCase()
-                       )
-                       .join(", ")}
-                   </p>
-                 </div>
-
-                 {user?.id === scholar.user_id ? (
-                   <Button
-                     type="button"
-                     className={
-                       activeLivestream.status === "live"
-                         ? "shrink-0 bg-red-600 hover:bg-red-700"
-                         : "shrink-0"
-                     }
-                     onClick={() =>
-                       openLivestream(activeLivestream)
-                     }
-                   >
-                     <Radio className="mr-2 h-4 w-4" />
-                     {activeLivestream.status === "live"
-                       ? "Manage Live"
-                       : "Open Livestream Studio"}
-                   </Button>
-                 ) : activeLivestream.status === "live" ? (
-                   <Button
-                     type="button"
-                     className="shrink-0 bg-red-600 hover:bg-red-700"
-                     onClick={() =>
-                       openLivestream(activeLivestream)
-                     }
-                   >
-                     <Play className="mr-2 h-4 w-4 fill-current" />
-                     Watch Live
-                   </Button>
-                 ) : activeLivestream.status === "upcoming" ? (
-                   <Button
-                     type="button"
-                     variant="outline"
-                     className="shrink-0"
-                     onClick={() =>
-                       openLivestream(activeLivestream)
-                     }
-                   >
-                     <CalendarDays className="mr-2 h-4 w-4" />
-                     Join Waiting Room
-                   </Button>
-                 ) : null}
-               </div>
-             </div>
-           ) : user?.id === scholar.user_id ? (
-             <div className="space-y-4">
-               {!livestreamFormOpen ? (
-                 <div className="flex flex-col gap-4 rounded-xl border border-dashed p-5 sm:flex-row sm:items-center sm:justify-between">
-                   <div>
-                     <h3 className="font-semibold">
-                       Start a live scholar lecture
-                     </h3>
-
-                     <p className="mt-1 text-sm text-muted-foreground">
-                       Create a private Daily room and broadcast
-                       directly from your camera and microphone.
-                     </p>
-                   </div>
-
-                   <Button
-                     type="button"
-                     onClick={() =>
-                       setLivestreamFormOpen(true)
-                     }
-                   >
-                     <Plus className="mr-2 h-4 w-4" />
-                     Create Livestream
-                   </Button>
-                 </div>
-               ) : (
-                 <div className="space-y-4 rounded-xl border p-4 sm:p-5">
-                   <div>
-                     <label
-                       htmlFor="scholar-livestream-title"
-                       className="text-sm font-medium"
-                     >
-                       Livestream title
-                     </label>
-
-                     <input
-                       id="scholar-livestream-title"
-                       type="text"
-                       value={livestreamTitle}
-                       onChange={(event) =>
-                         setLivestreamTitle(
-                           event.target.value
-                         )
-                       }
-                       placeholder="Example: Understanding Surah Al-Fatiha"
-                       maxLength={160}
-                       className="mt-2 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
-                     />
-                   </div>
-
-                   <div>
-                     <label
-                       htmlFor="scholar-livestream-description"
-                       className="text-sm font-medium"
-                     >
-                       Description
-                     </label>
-
-                     <textarea
-                       id="scholar-livestream-description"
-                       value={livestreamDescription}
-                       onChange={(event) =>
-                         setLivestreamDescription(
-                           event.target.value
-                         )
-                       }
-                       placeholder="Describe the live lecture."
-                       rows={4}
-                       className="mt-2 flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
-                     />
-                   </div>
-
-                   <div className="grid gap-4 sm:grid-cols-2">
-                     <div>
-                       <label
-                         htmlFor="scholar-livestream-source"
-                         className="text-sm font-medium"
-                       >
-                         Source language code
-                       </label>
-
-                       <input
-                         id="scholar-livestream-source"
-                         type="text"
-                         value={livestreamSourceLanguage}
-                         onChange={(event) =>
-                           setLivestreamSourceLanguage(
-                             event.target.value
-                           )
-                         }
-                         placeholder="ar"
-                         className="mt-2 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
-                       />
-                     </div>
-
-                     <div>
-                       <label
-                         htmlFor="scholar-livestream-translations"
-                         className="text-sm font-medium"
-                       >
-                         Translation language codes
-                       </label>
-
-                       <input
-                         id="scholar-livestream-translations"
-                         type="text"
-                         value={
-                           livestreamTranslationLanguages
-                         }
-                         onChange={(event) =>
-                           setLivestreamTranslationLanguages(
-                             event.target.value
-                           )
-                         }
-                         placeholder="en, yo, ha, fr"
-                         className="mt-2 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
-                       />
-
-                       <p className="mt-1 text-xs text-muted-foreground">
-                         Separate multiple codes with commas.
-                       </p>
-                     </div>
-                   </div>
-
-                   <div>
-                     <label
-                       htmlFor="scholar-livestream-schedule"
-                       className="text-sm font-medium"
-                     >
-                       Schedule date and time
-                     </label>
-
-                     <input
-                       id="scholar-livestream-schedule"
-                       type="datetime-local"
-                       value={livestreamScheduledFor}
-                       onChange={(event) =>
-                         setLivestreamScheduledFor(
-                           event.target.value
-                         )
-                       }
-                       className="mt-2 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring"
-                     />
-
-                     <p className="mt-1 text-xs text-muted-foreground">
-                       Leave this empty to create the studio now
-                       and go live manually.
-                     </p>
-                   </div>
-
-                   <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-                     <Button
-                       type="button"
-                       variant="outline"
-                       disabled={creatingLivestream}
-                       onClick={resetLivestreamForm}
-                     >
-                       Cancel
-                     </Button>
-
-                     <Button
-                       type="button"
-                       disabled={creatingLivestream}
-                       onClick={() =>
-                         void handleCreateLivestream()
-                       }
-                     >
-                       {creatingLivestream ? (
-                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                       ) : livestreamScheduledFor ? (
-                         <CalendarDays className="mr-2 h-4 w-4" />
-                       ) : (
-                         <Radio className="mr-2 h-4 w-4" />
-                       )}
-
-                       {creatingLivestream
-                         ? "Creating…"
-                         : livestreamScheduledFor
-                           ? "Schedule Livestream"
-                           : "Create and Open Studio"}
-                     </Button>
-                   </div>
-                 </div>
-               )}
-             </div>
-           ) : (
-             <p className="py-3 text-sm text-muted-foreground">
-               This scholar does not currently have a live or
-               upcoming broadcast.
-             </p>
-           )}
-         </CardContent>
-       </Card>
-
-       <div className="grid gap-6 lg:grid-cols-3">
-         <Card className="lg:col-span-2 border-0 bg-transparent shadow-none">
-           <CardHeader>
-             <CardTitle>
-               {t("scholars.profilePage.biography", {
-                 defaultValue: "Biography",
-               })}
-             </CardTitle>
-           </CardHeader>
-
-           <CardContent>
-             <p className="whitespace-pre-wrap leading-7 text-muted-foreground">
-              {scholar.biography ||
-                t("scholars.profilePage.noBiography", {
-                  defaultValue: "No biography provided.",
-                })}
-             </p>
-           </CardContent>
-         </Card>
-
-         <Card className="border-0 bg-transparent shadow-none">
-           <CardHeader>
-             <CardTitle>
-               {t("scholars.profilePage.profileLinks", {
-                 defaultValue: "Profile Links",
-               })}
-             </CardTitle>
-           </CardHeader>
-
-           <CardContent className="space-y-3">
-             {scholar.website_url && (
-               <Button
-                 type="button"
-                 variant="outline"
-                 className="w-full justify-start"
-                 onClick={() =>
-                   openExternalLink(scholar.website_url!)
-                 }
-               >
-                 <Globe2 className="mr-2 h-4 w-4" />
-                 {t("scholars.profilePage.website", {
-                   defaultValue: "Website",
-                 })}
-                 <ExternalLink className="ml-auto h-4 w-4" />
-               </Button>
-             )}
-
-             {scholar.youtube_url && (
-               <Button
-                 type="button"
-                 variant="outline"
-                 className="w-full justify-start"
-                 onClick={() =>
-                   openExternalLink(scholar.youtube_url!)
-                 }
-               >
-                 <Youtube className="mr-2 h-4 w-4" />
-                 YouTube
-                 <ExternalLink className="ml-auto h-4 w-4" />
-               </Button>
-             )}
-
-             {scholar.facebook_url && (
-               <Button
-                 type="button"
-                 variant="outline"
-                 className="w-full justify-start"
-                 onClick={() =>
-                   openExternalLink(scholar.facebook_url!)
-                 }
-               >
-                 <Facebook className="mr-2 h-4 w-4" />
-                 Facebook
-                 <ExternalLink className="ml-auto h-4 w-4" />
-               </Button>
-             )}
-
-             {scholar.instagram_url && (
-               <Button
-                 type="button"
-                 variant="outline"
-                 className="w-full justify-start"
-                 onClick={() =>
-                   openExternalLink(scholar.instagram_url!)
-                 }
-               >
-                 <Instagram className="mr-2 h-4 w-4" />
-                 Instagram
-                 <ExternalLink className="ml-auto h-4 w-4" />
-               </Button>
-             )}
-
-             {!scholar.website_url &&
-               !scholar.youtube_url &&
-               !scholar.facebook_url &&
-               !scholar.instagram_url && (
-              <p className="text-sm text-muted-foreground">
-                {t("scholars.profilePage.noExternalLinks", {
-                  defaultValue: "No external links have been added.",
-                })}
-              </p>
-               )}
-           </CardContent>
-         </Card>
-       </div>
-
-       <div className="grid gap-6 md:grid-cols-2">
-         <Card className="border-0 bg-transparent shadow-none">
-           <CardHeader>
-             <CardTitle className="flex items-center gap-2">
-            <BookOpen className="h-5 w-5" />
-            {t("scholars.profilePage.specialties", {
-              defaultValue: "Specialties",
-            })}
-             </CardTitle>
-           </CardHeader>
-
-           <CardContent>
-             {scholar.specialties.length > 0 ? (
-               <div className="flex flex-wrap gap-2">
-                 {scholar.specialties.map((specialty) => (
-                   <Badge
-                     key={specialty}
-                     variant="secondary"
-                   >
-                     {specialty}
-                   </Badge>
-                 ))}
-               </div>
-             ) : (
-               <p className="text-sm text-muted-foreground">
-                 {t("scholars.profilePage.noSpecialtiesAdded", {
-                   defaultValue: "No specialties have been added.",
-                 })}
-               </p>
-             )}
-           </CardContent>
-         </Card>
-
-         <Card className="border-0 bg-transparent shadow-none">
-           <CardHeader>
-             <CardTitle className="flex items-center gap-2">
-               <Languages className="h-5 w-5" />
-               {t("scholars.profilePage.languages", {
-                 defaultValue: "Languages",
-               })}
-             </CardTitle>
-           </CardHeader>
-
-           <CardContent>
-             {scholar.languages.length > 0 ? (
-               <div className="flex flex-wrap gap-2">
-                 {scholar.languages.map((language) => (
-                   <Badge
-                     key={language}
-                     variant="outline"
-                   >
-                     {language}
-                   </Badge>
-                 ))}
-               </div>
-             ) : (
-               <p className="text-sm text-muted-foreground">
-                 {t("scholars.profilePage.noLanguagesAdded", {
-                   defaultValue: "No languages have been added.",
-                 })}
-               </p>
-             )}
-           </CardContent>
-         </Card>
-       </div>
-
-     <Tabs defaultValue="home" className="w-full">
-       <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="home">
-            {t("scholars.profilePage.home", {
-              defaultValue: "Home",
-            })}
-          </TabsTrigger>
-
-<TabsTrigger value="playlists">
-           {t("scholars.playlists.title", {
-             defaultValue: "Playlists",
-           })}
-         </TabsTrigger>
-        <TabsTrigger value="about">
-          {t("scholars.profilePage.about", {
-            defaultValue: "About",
-          })}
-        </TabsTrigger>
-       </TabsList>
-
-       <TabsContent value="home" className="mt-6 space-y-6">
-         <Card className="border-0 bg-transparent shadow-none">
-           <CardHeader>
-             <CardTitle className="flex items-center gap-2">
-            <Star className="h-5 w-5" />
-            {t("scholars.profilePage.featuredLectures", {
-              defaultValue: "Featured Lectures",
-            })}
-             </CardTitle>
-           </CardHeader>
-
-           <CardContent>
-             {lecturesLoading ? (
-               <p className="text-sm text-muted-foreground">
-                 {t("scholars.profilePage.loadingLectures", {
-                   defaultValue: "Loading lectures...",
-                 })}
-               </p>
-             ) : lectures.filter((lecture) => lecture.is_featured).length === 0 ? (
-               <div className="py-8 text-center">
-                 <BookOpen className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
-      <p className="font-medium">
-        {t("scholars.profilePage.noFeaturedLectures", {
-          defaultValue: "No featured lectures yet",
-        })}
-      </p>
-
-      <p className="mt-1 text-sm text-muted-foreground">
-        {t("scholars.profilePage.noFeaturedLecturesDescription", {
-          defaultValue:
-            "Featured lectures from this scholar will appear here.",
-        })}
-      </p>
-               </div>
-             ) : (
-               <div className="grid gap-4 sm:grid-cols-2">
-                 {lectures
-                   .filter((lecture) => lecture.is_featured)
-                   .map((lecture) => (
-                     <Card key={lecture.id} className="overflow-hidden">
-                       <div className="relative aspect-video bg-muted">
-                        {lecture.thumbnail_url ? (
-                          <img
-                            src={lecture.thumbnail_url}
-                            alt={lecture.title}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                       <video
-                         src={`${lecture.video_url}#t=0.1`}
-                         preload="auto"
-                         muted
-                         playsInline
-                         crossOrigin="anonymous"
-                         className="h-full w-full object-cover"
-                         onLoadedMetadata={(event) => {
-                           const video = event.currentTarget;
-
-                           if (video.duration > 0) {
-                             video.currentTime = Math.min(0.1, video.duration);
-                           }
-                         }}
-                       />
-                        )}
-                       </div>
-
-                       <CardContent className="space-y-2 p-4">
-                         <h3 className="font-semibold">{lecture.title}</h3>
-
-                         {lecture.description && (
-                           <p className="line-clamp-2 text-sm text-muted-foreground">
-                             {lecture.description}
-                           </p>
-                         )}
-
-                         <Button
-                           type="button"
-                           className="w-full"
-                           onClick={() =>
-                             navigate(
-                               `/scholars/${scholar.id}/lectures/${lecture.id}`
-                             )
-                           }
-                         >
-                           <Play className="mr-2 h-4 w-4" />
-                           {t("scholars.profilePage.watchLecture", {
-                             defaultValue: "Watch Lecture",
-                           })}
-                         </Button>
-                       </CardContent>
-                     </Card>
-                   ))}
-               </div>
-             )}
-           </CardContent>
-         </Card>
-
-         <Card className="border-0 bg-transparent shadow-none">
-           <CardHeader>
-             <CardTitle>
-               {t("scholars.profilePage.latestLectures", {
-                 defaultValue: "Latest Lectures",
-               })}
-             </CardTitle>
-           </CardHeader>
-
-           <CardContent>
-             {lecturesLoading ? (
-               <p className="text-sm text-muted-foreground">
-                 Loading lectures...
-               </p>
-             ) : lectures.length === 0 ? (
-               <div className="py-8 text-center">
-                 <BookOpen className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
-               <p className="font-medium">
-                 {t("scholars.profilePage.noPublishedLectures", {
-                   defaultValue: "No lectures published yet",
-                 })}
-               </p>
-
-               <p className="mt-1 text-sm text-muted-foreground">
-                 {t("scholars.profilePage.noPublishedLecturesDescription", {
-                   defaultValue:
-                     "Published lectures will appear on this channel.",
-                 })}
-               </p>
-               </div>
-             ) : (
-               <div className="grid gap-4 sm:grid-cols-2">
-                 {lectures.slice(0, 4).map((lecture) => (
-                   <Card key={lecture.id} className="overflow-hidden">
-                     <div className="relative aspect-video bg-muted">
-                       {lecture.thumbnail_url ? (
-                         <img
-                           src={lecture.thumbnail_url}
-                           alt={lecture.title}
-                           className="h-full w-full object-cover"
-                         />
-                       ) : (
-                         <video
-                           src={lecture.video_url}
-                           preload="metadata"
-                           muted
-                           playsInline
-                           className="h-full w-full object-cover"
-                         />
-                       )}
-                     </div>
-
-                     <CardContent className="space-y-2 p-4">
-                       <h3 className="font-semibold">{lecture.title}</h3>
-
-                       <div className="flex flex-wrap gap-2">
-                         {lecture.category && (
-                           <Badge variant="secondary">
-                             {lecture.category}
-                           </Badge>
-                         )}
-
-                         {lecture.language && (
-                           <Badge variant="outline">
-                             {lecture.language}
-                           </Badge>
-                         )}
-                       </div>
-
-                       <Button
-                         type="button"
-                         variant="outline"
-                         className="w-full"
-                        onClick={() =>
-                          navigate(
-                            `/scholars/${scholar.id}/lectures/${lecture.id}`
-                          )
-                        }
-                       >
-                         <Play className="mr-2 h-4 w-4" />
-                         {t("scholars.profilePage.watch", {
-                           defaultValue: "Watch",
-                         })}
-                       </Button>
-                     </CardContent>
-                   </Card>
-                 ))}
-               </div>
-             )}
-           </CardContent>
-         </Card>
-       </TabsContent>
-
-       <TabsContent value="lectures" className="mt-6">
-         <Card className="border-0 bg-transparent shadow-none">
-           <CardHeader>
-             <div className="flex items-center justify-between gap-4">
-
-
-
-   {user?.id === scholar.user_id && (
-     <div className="flex flex-wrap gap-2">
-       <Button
-         type="button"
-         variant="outline"
-         onClick={() =>
-           navigate(`/scholars/${scholar.id}/lectures`)
-         }
-       >
-         <BookOpen className="mr-2 h-4 w-4" />
-
-         {t("scholars.profile.manageLectures", {
-           defaultValue: "Manage Lectures",
-         })}
-       </Button>
-
-       <Button
-         type="button"
-         variant="outline"
-         className="border-amber-500 bg-amber-400 text-black hover:bg-amber-500 hover:text-black"
-         onClick={() =>
-           navigate(`/scholars/${scholar.id}/playlists/new`)
-         }
-       >
-         <Plus className="mr-2 h-4 w-4" />
-
-         {t("scholars.playlists.manage.create", {
-           defaultValue: "Create Playlist",
-         })}
-       </Button>
-
-       <Button
-         type="button"
-         onClick={() =>
-           navigate(`/scholars/${scholar.id}/lectures/new`)
-         }
-       >
-         <Plus className="mr-2 h-4 w-4" />
-
-         {t("scholars.profile.addLecture", {
-           defaultValue: "Add Lecture",
-         })}
-       </Button>
-     </div>
-   )}
-             </div>
-           </CardHeader>
-
-           <CardContent>
-             {lecturesLoading ? (
-               <p className="text-sm text-muted-foreground">
-                 Loading lectures...
-               </p>
-             ) : lectures.length === 0 ? (
-               <div className="py-10 text-center">
-                 <BookOpen className="mx-auto mb-3 h-12 w-12 text-muted-foreground" />
-    <p className="font-medium">
-      {t("scholars.profilePage.noLectures", {
-        defaultValue: "No lectures yet",
-      })}
-    </p>
-
-    <p className="mt-1 text-sm text-muted-foreground">
-      {t("scholars.profilePage.noLecturesDescription", {
-        defaultValue:
-          "This scholar has not published any lectures.",
-      })}
-    </p>
-               </div>
-             ) : (
-               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                 {lectures.map((lecture) => (
-                   <Card key={lecture.id} className="overflow-hidden">
-                     <div className="relative aspect-video bg-muted">
-                      {lecture.thumbnail_url ? (
-                        <img
-                          src={lecture.thumbnail_url}
-                          alt={lecture.title}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <video
-                          src={lecture.video_url}
-                          preload="metadata"
-                          muted
-                          playsInline
-                          className="h-full w-full object-cover"
-                        />
-                      )}
-                     </div>
-
-                     <CardContent className="space-y-3 p-4">
-                       <h3 className="font-semibold">{lecture.title}</h3>
-
-                       {lecture.description && (
-                         <p className="line-clamp-2 text-sm text-muted-foreground">
-                           {lecture.description}
-                         </p>
-                       )}
-
-                       <Button
-                         type="button"
-                         className="w-full"
-                         onClick={() =>
-                           navigate(
-                             `/scholars/${scholar.id}/lectures/${lecture.id}`
-                           )
-                         }
-                       >
-                         <Play className="mr-2 h-4 w-4" />
-                         Watch Lecture
-                       </Button>
-                     </CardContent>
-                   </Card>
-                 ))}
-               </div>
-             )}
-           </CardContent>
-         </Card>
-       </TabsContent>
-
-<TabsContent value="playlists" className="mt-6">
-  <Card className="border-0 bg-transparent shadow-none">
-    <CardHeader>
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <CardTitle>
-          {t("scholars.playlists.title", {
-            defaultValue: "Playlists",
-          })}
-        </CardTitle>
-
-        {user?.id === scholar.user_id && (
-          <Button
-            type="button"
-            className="border-amber-500 bg-amber-400 text-black hover:bg-amber-500 hover:text-black"
-            onClick={() =>
-              navigate(`/scholars/${scholar.id}/playlists/new`)
-            }
-          >
-            <Plus className="mr-2 h-4 w-4" />
-
-            {t("scholars.playlists.manage.create", {
-              defaultValue: "Create Playlist",
+  return (
+    <main className="min-h-screen bg-background">
+      <div className="mx-auto max-w-5xl space-y-6 px-4 py-6 pb-24 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between gap-3">
+          <Button type="button" variant="ghost" onClick={() => navigate(-1)}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            {t("back", {
+              defaultValue: "Back",
             })}
           </Button>
-        )}
-      </div>
-    </CardHeader>
 
-    <CardContent>
-      {playlistsLoading ? (
-        <p className="text-sm text-muted-foreground">
-          {t("scholars.playlists.profile.loading", {
-            defaultValue: "Loading playlists...",
-          })}
-        </p>
-      ) : playlists.length === 0 ? (
-        <div className="py-10 text-center">
-          <BookOpen className="mx-auto mb-3 h-12 w-12 text-muted-foreground" />
+          <div className="flex flex-wrap items-center gap-2">
+            {user?.id === scholar.user_id && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate("/apply-scholar")}
+              >
+                <Pencil className="mr-2 h-4 w-4" />
+                {t("scholars.profilePage.editProfile", {
+                  defaultValue: "Edit Profile",
+                })}
+              </Button>
+            )}
 
-          <p className="font-medium">
-            {t("scholars.playlists.profile.emptyTitle", {
-              defaultValue: "No playlists yet",
-            })}
-          </p>
-
-          <p className="mt-1 text-sm text-muted-foreground">
-            {t("scholars.playlists.profile.emptyDescription", {
-              defaultValue: "Scholar playlists will appear here.",
-            })}
-          </p>
+            <Button type="button" variant="outline" onClick={handleShare}>
+              <Share2 className="mr-2 h-4 w-4" />
+              {t("scholars.profilePage.share", {
+                defaultValue: "Share",
+              })}
+            </Button>
+          </div>
         </div>
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
-          {playlists.map((playlist) => (
-            <Card
-              key={playlist.id}
-              className="overflow-hidden"
-            >
-              <div className="relative aspect-video bg-muted">
-                {playlist.thumbnail_url ? (
-                  <img
-                    src={playlist.thumbnail_url}
-                    alt={playlist.title}
-                    className="h-full w-full object-cover"
-                  />
-                ) : playlist.first_lecture_thumbnail ? (
-                  <img
-                    src={playlist.first_lecture_thumbnail}
-                    alt={playlist.title}
-                    className="h-full w-full object-cover"
-                  />
-                ) : playlist.first_lecture_video ? (
-                  <video
-                    src={playlist.first_lecture_video}
-                    preload="metadata"
-                    muted
-                    playsInline
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="flex h-full items-center justify-center">
-                    <BookOpen className="h-12 w-12 text-muted-foreground" />
+
+        <Card className="border-0 bg-transparent shadow-none">
+          <CardContent className="p-6 sm:p-8">
+            <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
+              <Avatar className="h-28 w-28">
+                <AvatarImage
+                  src={scholar.avatar_url ?? undefined}
+                  alt={scholar.display_name}
+                />
+
+                <AvatarFallback className="text-2xl">
+                  {getInitials(scholar.display_name)}
+                </AvatarFallback>
+              </Avatar>
+
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h1 className="text-2xl font-bold sm:text-3xl">
+                    {scholar.display_name}
+                  </h1>
+
+                  <BadgeCheck className="h-6 w-6 shrink-0 text-primary" />
+                </div>
+
+                {scholar.is_featured && (
+                  <Badge className="mt-3">
+                    <Star className="mr-1 h-3 w-3" />
+                    {t("scholars.profilePage.featuredScholar", {
+                      defaultValue: "Featured Scholar",
+                    })}
+                  </Badge>
+                )}
+
+                {(scholar.city || scholar.country) && (
+                  <div className="mt-4 flex items-center gap-2 text-muted-foreground">
+                    <MapPin className="h-4 w-4 shrink-0" />
+
+                    <span>
+                      {[scholar.city, scholar.country]
+                        .filter(Boolean)
+                        .join(", ")}
+                    </span>
                   </div>
                 )}
 
-                <div className="absolute left-3 top-3">
-                  <Badge
-                    variant={
-                      playlist.is_published
-                        ? "default"
-                        : "secondary"
-                    }
-                  >
-                    {playlist.is_published
-                      ? t("scholars.playlists.published", {
-                          defaultValue: "Published",
-                        })
-                      : t("scholars.playlists.draft", {
-                          defaultValue: "Draft",
-                        })}
-                  </Badge>
-                </div>
-
-                <div className="absolute bottom-3 right-3 rounded-full bg-background/90 px-3 py-1 text-xs font-medium shadow">
-                  {t("scholars.playlists.lectureCount", {
-                    count: playlist.lecture_count,
-                    defaultValue:
-                      playlist.lecture_count === 1
-                        ? "{{count}} lecture"
-                        : "{{count}} lectures",
-                  })}
-                </div>
-              </div>
-
-              <CardContent className="space-y-3 p-4">
-                <h3 className="line-clamp-2 font-semibold">
-                  {playlist.title}
-                </h3>
-
-                {playlist.description && (
-                  <p className="line-clamp-2 text-sm text-muted-foreground">
-                    {playlist.description}
+                {scholar.username && (
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    @{scholar.username}
                   </p>
                 )}
 
+                <div className="mt-5 flex flex-wrap items-center gap-3">
+                  {user?.id !== scholar.user_id && (
+                    <Button
+                      type="button"
+                      onClick={handleFollowScholar}
+                      disabled={followLoading}
+                      variant={isFollowing ? "outline" : "default"}
+                    >
+                      {isFollowing ? (
+                        <UserCheck className="mr-2 h-4 w-4" />
+                      ) : (
+                        <UserPlus className="mr-2 h-4 w-4" />
+                      )}
+                      {followLoading
+                        ? t("scholars.profilePage.updating", {
+                            defaultValue: "Updating...",
+                          })
+                        : isFollowing
+                        ? t("scholars.profilePage.following", {
+                            defaultValue: "Following",
+                          })
+                        : t("scholars.profilePage.followScholar", {
+                            defaultValue: "Follow Scholar",
+                          })}
+                    </Button>
+                  )}
+
+                  <p className="text-sm text-muted-foreground">
+                    <span className="font-semibold text-foreground">
+                      {followerCount}
+                    </span>{" "}
+                    {t("scholars.profilePage.followerCount", {
+                      count: followerCount,
+                      defaultValue:
+                        followerCount === 1 ? "follower" : "followers",
+                    })}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="overflow-hidden border-primary/20">
+          <CardHeader className="pb-3">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Radio
+                    className={`h-5 w-5 ${
+                      activeLivestream?.status === "live"
+                        ? "animate-pulse text-red-600"
+                        : "text-primary"
+                    }`}
+                  />
+                  Scholar Livestream
+                </CardTitle>
+
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Live lectures hosted directly inside Tariq Islam.
+                </p>
+              </div>
+
+              {activeLivestream?.status === "live" && (
+                <Badge className="bg-red-600 text-white hover:bg-red-600">
+                  <Radio className="mr-1 h-3 w-3" />
+                  LIVE NOW
+                </Badge>
+              )}
+
+              {activeLivestream?.status === "upcoming" && (
+                <Badge variant="secondary">
+                  <CalendarDays className="mr-1 h-3 w-3" />
+                  UPCOMING
+                </Badge>
+              )}
+
+              {activeLivestream?.status === "draft" &&
+                user?.id === scholar.user_id && (
+                  <Badge variant="outline">DRAFT</Badge>
+                )}
+            </div>
+          </CardHeader>
+
+          <CardContent className="space-y-4">
+            {livestreamLoading ? (
+              <div className="flex items-center gap-2 py-4 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Loading livestream…
+              </div>
+            ) : activeLivestream ? (
+              <div className="rounded-xl border bg-muted/30 p-4">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <h3 className="text-lg font-semibold">
+                      {activeLivestream.title}
+                    </h3>
+
+                    {activeLivestream.description && (
+                      <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                        {activeLivestream.description}
+                      </p>
+                    )}
+
+                    {activeLivestream.scheduled_for && (
+                      <p className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
+                        <CalendarDays className="h-4 w-4" />
+                        {new Date(
+                          activeLivestream.scheduled_for
+                        ).toLocaleString()}
+                      </p>
+                    )}
+
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      Source: {activeLivestream.source_language.toUpperCase()}
+                      {" · "}
+                      Translation:{" "}
+                      {activeLivestream.translation_languages
+                        .map((language) => language.toUpperCase())
+                        .join(", ")}
+                    </p>
+                  </div>
+
+                  {user?.id === scholar.user_id ? (
+                    <Button
+                      type="button"
+                      className={
+                        activeLivestream.status === "live"
+                          ? "shrink-0 bg-red-600 hover:bg-red-700"
+                          : "shrink-0"
+                      }
+                      onClick={() => openLivestream(activeLivestream)}
+                    >
+                      <Radio className="mr-2 h-4 w-4" />
+                      {activeLivestream.status === "live"
+                        ? "Manage Live"
+                        : "Open Livestream Studio"}
+                    </Button>
+                  ) : activeLivestream.status === "live" ? (
+                    <Button
+                      type="button"
+                      className="shrink-0 bg-red-600 hover:bg-red-700"
+                      onClick={() => openLivestream(activeLivestream)}
+                    >
+                      <Play className="mr-2 h-4 w-4 fill-current" />
+                      Watch Live
+                    </Button>
+                  ) : activeLivestream.status === "upcoming" ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="shrink-0"
+                      onClick={() => openLivestream(activeLivestream)}
+                    >
+                      <CalendarDays className="mr-2 h-4 w-4" />
+                      Join Waiting Room
+                    </Button>
+                  ) : null}
+                </div>
+              </div>
+            ) : user?.id === scholar.user_id ? (
+              <div className="space-y-4">
+                {!livestreamFormOpen ? (
+                  <div className="flex flex-col gap-4 rounded-xl border border-dashed p-5 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <h3 className="font-semibold">
+                        Start a live scholar lecture
+                      </h3>
+
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        Create a private Daily room and broadcast directly from
+                        your camera and microphone.
+                      </p>
+                    </div>
+
+                    <Button
+                      type="button"
+                      onClick={() => setLivestreamFormOpen(true)}
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      Create Livestream
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-4 rounded-xl border p-4 sm:p-5">
+                    <div>
+                      <label
+                        htmlFor="scholar-livestream-title"
+                        className="text-sm font-medium"
+                      >
+                        Livestream title
+                      </label>
+
+                      <input
+                        id="scholar-livestream-title"
+                        type="text"
+                        value={livestreamTitle}
+                        onChange={(event) =>
+                          setLivestreamTitle(event.target.value)
+                        }
+                        placeholder="Example: Understanding Surah Al-Fatiha"
+                        maxLength={160}
+                        className="mt-2 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="scholar-livestream-description"
+                        className="text-sm font-medium"
+                      >
+                        Description
+                      </label>
+
+                      <textarea
+                        id="scholar-livestream-description"
+                        value={livestreamDescription}
+                        onChange={(event) =>
+                          setLivestreamDescription(event.target.value)
+                        }
+                        placeholder="Describe the live lecture."
+                        rows={4}
+                        className="mt-2 flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                      />
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div>
+                        <label
+                          htmlFor="scholar-livestream-source"
+                          className="text-sm font-medium"
+                        >
+                          Source language code
+                        </label>
+
+                        <input
+                          id="scholar-livestream-source"
+                          type="text"
+                          value={livestreamSourceLanguage}
+                          onChange={(event) =>
+                            setLivestreamSourceLanguage(event.target.value)
+                          }
+                          placeholder="ar"
+                          className="mt-2 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                        />
+                      </div>
+
+                      <div>
+                        <label
+                          htmlFor="scholar-livestream-translations"
+                          className="text-sm font-medium"
+                        >
+                          Translation language codes
+                        </label>
+
+                        <input
+                          id="scholar-livestream-translations"
+                          type="text"
+                          value={livestreamTranslationLanguages}
+                          onChange={(event) =>
+                            setLivestreamTranslationLanguages(
+                              event.target.value
+                            )
+                          }
+                          placeholder="en, yo, ha, fr"
+                          className="mt-2 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                        />
+
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Separate multiple codes with commas.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="scholar-livestream-schedule"
+                        className="text-sm font-medium"
+                      >
+                        Schedule date and time
+                      </label>
+
+                      <input
+                        id="scholar-livestream-schedule"
+                        type="datetime-local"
+                        value={livestreamScheduledFor}
+                        onChange={(event) =>
+                          setLivestreamScheduledFor(event.target.value)
+                        }
+                        className="mt-2 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring"
+                      />
+
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Leave this empty to create the studio now and go live
+                        manually.
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        disabled={creatingLivestream}
+                        onClick={resetLivestreamForm}
+                      >
+                        Cancel
+                      </Button>
+
+                      <Button
+                        type="button"
+                        disabled={creatingLivestream}
+                        onClick={() => void handleCreateLivestream()}
+                      >
+                        {creatingLivestream ? (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : livestreamScheduledFor ? (
+                          <CalendarDays className="mr-2 h-4 w-4" />
+                        ) : (
+                          <Radio className="mr-2 h-4 w-4" />
+                        )}
+
+                        {creatingLivestream
+                          ? "Creating…"
+                          : livestreamScheduledFor
+                          ? "Schedule Livestream"
+                          : "Create and Open Studio"}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="py-3 text-sm text-muted-foreground">
+                This scholar does not currently have a live or upcoming
+                broadcast.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        <div className="grid gap-6 lg:grid-cols-3">
+          <Card className="lg:col-span-2 border-0 bg-transparent shadow-none">
+            <CardHeader>
+              <CardTitle>
+                {t("scholars.profilePage.biography", {
+                  defaultValue: "Biography",
+                })}
+              </CardTitle>
+            </CardHeader>
+
+            <CardContent>
+              <p className="whitespace-pre-wrap leading-7 text-muted-foreground">
+                {scholar.biography ||
+                  t("scholars.profilePage.noBiography", {
+                    defaultValue: "No biography provided.",
+                  })}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 bg-transparent shadow-none">
+            <CardHeader>
+              <CardTitle>
+                {t("scholars.profilePage.profileLinks", {
+                  defaultValue: "Profile Links",
+                })}
+              </CardTitle>
+            </CardHeader>
+
+            <CardContent className="space-y-3">
+              {scholar.website_url && (
                 <Button
                   type="button"
-                  className="w-full"
-                  disabled={!playlist.is_published}
-                  onClick={() =>
-                    navigate(
-                      `/scholar-playlists/${playlist.id}`
-                    )
-                  }
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => openExternalLink(scholar.website_url!)}
                 >
-                  <Play className="mr-2 h-4 w-4" />
-
-                  {playlist.is_published
-                    ? t("scholars.playlists.profile.open", {
-                        defaultValue: "Open Playlist",
-                      })
-                    : t("scholars.playlists.profile.draftPlaylist", {
-                        defaultValue: "Draft Playlist",
-                      })}
+                  <Globe2 className="mr-2 h-4 w-4" />
+                  {t("scholars.profilePage.website", {
+                    defaultValue: "Website",
+                  })}
+                  <ExternalLink className="ml-auto h-4 w-4" />
                 </Button>
+              )}
+
+              {scholar.youtube_url && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => openExternalLink(scholar.youtube_url!)}
+                >
+                  <Youtube className="mr-2 h-4 w-4" />
+                  YouTube
+                  <ExternalLink className="ml-auto h-4 w-4" />
+                </Button>
+              )}
+
+              {scholar.facebook_url && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => openExternalLink(scholar.facebook_url!)}
+                >
+                  <Facebook className="mr-2 h-4 w-4" />
+                  Facebook
+                  <ExternalLink className="ml-auto h-4 w-4" />
+                </Button>
+              )}
+
+              {scholar.instagram_url && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => openExternalLink(scholar.instagram_url!)}
+                >
+                  <Instagram className="mr-2 h-4 w-4" />
+                  Instagram
+                  <ExternalLink className="ml-auto h-4 w-4" />
+                </Button>
+              )}
+
+              {!scholar.website_url &&
+                !scholar.youtube_url &&
+                !scholar.facebook_url &&
+                !scholar.instagram_url && (
+                  <p className="text-sm text-muted-foreground">
+                    {t("scholars.profilePage.noExternalLinks", {
+                      defaultValue: "No external links have been added.",
+                    })}
+                  </p>
+                )}
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2">
+          <Card className="border-0 bg-transparent shadow-none">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BookOpen className="h-5 w-5" />
+                {t("scholars.profilePage.specialties", {
+                  defaultValue: "Specialties",
+                })}
+              </CardTitle>
+            </CardHeader>
+
+            <CardContent>
+              {scholar.specialties.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {scholar.specialties.map((specialty) => (
+                    <Badge key={specialty} variant="secondary">
+                      {specialty}
+                    </Badge>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  {t("scholars.profilePage.noSpecialtiesAdded", {
+                    defaultValue: "No specialties have been added.",
+                  })}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 bg-transparent shadow-none">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Languages className="h-5 w-5" />
+                {t("scholars.profilePage.languages", {
+                  defaultValue: "Languages",
+                })}
+              </CardTitle>
+            </CardHeader>
+
+            <CardContent>
+              {scholar.languages.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {scholar.languages.map((language) => (
+                    <Badge key={language} variant="outline">
+                      {language}
+                    </Badge>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  {t("scholars.profilePage.noLanguagesAdded", {
+                    defaultValue: "No languages have been added.",
+                  })}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        <Tabs defaultValue="home" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="home">
+              {t("scholars.profilePage.home", {
+                defaultValue: "Home",
+              })}
+            </TabsTrigger>
+
+            <TabsTrigger value="playlists">
+              {t("scholars.playlists.title", {
+                defaultValue: "Playlists",
+              })}
+            </TabsTrigger>
+            <TabsTrigger value="about">
+              {t("scholars.profilePage.about", {
+                defaultValue: "About",
+              })}
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="home" className="mt-6 space-y-6">
+            <Card className="border-0 bg-transparent shadow-none">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Star className="h-5 w-5" />
+                  {t("scholars.profilePage.featuredLectures", {
+                    defaultValue: "Featured Lectures",
+                  })}
+                </CardTitle>
+              </CardHeader>
+
+              <CardContent>
+                {lecturesLoading ? (
+                  <p className="text-sm text-muted-foreground">
+                    {t("scholars.profilePage.loadingLectures", {
+                      defaultValue: "Loading lectures...",
+                    })}
+                  </p>
+                ) : lectures.filter((lecture) => lecture.is_featured).length ===
+                  0 ? (
+                  <div className="py-8 text-center">
+                    <BookOpen className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
+                    <p className="font-medium">
+                      {t("scholars.profilePage.noFeaturedLectures", {
+                        defaultValue: "No featured lectures yet",
+                      })}
+                    </p>
+
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {t("scholars.profilePage.noFeaturedLecturesDescription", {
+                        defaultValue:
+                          "Featured lectures from this scholar will appear here.",
+                      })}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {lectures
+                      .filter((lecture) => lecture.is_featured)
+                      .map((lecture) => (
+                        <Card key={lecture.id} className="overflow-hidden">
+                          <div className="relative aspect-video bg-muted">
+                            {lecture.thumbnail_url ? (
+                              <img
+                                src={lecture.thumbnail_url}
+                                alt={lecture.title}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <LectureThumbnail
+                                videoUrl={lecture.video_url}
+                                title={lecture.title}
+                              />
+                            )}
+                          </div>
+
+                          <CardContent className="space-y-2 p-4">
+                            <h3 className="font-semibold">{lecture.title}</h3>
+
+                            {lecture.description && (
+                              <p className="line-clamp-2 text-sm text-muted-foreground">
+                                {lecture.description}
+                              </p>
+                            )}
+
+                            <Button
+                              type="button"
+                              className="w-full"
+                              onClick={() =>
+                                navigate(
+                                  `/scholars/${scholar.id}/lectures/${lecture.id}`
+                                )
+                              }
+                            >
+                              <Play className="mr-2 h-4 w-4" />
+                              {t("scholars.profilePage.watchLecture", {
+                                defaultValue: "Watch Lecture",
+                              })}
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
-          ))}
-        </div>
-      )}
-    </CardContent>
-  </Card>
-</TabsContent>
-       <TabsContent value="about" className="mt-6">
-         <Card className="border-0 bg-transparent shadow-none">
-           <CardHeader>
-             <CardTitle>
-               {t("scholars.profilePage.aboutScholar", {
-                 defaultValue: "About This Scholar",
-               })}
-             </CardTitle>
-           </CardHeader>
 
-           <CardContent className="space-y-5">
-             <div>
-    <h3 className="mb-2 font-semibold">
-      {t("scholars.profilePage.biography", {
-        defaultValue: "Biography",
-      })}
-    </h3>
-               <p className="whitespace-pre-line text-muted-foreground">
-                 {scholar.biography ||
-                   t("scholars.profilePage.noBiography", {
-                     defaultValue: "No biography provided.",
-                   })}
-               </p>
-             </div>
+            <Card className="border-0 bg-transparent shadow-none">
+              <CardHeader>
+                <CardTitle>
+                  {t("scholars.profilePage.latestLectures", {
+                    defaultValue: "Latest Lectures",
+                  })}
+                </CardTitle>
+              </CardHeader>
 
-             <div>
-       <h3 className="mb-2 font-semibold">
-         {t("scholars.profilePage.specialties", {
-           defaultValue: "Specialties",
-         })}
-       </h3>
-               <div className="flex flex-wrap gap-2">
-                 {scholar.specialties?.length ? (
-                   scholar.specialties.map((specialty) => (
-                     <Badge key={specialty} variant="secondary">
-                       {specialty}
-                     </Badge>
-                   ))
-                 ) : (
-                   <p className="text-sm text-muted-foreground">
-                     {t("scholars.profilePage.noSpecialtiesListed", {
-                       defaultValue: "No specialties listed.",
-                     })}
-                   </p>
-                 )}
-               </div>
-             </div>
+              <CardContent>
+                {lecturesLoading ? (
+                  <p className="text-sm text-muted-foreground">
+                    Loading lectures...
+                  </p>
+                ) : lectures.length === 0 ? (
+                  <div className="py-8 text-center">
+                    <BookOpen className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
+                    <p className="font-medium">
+                      {t("scholars.profilePage.noPublishedLectures", {
+                        defaultValue: "No lectures published yet",
+                      })}
+                    </p>
 
-             <div>
- <h3 className="mb-2 font-semibold">
-   {t("scholars.profilePage.languages", {
-     defaultValue: "Languages",
-   })}
- </h3>
-               <div className="flex flex-wrap gap-2">
-                 {scholar.languages?.length ? (
-                   scholar.languages.map((language) => (
-                     <Badge key={language} variant="outline">
-                       {language}
-                     </Badge>
-                   ))
-                 ) : (
-                   <p className="text-sm text-muted-foreground">
-           {t("scholars.profilePage.noLanguagesListed", {
-             defaultValue: "No languages listed.",
-           })}
-                   </p>
-                 )}
-               </div>
-             </div>
-           </CardContent>
-         </Card>
-       </TabsContent>
-     </Tabs>
-     </div>
-   </main>
- );
- };
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {t(
+                        "scholars.profilePage.noPublishedLecturesDescription",
+                        {
+                          defaultValue:
+                            "Published lectures will appear on this channel.",
+                        }
+                      )}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {lectures.slice(0, 4).map((lecture) => (
+                      <Card key={lecture.id} className="overflow-hidden">
+                        <div className="relative aspect-video bg-muted">
+                          {lecture.thumbnail_url ? (
+                            <img
+                              src={lecture.thumbnail_url}
+                              alt={lecture.title}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <LectureThumbnail
+                              videoUrl={lecture.video_url}
+                              title={lecture.title}
+                            />
+                          )}
+                        </div>
 
- export default ScholarProfile;
+                        <CardContent className="space-y-2 p-4">
+                          <h3 className="font-semibold">{lecture.title}</h3>
+
+                          <div className="flex flex-wrap gap-2">
+                            {lecture.category && (
+                              <Badge variant="secondary">
+                                {lecture.category}
+                              </Badge>
+                            )}
+
+                            {lecture.language && (
+                              <Badge variant="outline">
+                                {lecture.language}
+                              </Badge>
+                            )}
+                          </div>
+
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="w-full"
+                            onClick={() =>
+                              navigate(
+                                `/scholars/${scholar.id}/lectures/${lecture.id}`
+                              )
+                            }
+                          >
+                            <Play className="mr-2 h-4 w-4" />
+                            {t("scholars.profilePage.watch", {
+                              defaultValue: "Watch",
+                            })}
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="lectures" className="mt-6">
+            <Card className="border-0 bg-transparent shadow-none">
+              <CardHeader>
+                <div className="flex items-center justify-between gap-4">
+                  {user?.id === scholar.user_id && (
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() =>
+                          navigate(`/scholars/${scholar.id}/lectures`)
+                        }
+                      >
+                        <BookOpen className="mr-2 h-4 w-4" />
+
+                        {t("scholars.profile.manageLectures", {
+                          defaultValue: "Manage Lectures",
+                        })}
+                      </Button>
+
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="border-amber-500 bg-amber-400 text-black hover:bg-amber-500 hover:text-black"
+                        onClick={() =>
+                          navigate(`/scholars/${scholar.id}/playlists/new`)
+                        }
+                      >
+                        <Plus className="mr-2 h-4 w-4" />
+
+                        {t("scholars.playlists.manage.create", {
+                          defaultValue: "Create Playlist",
+                        })}
+                      </Button>
+
+                      <Button
+                        type="button"
+                        onClick={() =>
+                          navigate(`/scholars/${scholar.id}/lectures/new`)
+                        }
+                      >
+                        <Plus className="mr-2 h-4 w-4" />
+
+                        {t("scholars.profile.addLecture", {
+                          defaultValue: "Add Lecture",
+                        })}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </CardHeader>
+
+              <CardContent>
+                {lecturesLoading ? (
+                  <p className="text-sm text-muted-foreground">
+                    Loading lectures...
+                  </p>
+                ) : lectures.length === 0 ? (
+                  <div className="py-10 text-center">
+                    <BookOpen className="mx-auto mb-3 h-12 w-12 text-muted-foreground" />
+                    <p className="font-medium">
+                      {t("scholars.profilePage.noLectures", {
+                        defaultValue: "No lectures yet",
+                      })}
+                    </p>
+
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {t("scholars.profilePage.noLecturesDescription", {
+                        defaultValue:
+                          "This scholar has not published any lectures.",
+                      })}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {lectures.map((lecture) => (
+                      <Card key={lecture.id} className="overflow-hidden">
+                        <div className="relative aspect-video bg-muted">
+                          {lecture.thumbnail_url ? (
+                            <img
+                              src={lecture.thumbnail_url}
+                              alt={lecture.title}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <LectureThumbnail
+                              videoUrl={lecture.video_url}
+                              title={lecture.title}
+                            />
+                          )}
+                        </div>
+
+                        <CardContent className="space-y-3 p-4">
+                          <h3 className="font-semibold">{lecture.title}</h3>
+
+                          {lecture.description && (
+                            <p className="line-clamp-2 text-sm text-muted-foreground">
+                              {lecture.description}
+                            </p>
+                          )}
+
+                          <Button
+                            type="button"
+                            className="w-full"
+                            onClick={() =>
+                              navigate(
+                                `/scholars/${scholar.id}/lectures/${lecture.id}`
+                              )
+                            }
+                          >
+                            <Play className="mr-2 h-4 w-4" />
+                            Watch Lecture
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="playlists" className="mt-6">
+            <Card className="border-0 bg-transparent shadow-none">
+              <CardHeader>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <CardTitle>
+                    {t("scholars.playlists.title", {
+                      defaultValue: "Playlists",
+                    })}
+                  </CardTitle>
+
+                  {user?.id === scholar.user_id && (
+                    <Button
+                      type="button"
+                      className="border-amber-500 bg-amber-400 text-black hover:bg-amber-500 hover:text-black"
+                      onClick={() =>
+                        navigate(`/scholars/${scholar.id}/playlists/new`)
+                      }
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+
+                      {t("scholars.playlists.manage.create", {
+                        defaultValue: "Create Playlist",
+                      })}
+                    </Button>
+                  )}
+                </div>
+              </CardHeader>
+
+              <CardContent>
+                {playlistsLoading ? (
+                  <p className="text-sm text-muted-foreground">
+                    {t("scholars.playlists.profile.loading", {
+                      defaultValue: "Loading playlists...",
+                    })}
+                  </p>
+                ) : playlists.length === 0 ? (
+                  <div className="py-10 text-center">
+                    <BookOpen className="mx-auto mb-3 h-12 w-12 text-muted-foreground" />
+
+                    <p className="font-medium">
+                      {t("scholars.playlists.profile.emptyTitle", {
+                        defaultValue: "No playlists yet",
+                      })}
+                    </p>
+
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {t("scholars.playlists.profile.emptyDescription", {
+                        defaultValue: "Scholar playlists will appear here.",
+                      })}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {playlists.map((playlist) => (
+                      <Card key={playlist.id} className="overflow-hidden">
+                        <div className="relative aspect-video bg-muted">
+                          {playlist.thumbnail_url ? (
+                            <img
+                              src={playlist.thumbnail_url}
+                              alt={playlist.title}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : playlist.first_lecture_thumbnail ? (
+                            <img
+                              src={playlist.first_lecture_thumbnail}
+                              alt={playlist.title}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <div className="relative flex h-full w-full items-center justify-center overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950">
+                              <div className="absolute inset-0 opacity-20">
+                                <div className="absolute -left-12 -top-12 h-40 w-40 rounded-full bg-emerald-400 blur-3xl" />
+                                <div className="absolute -bottom-16 -right-12 h-44 w-44 rounded-full bg-sky-500 blur-3xl" />
+                              </div>
+
+                              <div className="relative flex flex-col items-center gap-3 text-white">
+                                <div className="flex h-14 w-14 items-center justify-center rounded-full border border-white/25 bg-white/10 shadow-xl backdrop-blur">
+                                  <BookOpen className="h-6 w-6" />
+                                </div>
+
+                                <span className="max-w-[80%] truncate text-sm font-semibold">
+                                  {playlist.title}
+                                </span>
+                              </div>
+                            </div>
+                          )}
+
+                          <div className="absolute left-3 top-3">
+                            <Badge
+                              variant={
+                                playlist.is_published ? "default" : "secondary"
+                              }
+                            >
+                              {playlist.is_published
+                                ? t("scholars.playlists.published", {
+                                    defaultValue: "Published",
+                                  })
+                                : t("scholars.playlists.draft", {
+                                    defaultValue: "Draft",
+                                  })}
+                            </Badge>
+                          </div>
+
+                          <div className="absolute bottom-3 right-3 rounded-full bg-background/90 px-3 py-1 text-xs font-medium shadow">
+                            {t("scholars.playlists.lectureCount", {
+                              count: playlist.lecture_count,
+                              defaultValue:
+                                playlist.lecture_count === 1
+                                  ? "{{count}} lecture"
+                                  : "{{count}} lectures",
+                            })}
+                          </div>
+                        </div>
+
+                        <CardContent className="space-y-3 p-4">
+                          <h3 className="line-clamp-2 font-semibold">
+                            {playlist.title}
+                          </h3>
+
+                          {playlist.description && (
+                            <p className="line-clamp-2 text-sm text-muted-foreground">
+                              {playlist.description}
+                            </p>
+                          )}
+
+                          <Button
+                            type="button"
+                            className="w-full"
+                            disabled={!playlist.is_published}
+                            onClick={() =>
+                              navigate(`/scholar-playlists/${playlist.id}`)
+                            }
+                          >
+                            <Play className="mr-2 h-4 w-4" />
+
+                            {playlist.is_published
+                              ? t("scholars.playlists.profile.open", {
+                                  defaultValue: "Open Playlist",
+                                })
+                              : t("scholars.playlists.profile.draftPlaylist", {
+                                  defaultValue: "Draft Playlist",
+                                })}
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="about" className="mt-6">
+            <Card className="border-0 bg-transparent shadow-none">
+              <CardHeader>
+                <CardTitle>
+                  {t("scholars.profilePage.aboutScholar", {
+                    defaultValue: "About This Scholar",
+                  })}
+                </CardTitle>
+              </CardHeader>
+
+              <CardContent className="space-y-5">
+                <div>
+                  <h3 className="mb-2 font-semibold">
+                    {t("scholars.profilePage.biography", {
+                      defaultValue: "Biography",
+                    })}
+                  </h3>
+                  <p className="whitespace-pre-line text-muted-foreground">
+                    {scholar.biography ||
+                      t("scholars.profilePage.noBiography", {
+                        defaultValue: "No biography provided.",
+                      })}
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="mb-2 font-semibold">
+                    {t("scholars.profilePage.specialties", {
+                      defaultValue: "Specialties",
+                    })}
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {scholar.specialties?.length ? (
+                      scholar.specialties.map((specialty) => (
+                        <Badge key={specialty} variant="secondary">
+                          {specialty}
+                        </Badge>
+                      ))
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        {t("scholars.profilePage.noSpecialtiesListed", {
+                          defaultValue: "No specialties listed.",
+                        })}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="mb-2 font-semibold">
+                    {t("scholars.profilePage.languages", {
+                      defaultValue: "Languages",
+                    })}
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {scholar.languages?.length ? (
+                      scholar.languages.map((language) => (
+                        <Badge key={language} variant="outline">
+                          {language}
+                        </Badge>
+                      ))
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        {t("scholars.profilePage.noLanguagesListed", {
+                          defaultValue: "No languages listed.",
+                        })}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </main>
+  );
+};
+
+export default ScholarProfile;

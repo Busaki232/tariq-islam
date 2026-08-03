@@ -1,0 +1,1821 @@
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import DailyIframe, { type DailyCall } from "@daily-co/daily-js";
+import {
+  DailyAudio,
+  DailyProvider,
+  DailyVideo,
+  useActiveSpeakerId,
+  useDaily,
+  useDailyEvent,
+  useLocalSessionId,
+  useParticipantIds,
+} from "@daily-co/daily-react";
+import {
+  ArrowLeft,
+  Ban,
+  BadgeCheck,
+  Check,
+  Loader2,
+  Mic,
+  MicOff,
+  PhoneOff,
+  Radio,
+  User,
+  UserPlus,
+  Video,
+  VideoOff,
+  X,
+} from "lucide-react";
+
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+
+type LivestreamStatus = "draft" | "upcoming" | "live" | "ended" | "cancelled";
+
+type LivestreamRole = "broadcaster" | "guest" | "viewer";
+
+type JoinRequestStatus =
+  | "pending"
+  | "approved"
+  | "declined"
+  | "cancelled"
+  | "removed";
+
+type RequesterProfile = {
+  user_id: string;
+  full_name: string | null;
+  username: string | null;
+  avatar_url: string | null;
+  is_creator_verified: boolean;
+};
+
+type JoinRequestRecord = {
+  id: string;
+  livestream_id: string;
+  requester_id: string;
+  status: JoinRequestStatus;
+  requested_at: string;
+  responded_at: string | null;
+  responded_by: string | null;
+  approved_at: string | null;
+  removed_at: string | null;
+  created_at: string;
+  updated_at: string;
+  requester_profile?: RequesterProfile | null;
+};
+
+type LivestreamRecord = {
+  id: string;
+  scholar_id: string;
+  created_by: string;
+  title: string;
+  description: string | null;
+  daily_room_name: string | null;
+  daily_room_url: string | null;
+  source_language: string;
+  translation_languages: string[];
+  scheduled_for: string | null;
+  started_at: string | null;
+  ended_at: string | null;
+  status: LivestreamStatus;
+  created_at: string;
+};
+
+type ScholarRecord = {
+  id: string;
+  user_id: string;
+  display_name: string;
+  verification_status: string;
+  is_active: boolean;
+};
+
+type TokenResponse = {
+  roomUrl: string;
+  roomName: string;
+  token: string;
+  role: LivestreamRole;
+};
+
+type StreamContentProps = {
+  role: LivestreamRole;
+  title: string;
+  scholarName: string;
+  status: LivestreamStatus;
+  isOwner: boolean;
+  ownJoinRequest: JoinRequestRecord | null;
+  joinRequests: JoinRequestRecord[];
+  requestLoading: boolean;
+  guestEligible: boolean | null;
+  eligibilityLoading: boolean;
+  onRequestToJoin: () => Promise<void>;
+  onCancelRequest: () => Promise<void>;
+  onApproveRequest: (request: JoinRequestRecord) => Promise<void>;
+  onDeclineRequest: (request: JoinRequestRecord) => Promise<void>;
+  onRemoveGuest: (request: JoinRequestRecord) => Promise<void>;
+  onBlockViewer: (request: JoinRequestRecord) => Promise<void>;
+  onOpenVoiceSetup: () => void;
+  onLeave: () => void;
+  onStart: () => Promise<void>;
+  onEnd: () => Promise<void>;
+  statusLoading: boolean;
+};
+
+const StreamContent = ({
+  role,
+  title,
+  scholarName,
+  status,
+  isOwner,
+  ownJoinRequest,
+  joinRequests,
+  requestLoading,
+  guestEligible,
+  eligibilityLoading,
+  onRequestToJoin,
+  onCancelRequest,
+  onApproveRequest,
+  onDeclineRequest,
+  onRemoveGuest,
+  onBlockViewer,
+  onOpenVoiceSetup,
+  onLeave,
+  onStart,
+  onEnd,
+  statusLoading,
+}: StreamContentProps) => {
+  const daily = useDaily();
+  const localSessionId = useLocalSessionId();
+  const activeSpeakerId = useActiveSpeakerId();
+  const remoteParticipantIds = useParticipantIds({
+    filter: "remote",
+  });
+
+  const [joined, setJoined] = useState(false);
+  const [muted, setMuted] = useState(role === "viewer");
+  const [cameraOff, setCameraOff] = useState(role === "viewer");
+
+  const canPublishMedia = role === "broadcaster" || role === "guest";
+
+  useEffect(() => {
+    if (!daily) return;
+
+    try {
+      const meetingState = daily.meetingState();
+
+      if (meetingState === "joined-meeting") {
+        setJoined(true);
+      }
+    } catch (error) {
+      console.warn("[ScholarLivestream] Unable to read meeting state:", error);
+    }
+  }, [daily]);
+
+  useDailyEvent(
+    "joined-meeting",
+    useCallback(() => {
+      setJoined(true);
+    }, [])
+  );
+
+  useDailyEvent(
+    "left-meeting",
+    useCallback(() => {
+      setJoined(false);
+    }, [])
+  );
+
+  useDailyEvent(
+    "error",
+    useCallback((event: any) => {
+      console.error("[ScholarLivestream] Daily error:", event);
+    }, [])
+  );
+
+  const toggleMute = useCallback(() => {
+    if (!canPublishMedia) return;
+
+    const nextMuted = !muted;
+
+    try {
+      daily?.setLocalAudio(!nextMuted);
+    } catch (error) {
+      console.error("Unable to change microphone:", error);
+    }
+
+    setMuted(nextMuted);
+  }, [canPublishMedia, daily, muted]);
+
+  const toggleCamera = useCallback(() => {
+    if (!canPublishMedia) return;
+
+    const nextCameraOff = !cameraOff;
+
+    try {
+      daily?.setLocalVideo(!nextCameraOff);
+    } catch (error) {
+      console.error("Unable to change camera:", error);
+    }
+
+    setCameraOff(nextCameraOff);
+  }, [cameraOff, canPublishMedia, daily]);
+
+  const handleLeave = useCallback(() => {
+    try {
+      daily?.setLocalAudio(false);
+      daily?.setLocalVideo(false);
+    } catch {}
+
+    void daily?.leave();
+    onLeave();
+  }, [daily, onLeave]);
+
+  const broadcasterRemoteId =
+    role === "broadcaster" ? localSessionId : remoteParticipantIds[0] || null;
+
+  const guestRemoteIds =
+    role === "broadcaster"
+      ? remoteParticipantIds
+      : remoteParticipantIds.slice(1);
+
+  const viewerVideoId =
+    role === "broadcaster" ? localSessionId : broadcasterRemoteId;
+  const scholarIsSpeaking =
+    Boolean(viewerVideoId) && activeSpeakerId === viewerVideoId;
+
+  const pendingRequests = joinRequests.filter(
+    (request) => request.status === "pending"
+  );
+
+  const approvedGuestRequests = joinRequests.filter(
+    (request) => request.status === "approved"
+  );
+
+  const approvedGuestCount = approvedGuestRequests.length;
+  const guestSpacesFull = approvedGuestCount >= 6;
+
+  const getRequesterName = (request: JoinRequestRecord) => {
+    const profile = request.requester_profile;
+
+    return (
+      profile?.full_name?.trim() || profile?.username?.trim() || "App member"
+    );
+  };
+
+  const getRequesterInitials = (request: JoinRequestRecord) => {
+    const name = getRequesterName(request);
+
+    return name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part.charAt(0).toUpperCase())
+      .join("");
+  };
+
+  return (
+    <div className="relative h-full min-h-[100dvh] overflow-hidden bg-black">
+      <DailyAudio maxSpeakers={8} />
+
+      <div className="absolute inset-0 flex items-center justify-center overflow-hidden px-4 pb-48 pt-28">
+        <div className="relative flex h-full w-full max-w-3xl items-center justify-center">
+          {viewerVideoId ? (
+            <div
+              className={`relative aspect-square w-[min(78vw,68vh)] max-w-[620px] overflow-hidden rounded-full border-4 bg-neutral-950 transition-all duration-300 ease-out ${
+                scholarIsSpeaking
+                  ? "scale-[1.01] border-emerald-400 shadow-[0_0_45px_rgba(52,211,153,0.65)]"
+                  : "border-white/20 shadow-2xl shadow-black"
+              }`}
+            >
+              <DailyVideo
+                sessionId={viewerVideoId}
+                type="video"
+                automirror={role === "broadcaster"}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  backgroundColor: "black",
+                }}
+              />
+
+              {scholarIsSpeaking && (
+                <div className="pointer-events-none absolute right-[12%] top-[12%] z-10 flex h-9 w-9 animate-in items-center justify-center rounded-full border border-emerald-300/60 bg-emerald-500 text-white shadow-lg fade-in zoom-in-75 duration-200">
+                  <Mic className="h-4 w-4" />
+                </div>
+              )}
+
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-6 pb-8 pt-16 text-center">
+                <div className="flex items-center justify-center gap-1.5">
+                  <p className="truncate text-base font-semibold text-white">
+                    {scholarName}
+                  </p>
+
+                  <BadgeCheck
+                    className="h-4 w-4 shrink-0 text-sky-400"
+                    aria-label="Verified scholar"
+                  />
+                </div>
+
+                <p className="text-xs text-white/70">Verified Scholar</p>
+              </div>
+            </div>
+          ) : (
+            <div
+              className="aspect-square w-[min(78vw,68vh)] max-w-[620px]"
+              aria-hidden="true"
+            />
+          )}
+
+          {guestRemoteIds.slice(0, 6).map((sessionId, index) => {
+            const positions = [
+              "-top-2 left-1/2 -translate-x-1/2",
+              "right-0 top-1/4",
+              "bottom-2 right-[8%]",
+              "bottom-2 left-[8%]",
+              "left-0 top-1/4",
+              "left-1/2 top-[82%] -translate-x-1/2",
+            ];
+
+            const isSpeaking = activeSpeakerId === sessionId;
+
+            return (
+              <div
+                key={sessionId}
+                className={`absolute ${
+                  positions[index] || positions[positions.length - 1]
+                } h-20 w-20 animate-in overflow-hidden rounded-full border-4 bg-neutral-900 fade-in zoom-in-75 transition-all duration-300 ease-out sm:h-28 sm:w-28 ${
+                  isSpeaking
+                    ? "scale-110 border-emerald-400 shadow-[0_0_30px_rgba(52,211,153,0.8)]"
+                    : "scale-100 border-black shadow-xl"
+                }`}
+              >
+                <DailyVideo
+                  sessionId={sessionId}
+                  type="video"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
+
+                {isSpeaking && (
+                  <div className="pointer-events-none absolute bottom-1 right-1 flex h-7 w-7 items-center justify-center rounded-full border border-emerald-200/60 bg-emerald-500 text-white shadow-lg">
+                    <Mic className="h-3.5 w-3.5" />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+
+          {role === "guest" && localSessionId && (
+            <div
+              className={`absolute bottom-2 right-[8%] h-24 w-24 animate-in overflow-hidden rounded-full border-4 bg-neutral-900 fade-in zoom-in-75 transition-all duration-300 ease-out sm:h-32 sm:w-32 ${
+                activeSpeakerId === localSessionId
+                  ? "scale-110 border-emerald-300 shadow-[0_0_35px_rgba(52,211,153,0.85)]"
+                  : "scale-100 border-emerald-600 shadow-xl"
+              }`}
+            >
+              <DailyVideo
+                sessionId={localSessionId}
+                type="video"
+                automirror
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
+              />
+
+              {activeSpeakerId === localSessionId && (
+                <div className="pointer-events-none absolute bottom-2 right-2 flex h-8 w-8 items-center justify-center rounded-full border border-emerald-200/60 bg-emerald-500 text-white shadow-lg">
+                  <Mic className="h-4 w-4" />
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="absolute left-0 right-0 top-0 z-20 bg-gradient-to-b from-black/80 to-transparent p-4 pt-[max(1rem,env(safe-area-inset-top))]">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="mb-2 flex items-center gap-2">
+              {status === "live" && (
+                <Badge className="bg-red-600 text-white hover:bg-red-600">
+                  <Radio className="mr-1 h-3 w-3" />
+                  LIVE
+                </Badge>
+              )}
+
+              {status !== "live" && (
+                <Badge variant="secondary">{status.toUpperCase()}</Badge>
+              )}
+
+              <span className="flex items-center gap-1 text-xs text-white/80">
+                <User className="h-3.5 w-3.5" />
+                {remoteParticipantIds.length + (joined ? 1 : 0)}
+              </span>
+            </div>
+
+            <h1 className="line-clamp-2 text-lg font-semibold text-white">
+              {title}
+            </h1>
+
+            <div className="flex items-center gap-1.5 text-sm text-white/70">
+              <span className="truncate">{scholarName}</span>
+
+              <BadgeCheck
+                className="h-4 w-4 shrink-0 text-sky-400"
+                aria-label="Verified scholar"
+              />
+            </div>
+          </div>
+
+          <Button
+            type="button"
+            size="icon"
+            variant="secondary"
+            className="shrink-0 rounded-full"
+            onClick={handleLeave}
+            aria-label="Leave livestream"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+        </div>
+      </div>
+
+      <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/90 to-transparent px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-16">
+        {canPublishMedia ? (
+          <div className="flex flex-col items-center gap-4">
+            <div className="flex items-center justify-center gap-4">
+              <Button
+                type="button"
+                size="icon"
+                variant="outline"
+                className="h-14 w-14 rounded-full border-white/30 bg-black/40 text-white hover:bg-black/60 hover:text-white"
+                onClick={toggleMute}
+                aria-label={muted ? "Turn microphone on" : "Mute microphone"}
+              >
+                {muted ? (
+                  <MicOff className="h-6 w-6" />
+                ) : (
+                  <Mic className="h-6 w-6" />
+                )}
+              </Button>
+
+              <Button
+                type="button"
+                size="icon"
+                variant="outline"
+                className="h-14 w-14 rounded-full border-white/30 bg-black/40 text-white hover:bg-black/60 hover:text-white"
+                onClick={toggleCamera}
+                aria-label={cameraOff ? "Turn camera on" : "Turn camera off"}
+              >
+                {cameraOff ? (
+                  <VideoOff className="h-6 w-6" />
+                ) : (
+                  <Video className="h-6 w-6" />
+                )}
+              </Button>
+
+              <Button
+                type="button"
+                size="icon"
+                variant="destructive"
+                className="h-14 w-14 rounded-full"
+                disabled={role === "broadcaster" && statusLoading}
+                onClick={() => {
+                  if (role === "broadcaster") {
+                    void onEnd();
+                  } else {
+                    handleLeave();
+                  }
+                }}
+                aria-label={
+                  role === "guest" ? "Leave guest session" : "End livestream"
+                }
+              >
+                {role === "broadcaster" && statusLoading ? (
+                  <Loader2 className="h-6 w-6 animate-spin" />
+                ) : (
+                  <PhoneOff className="h-6 w-6" />
+                )}
+              </Button>
+            </div>
+
+            {role === "broadcaster" && (
+              <Button
+                type="button"
+                variant="outline"
+                className="h-11 w-full max-w-sm rounded-xl border-emerald-400/40 bg-emerald-950/50 text-emerald-100 hover:bg-emerald-900/70 hover:text-white"
+                onClick={onOpenVoiceSetup}
+              >
+                <Mic className="mr-2 h-4 w-4" />
+                Voice Translation
+              </Button>
+            )}
+
+            {role === "guest" && (
+              <p className="text-center text-sm text-emerald-300">
+                You are live with the scholar.
+              </p>
+            )}
+
+            {role === "broadcaster" &&
+            (status === "draft" || status === "upcoming") ? (
+              <Button
+                type="button"
+                className="w-full max-w-sm bg-red-600 hover:bg-red-700"
+                disabled={statusLoading}
+                onClick={() => void onStart()}
+              >
+                {statusLoading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Radio className="mr-2 h-4 w-4" />
+                )}
+                Go Live
+              </Button>
+            ) : role === "broadcaster" && status === "live" ? (
+              <Button
+                type="button"
+                variant="destructive"
+                className="h-11 w-full max-w-sm rounded-xl"
+                disabled={statusLoading}
+                onClick={() => void onEnd()}
+              >
+                {statusLoading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <PhoneOff className="mr-2 h-4 w-4" />
+                )}
+                End Livestream
+              </Button>
+            ) : null}
+
+            {role === "broadcaster" && pendingRequests.length > 0 && (
+              <div className="w-full max-w-sm rounded-2xl border border-white/15 bg-black/70 p-3 backdrop-blur">
+                <div className="mb-3 flex items-center justify-between">
+                  <p className="text-sm font-semibold text-white">
+                    Guest Requests
+                  </p>
+
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      variant={guestSpacesFull ? "destructive" : "secondary"}
+                    >
+                      {approvedGuestCount} of 6 filled
+                    </Badge>
+
+                    <Badge variant="secondary">
+                      {pendingRequests.length} pending
+                    </Badge>
+                  </div>
+                </div>
+
+                {guestSpacesFull && (
+                  <p className="mb-3 rounded-xl border border-amber-400/30 bg-amber-500/15 px-3 py-2 text-xs text-amber-100">
+                    All six guest spaces are currently filled. Remove a guest
+                    before approving another request.
+                  </p>
+                )}
+
+                <div className="space-y-2">
+                  {pendingRequests.map((request) => (
+                    <div
+                      key={request.id}
+                      className="flex items-center justify-between gap-3 rounded-xl bg-white/10 p-3"
+                    >
+                      <div className="flex min-w-0 items-center gap-2">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/15">
+                          {request.requester_profile?.avatar_url ? (
+                            <img
+                              src={request.requester_profile.avatar_url}
+                              alt={getRequesterName(request)}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <span className="text-xs font-semibold text-white">
+                              {getRequesterInitials(request)}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="min-w-0">
+                          <div className="flex min-w-0 items-center gap-1">
+                            <p className="truncate text-sm font-medium text-white">
+                              {getRequesterName(request)}
+                            </p>
+
+                            {request.requester_profile?.is_creator_verified && (
+                              <BadgeCheck
+                                className="h-3.5 w-3.5 shrink-0 text-sky-400"
+                                aria-label="Verified member"
+                              />
+                            )}
+                          </div>
+
+                          <p className="text-xs text-white/60">
+                            Wants to join the lecture
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex shrink-0 gap-2">
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="outline"
+                          className="h-9 w-9 rounded-full border-red-400/40 bg-red-950/50 text-red-200 hover:bg-red-900/70 hover:text-white"
+                          disabled={requestLoading}
+                          onClick={() => void onBlockViewer(request)}
+                          aria-label="Block viewer from joining live"
+                          title="Block viewer"
+                        >
+                          <Ban className="h-4 w-4" />
+                        </Button>
+
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="outline"
+                          className="h-9 w-9 rounded-full border-white/20 bg-black/30 text-white"
+                          disabled={requestLoading}
+                          onClick={() => void onDeclineRequest(request)}
+                          aria-label="Decline guest"
+                          title="Decline request"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+
+                        <Button
+                          type="button"
+                          size="icon"
+                          className="h-9 w-9 rounded-full bg-emerald-600 hover:bg-emerald-700"
+                          disabled={requestLoading || guestSpacesFull}
+                          onClick={() => void onApproveRequest(request)}
+                          aria-label={
+                            guestSpacesFull
+                              ? "All six guest spaces are filled"
+                              : "Approve guest"
+                          }
+                          title={
+                            guestSpacesFull
+                              ? "All six guest spaces are filled"
+                              : "Approve guest"
+                          }
+                        >
+                          <Check className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {role === "broadcaster" && approvedGuestRequests.length > 0 && (
+              <div className="w-full max-w-sm overflow-hidden rounded-2xl border border-white/15 bg-black/75 backdrop-blur">
+                <div className="flex items-center justify-between border-b border-white/10 px-3 py-2.5">
+                  <p className="text-sm font-semibold text-white">
+                    Active Guests
+                  </p>
+
+                  <Badge
+                    variant={guestSpacesFull ? "destructive" : "secondary"}
+                  >
+                    {approvedGuestCount} of 6
+                  </Badge>
+                </div>
+
+                <div className="max-h-52 divide-y divide-white/10 overflow-y-auto">
+                  {approvedGuestRequests.map((request, index) => (
+                    <div
+                      key={request.id}
+                      className="flex items-center gap-2 px-3 py-2.5"
+                    >
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/15">
+                        {request.requester_profile?.avatar_url ? (
+                          <img
+                            src={request.requester_profile.avatar_url}
+                            alt={getRequesterName(request)}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-xs font-semibold text-white">
+                            {getRequesterInitials(request)}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        <div className="flex min-w-0 items-center gap-1">
+                          <p className="truncate text-sm font-medium text-white">
+                            {getRequesterName(request)}
+                          </p>
+
+                          {request.requester_profile?.is_creator_verified && (
+                            <BadgeCheck
+                              className="h-3.5 w-3.5 shrink-0 text-sky-400"
+                              aria-label="Verified member"
+                            />
+                          )}
+                        </div>
+
+                        <p className="text-xs text-emerald-300">
+                          Live guest {index + 1}
+                        </p>
+                      </div>
+
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="outline"
+                        className="h-8 w-8 shrink-0 rounded-full border-white/20 bg-black/30 text-white hover:bg-white/15 hover:text-white"
+                        disabled={requestLoading}
+                        onClick={() => void onRemoveGuest(request)}
+                        aria-label={`Remove ${getRequesterName(request)}`}
+                        title="Remove guest"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="destructive"
+                        className="h-8 w-8 shrink-0 rounded-full"
+                        disabled={requestLoading}
+                        onClick={() => void onBlockViewer(request)}
+                        aria-label={`Block ${getRequesterName(request)}`}
+                        title="Block viewer"
+                      >
+                        <Ban className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="mx-auto flex w-full max-w-sm flex-col items-center gap-3">
+            <p className="text-center text-sm text-white/70">
+              {status === "live"
+                ? "You are watching and can participate in the discussion."
+                : "Waiting for the broadcast to begin."}
+            </p>
+
+            {status === "live" &&
+              !isOwner &&
+              !ownJoinRequest &&
+              eligibilityLoading && (
+                <div className="flex items-center gap-2 text-sm text-white/65">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Checking guest eligibility…
+                </div>
+              )}
+
+            {status === "live" &&
+              !isOwner &&
+              !ownJoinRequest &&
+              !eligibilityLoading &&
+              guestEligible === true && (
+                <Button
+                  type="button"
+                  className="w-full rounded-full bg-emerald-600 hover:bg-emerald-700"
+                  disabled={requestLoading}
+                  onClick={() => void onRequestToJoin()}
+                >
+                  {requestLoading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <UserPlus className="mr-2 h-4 w-4" />
+                  )}
+                  Request to Join Live
+                </Button>
+              )}
+
+            {status === "live" &&
+              !isOwner &&
+              !ownJoinRequest &&
+              !eligibilityLoading &&
+              guestEligible === false && (
+                <div className="w-full rounded-2xl border border-white/15 bg-white/10 p-3 text-center">
+                  <p className="text-sm font-medium text-white">
+                    Guest participation is available to established active
+                    members.
+                  </p>
+
+                  <p className="mt-1 text-xs leading-5 text-white/65">
+                    You can continue watching and commenting normally.
+                  </p>
+                </div>
+              )}
+
+            {ownJoinRequest?.status === "pending" && (
+              <div className="w-full rounded-2xl border border-amber-400/30 bg-amber-500/15 p-3 text-center">
+                <p className="text-sm font-medium text-amber-100">
+                  Waiting for the scholar’s approval
+                </p>
+
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="mt-1 text-white/80 hover:bg-white/10 hover:text-white"
+                  disabled={requestLoading}
+                  onClick={() => void onCancelRequest()}
+                >
+                  Cancel request
+                </Button>
+              </div>
+            )}
+
+            {ownJoinRequest?.status === "declined" && (
+              <p className="text-center text-sm text-white/65">
+                The scholar was unable to accept your request at this time. You
+                can continue watching and commenting.
+              </p>
+            )}
+
+            {ownJoinRequest?.status === "approved" && (
+              <div className="flex items-center gap-2 text-sm text-emerald-300">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Joining the scholar live…
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const ScholarLivestream = () => {
+  const navigate = useNavigate();
+  const { scholarId, livestreamId } = useParams<{
+    scholarId: string;
+    livestreamId: string;
+  }>();
+
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  const [livestream, setLivestream] = useState<LivestreamRecord | null>(null);
+  const [scholar, setScholar] = useState<ScholarRecord | null>(null);
+  const [tokenData, setTokenData] = useState<TokenResponse | null>(null);
+
+  const [loading, setLoading] = useState(true);
+  const [joining, setJoining] = useState(false);
+  const [statusLoading, setStatusLoading] = useState(false);
+  const [requestLoading, setRequestLoading] = useState(false);
+  const [guestEligible, setGuestEligible] = useState<boolean | null>(null);
+  const [eligibilityLoading, setEligibilityLoading] = useState(false);
+  const [ownJoinRequest, setOwnJoinRequest] =
+    useState<JoinRequestRecord | null>(null);
+  const [joinRequests, setJoinRequests] = useState<JoinRequestRecord[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  const [callObject, setCallObject] = useState<DailyCall | null>(null);
+
+  const callObjectRef = useRef<DailyCall | null>(null);
+
+  const isOwner =
+    Boolean(user?.id) &&
+    Boolean(scholar?.user_id) &&
+    user?.id === scholar?.user_id;
+
+  const leaveAndDestroy = useCallback(async () => {
+    const currentCall = callObjectRef.current;
+
+    callObjectRef.current = null;
+    setCallObject(null);
+
+    if (!currentCall) return;
+
+    try {
+      currentCall.setLocalAudio(false);
+      currentCall.setLocalVideo(false);
+    } catch {}
+
+    try {
+      await currentCall.leave();
+    } catch {}
+
+    try {
+      await currentCall.destroy();
+    } catch {}
+  }, []);
+
+  const loadGuestEligibility = useCallback(async () => {
+    if (!user?.id || isOwner) {
+      setGuestEligible(false);
+      setEligibilityLoading(false);
+      return;
+    }
+
+    try {
+      setEligibilityLoading(true);
+
+      const { data, error: eligibilityError } = await (supabase as any).rpc(
+        "is_regular_livestream_guest",
+        {
+          p_user_id: user.id,
+        }
+      );
+
+      if (eligibilityError) throw eligibilityError;
+
+      setGuestEligible(data === true);
+    } catch (eligibilityError) {
+      console.error(
+        "Unable to check livestream guest eligibility:",
+        eligibilityError
+      );
+
+      setGuestEligible(false);
+    } finally {
+      setEligibilityLoading(false);
+    }
+  }, [isOwner, user?.id]);
+
+  const loadJoinRequests = useCallback(async () => {
+    if (!livestreamId || !user?.id) {
+      setOwnJoinRequest(null);
+      setJoinRequests([]);
+      return;
+    }
+
+    try {
+      if (isOwner) {
+        const { data, error: requestError } = await supabase
+          .from("scholar_livestream_join_requests")
+          .select("*")
+          .eq("livestream_id", livestreamId)
+          .in("status", ["pending", "approved"])
+          .order("requested_at", {
+            ascending: true,
+          });
+
+        if (requestError) throw requestError;
+
+        const requests = (data || []) as JoinRequestRecord[];
+        const requesterIds = Array.from(
+          new Set(requests.map((request) => request.requester_id))
+        );
+
+        let profilesByUserId = new Map<string, RequesterProfile>();
+
+        if (requesterIds.length > 0) {
+          const { data: profileData, error: profileError } = await supabase
+            .from("profiles")
+            .select(
+              "user_id, full_name, username, avatar_url, is_creator_verified"
+            )
+            .in("user_id", requesterIds);
+
+          if (profileError) {
+            console.error(
+              "Unable to load livestream requester profiles:",
+              profileError
+            );
+          } else {
+            profilesByUserId = new Map(
+              ((profileData || []) as RequesterProfile[]).map((profile) => [
+                profile.user_id,
+                profile,
+              ])
+            );
+          }
+        }
+
+        setJoinRequests(
+          requests.map((request) => ({
+            ...request,
+            requester_profile:
+              profilesByUserId.get(request.requester_id) || null,
+          }))
+        );
+      } else {
+        const { data, error: requestError } = await supabase
+          .from("scholar_livestream_join_requests")
+          .select("*")
+          .eq("livestream_id", livestreamId)
+          .eq("requester_id", user.id)
+          .maybeSingle();
+
+        if (requestError) throw requestError;
+
+        setOwnJoinRequest((data as JoinRequestRecord | null) || null);
+      }
+    } catch (requestError) {
+      console.error("Unable to load livestream join requests:", requestError);
+    }
+  }, [isOwner, livestreamId, user?.id]);
+
+  const requestToJoinLive = useCallback(async () => {
+    if (
+      !livestreamId ||
+      !user?.id ||
+      livestream?.status !== "live" ||
+      isOwner ||
+      guestEligible !== true
+    ) {
+      return;
+    }
+
+    try {
+      setRequestLoading(true);
+
+      const { data, error: requestError } = await supabase
+        .from("scholar_livestream_join_requests")
+        .insert({
+          livestream_id: livestreamId,
+          requester_id: user.id,
+          status: "pending",
+        })
+        .select("*")
+        .single();
+
+      if (requestError) throw requestError;
+
+      setOwnJoinRequest(data as JoinRequestRecord);
+
+      toast({
+        title: "Request sent",
+        description:
+          "The scholar will decide whether you can join the livestream.",
+      });
+    } catch (requestError) {
+      console.error("Unable to request livestream access:", requestError);
+
+      toast({
+        title: "Unable to send request",
+        description:
+          requestError instanceof Error
+            ? requestError.message
+            : "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setRequestLoading(false);
+    }
+  }, [
+    guestEligible,
+    isOwner,
+    livestream?.status,
+    livestreamId,
+    toast,
+    user?.id,
+  ]);
+
+  const cancelJoinRequest = useCallback(async () => {
+    if (!ownJoinRequest || ownJoinRequest.status !== "pending") {
+      return;
+    }
+
+    try {
+      setRequestLoading(true);
+
+      const { data, error: requestError } = await supabase
+        .from("scholar_livestream_join_requests")
+        .update({
+          status: "cancelled",
+        })
+        .eq("id", ownJoinRequest.id)
+        .eq("requester_id", user?.id)
+        .select("*")
+        .single();
+
+      if (requestError) throw requestError;
+
+      setOwnJoinRequest(data as JoinRequestRecord);
+    } catch (requestError) {
+      console.error("Unable to cancel join request:", requestError);
+
+      toast({
+        title: "Unable to cancel request",
+        description: "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setRequestLoading(false);
+    }
+  }, [ownJoinRequest, toast, user?.id]);
+
+  const blockLivestreamViewer = useCallback(
+    async (request: JoinRequestRecord) => {
+      if (!isOwner || !user?.id || !scholar?.id) {
+        return;
+      }
+
+      const confirmed = window.confirm(
+        "Block this viewer from requesting to join this scholar’s livestreams? They will still be able to watch and comment."
+      );
+
+      if (!confirmed) return;
+
+      try {
+        setRequestLoading(true);
+
+        const { error: blockError } = await (supabase as any)
+          .from("scholar_livestream_blocks")
+          .insert({
+            scholar_id: scholar.id,
+            blocked_user_id: request.requester_id,
+            blocked_by: user.id,
+            reason: "Blocked by scholar during livestream",
+          });
+
+        if (blockError) throw blockError;
+
+        setJoinRequests((current) =>
+          current.filter((item) => item.requester_id !== request.requester_id)
+        );
+
+        toast({
+          title: "Viewer blocked",
+          description:
+            "The viewer can no longer request to join your livestreams.",
+        });
+      } catch (blockError) {
+        console.error("Unable to block livestream viewer:", blockError);
+
+        toast({
+          title: "Unable to block viewer",
+          description:
+            blockError instanceof Error
+              ? blockError.message
+              : "Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setRequestLoading(false);
+      }
+    },
+    [isOwner, scholar?.id, toast, user?.id]
+  );
+
+  const manageJoinRequest = useCallback(
+    async (
+      request: JoinRequestRecord,
+      nextStatus: "approved" | "declined" | "removed"
+    ) => {
+      if (!isOwner || !user?.id) return;
+
+      try {
+        setRequestLoading(true);
+
+        if (nextStatus === "approved") {
+          const approvedGuestCount = joinRequests.filter(
+            (item) => item.status === "approved" && item.id !== request.id
+          ).length;
+
+          if (approvedGuestCount >= 6) {
+            toast({
+              title: "Guest spaces are full",
+              description:
+                "Remove one of the six active guests before approving another viewer.",
+              variant: "destructive",
+            });
+            return;
+          }
+        }
+
+        const now = new Date().toISOString();
+
+        const updates =
+          nextStatus === "approved"
+            ? {
+                status: "approved",
+                responded_at: now,
+                responded_by: user.id,
+                approved_at: now,
+                removed_at: null,
+              }
+            : nextStatus === "removed"
+            ? {
+                status: "removed",
+                responded_at: now,
+                responded_by: user.id,
+                removed_at: now,
+              }
+            : {
+                status: "declined",
+                responded_at: now,
+                responded_by: user.id,
+              };
+
+        const { data, error: requestError } = await supabase
+          .from("scholar_livestream_join_requests")
+          .update(updates)
+          .eq("id", request.id)
+          .select("*")
+          .single();
+
+        if (requestError) throw requestError;
+
+        const updated = data as JoinRequestRecord;
+
+        setJoinRequests((current) => {
+          const remaining = current.filter((item) => item.id !== updated.id);
+
+          if (updated.status === "pending" || updated.status === "approved") {
+            return [...remaining, updated];
+          }
+
+          return remaining;
+        });
+
+        toast({
+          title:
+            nextStatus === "approved"
+              ? "Guest approved"
+              : nextStatus === "removed"
+              ? "Guest removed"
+              : "Request declined",
+          description:
+            nextStatus === "approved"
+              ? "The viewer is joining the lecture."
+              : undefined,
+        });
+      } catch (requestError) {
+        console.error("Unable to manage join request:", requestError);
+
+        toast({
+          title: "Unable to update request",
+          description:
+            requestError instanceof Error
+              ? requestError.message
+              : "Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setRequestLoading(false);
+      }
+    },
+    [isOwner, joinRequests, toast, user?.id]
+  );
+
+  const loadLivestream = useCallback(async () => {
+    if (!livestreamId || !scholarId) {
+      setError("Livestream information is missing.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      const { data: streamData, error: streamError } = await supabase
+        .from("scholar_livestreams")
+        .select(
+          `
+              id,
+              scholar_id,
+              created_by,
+              title,
+              description,
+              daily_room_name,
+              daily_room_url,
+              source_language,
+              translation_languages,
+              scheduled_for,
+              started_at,
+              ended_at,
+              status,
+              created_at
+            `
+        )
+        .eq("id", livestreamId)
+        .eq("scholar_id", scholarId)
+        .maybeSingle();
+
+      if (streamError) throw streamError;
+
+      if (!streamData) {
+        setError("Livestream not found.");
+        return;
+      }
+
+      const { data: scholarData, error: scholarError } = await supabase
+        .from("scholar_profiles")
+        .select(
+          `
+              id,
+              user_id,
+              display_name,
+              verification_status,
+              is_active
+            `
+        )
+        .eq("id", scholarId)
+        .eq("verification_status", "approved")
+        .eq("is_active", true)
+        .maybeSingle();
+
+      if (scholarError) throw scholarError;
+
+      if (!scholarData) {
+        setError("Scholar profile not found.");
+        return;
+      }
+
+      setLivestream(streamData as LivestreamRecord);
+      setScholar(scholarData as ScholarRecord);
+    } catch (loadError) {
+      console.error("Unable to load livestream:", loadError);
+
+      setError("Unable to load this livestream.");
+    } finally {
+      setLoading(false);
+    }
+  }, [livestreamId, scholarId]);
+
+  useEffect(() => {
+    void loadLivestream();
+  }, [loadLivestream]);
+
+  useEffect(() => {
+    void loadJoinRequests();
+  }, [loadJoinRequests]);
+
+  useEffect(() => {
+    if (!livestreamId || !user?.id) return;
+
+    const requestChannel = supabase
+      .channel(`scholar_livestream_join_requests:${livestreamId}:${user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "scholar_livestream_join_requests",
+          filter: `livestream_id=eq.${livestreamId}`,
+        },
+        () => {
+          void loadJoinRequests();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(requestChannel);
+    };
+  }, [livestreamId, loadJoinRequests, user?.id]);
+
+  useEffect(() => {
+    if (!livestreamId) return;
+
+    const channel = supabase
+      .channel(`scholar_livestream:${livestreamId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "scholar_livestreams",
+          filter: `id=eq.${livestreamId}`,
+        },
+        (payload) => {
+          const updated = payload.new as LivestreamRecord;
+
+          setLivestream(updated);
+
+          if (updated.status === "ended" || updated.status === "cancelled") {
+            void (async () => {
+              await leaveAndDestroy();
+
+              toast({
+                title:
+                  updated.status === "ended"
+                    ? "Livestream ended"
+                    : "Livestream cancelled",
+                description: "Returning to the scholar profile.",
+              });
+
+              navigate(`/scholars/${scholarId}`, {
+                replace: true,
+              });
+            })();
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [leaveAndDestroy, livestreamId, navigate, scholarId, toast]);
+
+  useEffect(() => {
+    return () => {
+      void leaveAndDestroy();
+    };
+  }, [leaveAndDestroy]);
+
+  const joinLivestream = useCallback(
+    async (requestedRole: "viewer" | "guest" = "viewer") => {
+      if (
+        !livestreamId ||
+        !livestream ||
+        !scholar ||
+        joining ||
+        callObjectRef.current
+      ) {
+        return;
+      }
+
+      try {
+        setJoining(true);
+        setError(null);
+
+        const { data, error: functionError } = await supabase.functions.invoke(
+          "create-daily-livestream-token",
+          {
+            body: {
+              livestreamId,
+              requestedRole,
+            },
+          }
+        );
+
+        if (functionError) throw functionError;
+
+        const tokenResponse = data as TokenResponse;
+
+        if (!tokenResponse?.roomUrl || !tokenResponse?.token) {
+          throw new Error("The Daily room credentials were not returned.");
+        }
+
+        setTokenData(tokenResponse);
+
+        if (tokenResponse.role !== "viewer") {
+          const { ensureMediaPermissions } = await import(
+            "@/utils/permissions"
+          );
+
+          const permitted = await ensureMediaPermissions("video");
+
+          if (!permitted) {
+            throw new Error("Camera and microphone permission is required.");
+          }
+        }
+
+        const call = DailyIframe.createCallObject({
+          startAudioOff: tokenResponse.role === "viewer",
+          startVideoOff: tokenResponse.role === "viewer",
+        });
+
+        callObjectRef.current = call;
+        setCallObject(call);
+
+        call.on("joined-meeting", () => {
+          console.log("[ScholarLivestream] joined-meeting");
+        });
+
+        call.on("left-meeting", () => {
+          console.log("[ScholarLivestream] left-meeting");
+        });
+
+        call.on("error", (event: any) => {
+          console.error("[ScholarLivestream] Daily error:", event);
+        });
+
+        call.on("camera-error", (event: any) => {
+          console.error("[ScholarLivestream] Camera error:", event);
+        });
+
+        console.log("[ScholarLivestream] Starting Daily join", {
+          roomUrl: tokenResponse.roomUrl,
+          role: tokenResponse.role,
+          hasToken: Boolean(tokenResponse.token),
+        });
+
+        const joinResult = await Promise.race([
+          call.join({
+            url: tokenResponse.roomUrl,
+            token: tokenResponse.token,
+          }),
+          new Promise<never>((_, reject) => {
+            window.setTimeout(() => {
+              reject(new Error("Daily connection timed out after 20 seconds."));
+            }, 20000);
+          }),
+        ]);
+
+        console.log("[ScholarLivestream] Join result:", joinResult);
+
+        console.log("[ScholarLivestream] Meeting state:", call.meetingState());
+
+        if (call.meetingState() !== "joined-meeting") {
+          throw new Error(
+            `Daily did not join successfully. Current state: ${call.meetingState()}`
+          );
+        }
+
+        if (tokenResponse.role !== "viewer") {
+          try {
+            await call.setLocalAudio(true);
+            await call.setLocalVideo(true);
+          } catch (mediaError) {
+            console.error(
+              "[ScholarLivestream] Unable to enable media:",
+              mediaError
+            );
+
+            throw new Error(
+              "Unable to access the camera or microphone. Check the browser permissions."
+            );
+          }
+        } else {
+          await call.setLocalAudio(false);
+          await call.setLocalVideo(false);
+        }
+      } catch (joinError) {
+        console.error("[ScholarLivestream] Unable to join:", joinError);
+
+        await leaveAndDestroy();
+
+        const message =
+          joinError instanceof Error
+            ? joinError.message
+            : "Unable to join the livestream.";
+
+        setError(message);
+
+        toast({
+          title: "Unable to join livestream",
+          description: message,
+          variant: "destructive",
+        });
+      } finally {
+        setJoining(false);
+      }
+    },
+    [joining, leaveAndDestroy, livestream, livestreamId, scholar, toast]
+  );
+
+  useEffect(() => {
+    void loadGuestEligibility();
+  }, [loadGuestEligibility]);
+
+  useEffect(() => {
+    if (
+      ownJoinRequest?.status !== "approved" ||
+      tokenData?.role === "guest" ||
+      joining
+    ) {
+      return;
+    }
+
+    const promoteToGuest = async () => {
+      await leaveAndDestroy();
+      await joinLivestream("guest");
+    };
+
+    void promoteToGuest();
+  }, [
+    joinLivestream,
+    joining,
+    leaveAndDestroy,
+    ownJoinRequest?.status,
+    tokenData?.role,
+  ]);
+
+  useEffect(() => {
+    if (
+      tokenData?.role !== "guest" ||
+      ownJoinRequest?.status === "approved" ||
+      joining
+    ) {
+      return;
+    }
+
+    const returnToViewer = async () => {
+      await leaveAndDestroy();
+      await joinLivestream("viewer");
+
+      toast({
+        title: "Guest access ended",
+        description: "You have returned to watch-only mode.",
+      });
+    };
+
+    void returnToViewer();
+  }, [
+    joinLivestream,
+    joining,
+    leaveAndDestroy,
+    ownJoinRequest?.status,
+    toast,
+    tokenData?.role,
+  ]);
+
+  useEffect(() => {
+    if (loading || error || !livestream || !scholar || callObjectRef.current) {
+      return;
+    }
+
+    if (livestream.status === "ended" || livestream.status === "cancelled") {
+      return;
+    }
+
+    if (
+      !isOwner &&
+      livestream.status !== "live" &&
+      livestream.status !== "upcoming"
+    ) {
+      return;
+    }
+
+    void joinLivestream();
+  }, [error, isOwner, joinLivestream, livestream, loading, scholar]);
+
+  const updateStatus = useCallback(
+    async (action: "start" | "end") => {
+      if (!livestreamId) return;
+
+      try {
+        setStatusLoading(true);
+
+        const { data, error: functionError } = await supabase.functions.invoke(
+          "update-scholar-livestream-status",
+          {
+            body: {
+              livestreamId,
+              action,
+            },
+          }
+        );
+
+        if (functionError) throw functionError;
+
+        const updated = data?.livestream as LivestreamRecord | undefined;
+
+        if (action === "end") {
+          await leaveAndDestroy();
+        }
+
+        if (updated) {
+          setLivestream(updated);
+        }
+
+        toast({
+          title: action === "start" ? "You are live" : "Livestream ended",
+          description:
+            action === "start"
+              ? "Viewers can now watch your broadcast."
+              : "The broadcast has ended successfully.",
+        });
+
+        if (action === "end") {
+          navigate(`/scholars/${scholarId}`, { replace: true });
+        }
+      } catch (statusError) {
+        console.error("Unable to update livestream status:", statusError);
+
+        toast({
+          title:
+            action === "start"
+              ? "Unable to start livestream"
+              : "Unable to end livestream",
+          description:
+            statusError instanceof Error
+              ? statusError.message
+              : "Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setStatusLoading(false);
+      }
+    },
+    [leaveAndDestroy, livestreamId, navigate, scholarId, toast]
+  );
+
+  const handleLeave = useCallback(async () => {
+    await leaveAndDestroy();
+    navigate(`/scholars/${scholarId}`);
+  }, [leaveAndDestroy, navigate, scholarId]);
+
+  if (loading) {
+    return <div className="min-h-[100dvh] bg-black" aria-hidden="true" />;
+  }
+
+  if (error || !livestream || !scholar) {
+    return (
+      <div className="min-h-screen bg-background p-4">
+        <div className="mx-auto max-w-lg pt-12">
+          <Card>
+            <CardContent className="flex flex-col items-center gap-4 p-8 text-center">
+              <Radio className="h-12 w-12 text-muted-foreground" />
+
+              <div>
+                <h1 className="text-xl font-semibold">
+                  Livestream unavailable
+                </h1>
+
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {error || "This livestream could not be loaded."}
+                </p>
+              </div>
+
+              <Button
+                type="button"
+                onClick={() => navigate(`/scholars/${scholarId}`)}
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Scholar
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  if (
+    !isOwner &&
+    (livestream.status === "ended" ||
+      livestream.status === "cancelled" ||
+      livestream.status === "draft")
+  ) {
+    return (
+      <div className="min-h-screen bg-background p-4">
+        <div className="mx-auto max-w-lg pt-12">
+          <Card>
+            <CardContent className="flex flex-col items-center gap-4 p-8 text-center">
+              <Radio className="h-12 w-12 text-muted-foreground" />
+
+              <div>
+                <h1 className="text-xl font-semibold">
+                  {livestream.status === "ended"
+                    ? "Livestream ended"
+                    : "Livestream unavailable"}
+                </h1>
+
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {livestream.status === "ended"
+                    ? "This live lecture has already ended."
+                    : "This broadcast is not available yet."}
+                </p>
+              </div>
+
+              <Button
+                type="button"
+                onClick={() => navigate(`/scholars/${scholarId}`)}
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Scholar
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  if (!callObject || !tokenData) {
+    return <div className="min-h-[100dvh] bg-black" aria-hidden="true" />;
+  }
+
+  return (
+    <DailyProvider callObject={callObject}>
+      <StreamContent
+        role={tokenData.role}
+        title={livestream.title}
+        scholarName={scholar.display_name}
+        status={livestream.status}
+        isOwner={isOwner}
+        ownJoinRequest={ownJoinRequest}
+        joinRequests={joinRequests}
+        requestLoading={requestLoading}
+        guestEligible={guestEligible}
+        eligibilityLoading={eligibilityLoading}
+        onRequestToJoin={requestToJoinLive}
+        onCancelRequest={cancelJoinRequest}
+        onApproveRequest={(request) => manageJoinRequest(request, "approved")}
+        onDeclineRequest={(request) => manageJoinRequest(request, "declined")}
+        onRemoveGuest={(request) => manageJoinRequest(request, "removed")}
+        onBlockViewer={blockLivestreamViewer}
+        onOpenVoiceSetup={() =>
+          navigate(`/scholars/${scholarId}/voice-enrollment`)
+        }
+        onLeave={() => void handleLeave()}
+        onStart={() => updateStatus("start")}
+        onEnd={() => updateStatus("end")}
+        statusLoading={statusLoading}
+      />
+    </DailyProvider>
+  );
+};
+
+export default ScholarLivestream;

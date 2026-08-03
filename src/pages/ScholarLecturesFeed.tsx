@@ -8,6 +8,7 @@ import {
   ArrowLeft,
   BadgeCheck,
   BookOpen,
+  Bookmark,
   ChevronDown,
   ChevronUp,
   GripVertical,
@@ -154,6 +155,10 @@ const ScholarLecturesFeed = () => {
   const [likedLectureIds, setLikedLectureIds] =
     useState<string[]>([]);
   const [likingLectureIds, setLikingLectureIds] =
+    useState<string[]>([]);
+  const [savedLectureIds, setSavedLectureIds] =
+    useState<string[]>([]);
+  const [savingLectureIds, setSavingLectureIds] =
     useState<string[]>([]);
   const [commentCounts, setCommentCounts] =
     useState<Record<string, number>>({});
@@ -424,6 +429,34 @@ const ScholarLecturesFeed = () => {
   }, [user?.id]);
 
   useEffect(() => {
+    const loadSavedLectureIds = async () => {
+      if (!user?.id || lectures.length === 0) {
+        setSavedLectureIds([]);
+        return;
+      }
+
+      const lectureIds = lectures.map((lecture) => lecture.id);
+
+      const { data, error } = await supabase
+        .from("scholar_lecture_saves")
+        .select("lecture_id")
+        .eq("user_id", user.id)
+        .in("lecture_id", lectureIds);
+
+      if (error) {
+        console.error("Unable to load saved lectures:", error);
+        return;
+      }
+
+      setSavedLectureIds(
+        (data ?? []).map((row) => row.lecture_id)
+      );
+    };
+
+    void loadSavedLectureIds();
+  }, [lectures, user?.id]);
+
+  useEffect(() => {
     if (
       loading ||
       lectures.length === 0 ||
@@ -571,6 +604,90 @@ const ScholarLecturesFeed = () => {
     ) {
       event.currentTarget.releasePointerCapture(
         event.pointerId
+      );
+    }
+  };
+
+  const handleSave = async (lectureId: string) => {
+    if (!user?.id) {
+      navigate("/auth");
+      return;
+    }
+
+    if (savingLectureIds.includes(lectureId)) {
+      return;
+    }
+
+    const isSaved = savedLectureIds.includes(lectureId);
+
+    setSavingLectureIds((current) => [
+      ...current,
+      lectureId,
+    ]);
+
+    try {
+      if (isSaved) {
+        const { error } = await supabase
+          .from("scholar_lecture_saves")
+          .delete()
+          .eq("lecture_id", lectureId)
+          .eq("user_id", user.id);
+
+        if (error) {
+          throw error;
+        }
+
+        setSavedLectureIds((current) =>
+          current.filter((id) => id !== lectureId)
+        );
+
+        toast({
+          title: t("scholars.lectureViewer.removedFromSaved", {
+            defaultValue: "Removed from saved lectures",
+          }),
+        });
+      } else {
+        const { error } = await supabase
+          .from("scholar_lecture_saves")
+          .upsert(
+            {
+              lecture_id: lectureId,
+              user_id: user.id,
+            },
+            {
+              onConflict: "user_id,lecture_id",
+              ignoreDuplicates: true,
+            }
+          );
+
+        if (error) {
+          throw error;
+        }
+
+        setSavedLectureIds((current) =>
+          current.includes(lectureId)
+            ? current
+            : [...current, lectureId]
+        );
+
+        toast({
+          title: t("scholars.lectureViewer.saved", {
+            defaultValue: "Lecture saved",
+          }),
+        });
+      }
+    } catch (error) {
+      console.error("Unable to update saved lecture:", error);
+
+      toast({
+        title: t("scholars.lectureViewer.saveError", {
+          defaultValue: "Unable to save lecture",
+        }),
+        variant: "destructive",
+      });
+    } finally {
+      setSavingLectureIds((current) =>
+        current.filter((id) => id !== lectureId)
       );
     }
   };
@@ -999,6 +1116,10 @@ const ScholarLecturesFeed = () => {
               likedLectureIds.includes(lecture.id);
             const isLiking =
               likingLectureIds.includes(lecture.id);
+            const isSaved =
+              savedLectureIds.includes(lecture.id);
+            const isSaving =
+              savingLectureIds.includes(lecture.id);
             const location = [
               lecture.scholar_city,
               lecture.scholar_country,
@@ -1333,6 +1454,41 @@ const ScholarLecturesFeed = () => {
                       <MessageCircle className="h-6 w-6" />
                       <span className="text-xs font-bold">
                         {commentCounts[lecture.id] ?? 0}
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      disabled={isSaving}
+                      onClick={() =>
+                        void handleSave(lecture.id)
+                      }
+                      className="flex h-14 min-w-14 flex-col items-center justify-center rounded-full bg-black/65 px-2 text-white shadow-xl backdrop-blur-md"
+                      aria-label={
+                        isSaved
+                          ? t(
+                              "scholars.lectureViewer.unsave",
+                              { defaultValue: "Remove from saved" }
+                            )
+                          : t(
+                              "scholars.lectureViewer.save",
+                              { defaultValue: "Save lecture" }
+                            )
+                      }
+                    >
+                      {isSaving ? (
+                        <Loader2 className="h-6 w-6 animate-spin" />
+                      ) : (
+                        <Bookmark
+                          className={`h-6 w-6 ${
+                            isSaved
+                              ? "fill-yellow-400 text-yellow-400"
+                              : ""
+                          }`}
+                        />
+                      )}
+                      <span className="text-[10px] font-semibold">
+                        {isSaved ? "Saved" : "Save"}
                       </span>
                     </button>
 

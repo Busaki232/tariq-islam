@@ -5,6 +5,7 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import {
+  Bookmark,
   ChevronDown,
   ChevronUp,
   GripVertical,
@@ -146,6 +147,10 @@ export default function FeaturedReflection() {
   const [likedVideoKeys, setLikedVideoKeys] =
     useState<string[]>([]);
   const [likingVideoKeys, setLikingVideoKeys] =
+    useState<string[]>([]);
+  const [savedVideoKeys, setSavedVideoKeys] =
+    useState<string[]>([]);
+  const [savingVideoKeys, setSavingVideoKeys] =
     useState<string[]>([]);
   const [commentCounts, setCommentCounts] =
     useState<Record<string, number>>({});
@@ -800,6 +805,80 @@ export default function FeaturedReflection() {
     }
   };
 
+  useEffect(() => {
+    const loadSavedVideos = async () => {
+      if (!user?.id || videos.length === 0) {
+        setSavedVideoKeys([]);
+        return;
+      }
+
+      const reflectionIds = videos
+        .filter((video) => video.source === "reflection")
+        .map((video) => video.id);
+
+      const lectureIds = videos
+        .filter((video) => video.source === "scholar")
+        .map((video) => video.id);
+
+      const [reflectionSavesResult, lectureSavesResult] =
+        await Promise.all([
+          reflectionIds.length > 0
+            ? supabase
+                .from("reflection_saves")
+                .select("reflection_id")
+                .eq("user_id", user.id)
+                .in("reflection_id", reflectionIds)
+            : Promise.resolve({
+                data: [],
+                error: null,
+              }),
+          lectureIds.length > 0
+            ? supabase
+                .from("scholar_lecture_saves")
+                .select("lecture_id")
+                .eq("user_id", user.id)
+                .in("lecture_id", lectureIds)
+            : Promise.resolve({
+                data: [],
+                error: null,
+              }),
+        ]);
+
+      if (reflectionSavesResult.error) {
+        console.error(
+          "Unable to load saved reflections:",
+          reflectionSavesResult.error
+        );
+      }
+
+      if (lectureSavesResult.error) {
+        console.error(
+          "Unable to load saved scholar lectures:",
+          lectureSavesResult.error
+        );
+      }
+
+      const reflectionKeys = (
+        reflectionSavesResult.data ?? []
+      ).map(
+        (row) => `reflection:${row.reflection_id}`
+      );
+
+      const lectureKeys = (
+        lectureSavesResult.data ?? []
+      ).map(
+        (row) => `scholar:${row.lecture_id}`
+      );
+
+      setSavedVideoKeys([
+        ...reflectionKeys,
+        ...lectureKeys,
+      ]);
+    };
+
+    void loadSavedVideos();
+  }, [user?.id, videos]);
+
   const playNextVideo = (videoKey: string) => {
     const currentIndex = videos.findIndex(
       (video) => video.key === videoKey
@@ -818,6 +897,115 @@ export default function FeaturedReflection() {
         behavior: "smooth",
         block: "start",
       });
+  };
+
+  const handleSave = async (video: UnifiedVideo) => {
+    if (!user?.id) {
+      navigate("/auth");
+      return;
+    }
+
+    if (savingVideoKeys.includes(video.key)) {
+      return;
+    }
+
+    const isSaved = savedVideoKeys.includes(video.key);
+
+    setSavingVideoKeys((current) => [
+      ...current,
+      video.key,
+    ]);
+
+    try {
+      if (video.source === "reflection") {
+        if (isSaved) {
+          const { error } = await supabase
+            .from("reflection_saves")
+            .delete()
+            .eq("reflection_id", video.id)
+            .eq("user_id", user.id);
+
+          if (error) {
+            throw error;
+          }
+        } else {
+          const { error } = await supabase
+            .from("reflection_saves")
+            .upsert(
+              {
+                reflection_id: video.id,
+                user_id: user.id,
+              },
+              {
+                onConflict: "user_id,reflection_id",
+                ignoreDuplicates: true,
+              }
+            );
+
+          if (error) {
+            throw error;
+          }
+        }
+      } else if (isSaved) {
+        const { error } = await supabase
+          .from("scholar_lecture_saves")
+          .delete()
+          .eq("lecture_id", video.id)
+          .eq("user_id", user.id);
+
+        if (error) {
+          throw error;
+        }
+      } else {
+        const { error } = await supabase
+          .from("scholar_lecture_saves")
+          .upsert(
+            {
+              lecture_id: video.id,
+              user_id: user.id,
+            },
+            {
+              onConflict: "user_id,lecture_id",
+              ignoreDuplicates: true,
+            }
+          );
+
+        if (error) {
+          throw error;
+        }
+      }
+
+      setSavedVideoKeys((current) =>
+        isSaved
+          ? current.filter((key) => key !== video.key)
+          : current.includes(video.key)
+            ? current
+            : [...current, video.key]
+      );
+
+      toast({
+        title: isSaved
+          ? t("reflections.removedFromSaved", {
+              defaultValue: "Removed from saved",
+            })
+          : t("reflections.saved", {
+              defaultValue: "Video saved",
+            }),
+      });
+    } catch (error) {
+      console.error("Unable to update saved video:", error);
+
+      toast({
+        title: t("reflections.saveError", {
+          defaultValue: "Unable to save video",
+        }),
+        variant: "destructive",
+      });
+    } finally {
+      setSavingVideoKeys((current) =>
+        current.filter((key) => key !== video.key)
+      );
+    }
   };
 
   const handleLike = async (video: UnifiedVideo) => {
@@ -1037,8 +1225,10 @@ export default function FeaturedReflection() {
 
       setNewComment("");
       await loadComments(selectedCommentVideo);
-      setCommentsOpen(false);
-      setSelectedCommentVideo(null);
+
+      requestAnimationFrame(() => {
+        commentInputRef.current?.focus();
+      });
     } catch (error) {
       console.error("Unable to add comment:", error);
       toast({
@@ -1619,6 +1809,56 @@ export default function FeaturedReflection() {
                           <span className="text-xs font-bold">
                             {commentCounts[video.key] ??
                               0}
+                          </span>
+                        </button>
+
+                        <button
+                          type="button"
+                          disabled={savingVideoKeys.includes(
+                            video.key
+                          )}
+                          onClick={() =>
+                            void handleSave(video)
+                          }
+                          className="flex h-13 min-w-13 flex-col items-center justify-center rounded-full bg-black/65 px-2 py-2 text-white shadow-xl backdrop-blur-md"
+                          aria-label={
+                            savedVideoKeys.includes(video.key)
+                              ? t(
+                                  "reflections.removeFromSaved",
+                                  {
+                                    defaultValue:
+                                      "Remove from saved",
+                                  }
+                                )
+                              : t(
+                                  "reflections.save",
+                                  {
+                                    defaultValue:
+                                      "Save video",
+                                  }
+                                )
+                          }
+                        >
+                          {savingVideoKeys.includes(
+                            video.key
+                          ) ? (
+                            <Loader2 className="h-6 w-6 animate-spin" />
+                          ) : (
+                            <Bookmark
+                              className={`h-6 w-6 ${
+                                savedVideoKeys.includes(
+                                  video.key
+                                )
+                                  ? "fill-yellow-400 text-yellow-400"
+                                  : ""
+                              }`}
+                            />
+                          )}
+
+                          <span className="text-[10px] font-semibold">
+                            {savedVideoKeys.includes(video.key)
+                              ? "Saved"
+                              : "Save"}
                           </span>
                         </button>
 

@@ -261,11 +261,6 @@ const SavedScholarLectures = () => {
                         />
                       )}
 
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                        <div className="rounded-full bg-background/90 p-3">
-                          <Play className="h-5 w-5 fill-current" />
-                        </div>
-                      </div>
                     </div>
                   </button>
 

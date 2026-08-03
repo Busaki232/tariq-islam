@@ -4,7 +4,18 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
-	<key>CFBundleDisplayName</key>
+	<key>CFBundleURLTypes</key>
+        <array>
+                <dict>
+                        <key>CFBundleURLName</key>
+                        <string>com.tariqislam.app</string>
+                        <key>CFBundleURLSchemes</key>
+                        <array>
+                                <string>tariqislam</string>
+                        </array>
+                </dict>
+        </array>
+        <key>CFBundleDisplayName</key>
 	<string>Tariq Islam</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>

@@ -136,6 +136,16 @@ const HeroSection = () => {
                   "Your privacy and data are protected. We never share your information."
                 )}
               </p>
+
+              <Link
+                to="/auth"
+                className="mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-islamic-green px-6 py-3 text-base font-semibold text-white shadow-lg transition hover:bg-islamic-green/90"
+              >
+                {t(
+                  "home.loginToContinue",
+                  "Log in to continue"
+                )}
+              </Link>
             </div>
           </div>
         </div>
